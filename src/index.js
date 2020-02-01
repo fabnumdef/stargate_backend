@@ -12,14 +12,10 @@ import apolloServer from './apollo-server';
 const port = process.env.PORT || 3000;
 
 const app = new Koa();
-
 app.use(compression());
 
 apolloServer.applyMiddleware({ app, path: '/api' });
 
-const httpServer = createServer(app);
-apolloServer.installSubscriptionHandlers(httpServer);
-
-httpServer.listen(port);
+app.listen(port);
 
 debug(`GraphQL API running at http://localhost:${port}/api`);

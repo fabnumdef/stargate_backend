@@ -3,8 +3,8 @@ import { gql } from 'apollo-server-koa';
 module.exports = gql`
   interface Node {
     id: ID!
-    createdAt: Date!
-    updatedAt: Date
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type PageInfo {
