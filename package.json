@@ -20,6 +20,7 @@
   "homepage": "https://gitlab.com/fabnum-minarm/stargate/backend#readme",
   "dependencies": {
     "@babel/runtime": "^7.8.4",
+    "@koa/router": "^8.0.6",
     "apollo-server-koa": "^2.9.16",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
