@@ -16,7 +16,7 @@ COPY package*.json ./
 RUN npm install --unsafe-perm -g full-icu > /dev/null 2>&1
 ENV NODE_ICU_DATA="/usr/local/lib/node_modules/full-icu"
 
-RUN npm install --only=production
+RUN npm install
 
 FROM base
 
@@ -25,7 +25,6 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY . /usr/src/app/
-COPY ./config.json.dist ./config.json
 
 EXPOSE 3000
 EXPOSE 9091

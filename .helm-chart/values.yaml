@@ -1,0 +1,48 @@
+# Default values for node.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: registry.gitlab.com/fabnum-minarm/stargate/backend
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+
+
+imageCredentials:
+  name: name
+  registry: registry.gitlab.com
+  username: user
+  password: pass
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  host: localhost
+  issuer: letsencrypt-silentprod
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

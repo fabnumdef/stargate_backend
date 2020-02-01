@@ -1,4 +1,7 @@
-image: node:alpine
+stages:
+  - test
+  - build
+  - deploy
 
 include:
   - template: Dependency-Scanning.gitlab-ci.yml
@@ -6,6 +9,43 @@ include:
 
 variables:
   DS_DISABLE_DIND: "true"
+
+.deploy:
+  stage: deploy
+  image: dtzar/helm-kubectl:3.0.2
+  variables:
+    KUBECONFIG: /etc/deploy/config
+    K8S_CLUSTER_NAME: current
+  before_script:
+    - mkdir -p `dirname $KUBECONFIG`
+    - touch $KUBECONFIG
+    - kubectl config set-cluster ${K8S_CLUSTER_NAME} --server="${K8S_HOST}"
+    - kubectl config set clusters.${K8S_CLUSTER_NAME}.certificate-authority-data "${K8S_CA}"
+    - kubectl config set-credentials ${K8S_USER} --token="${K8S_TOKEN}"
+    - kubectl config set-context ${K8S_NAMESPACE} --cluster="${K8S_CLUSTER_NAME}" --user="${K8S_USER}" --namespace="${K8S_NAMESPACE}"
+    - kubectl config use-context ${K8S_NAMESPACE}
+  script:
+    - helm upgrade
+      --install
+      --namespace ${K8S_NAMESPACE}
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.enabled=true
+      --set ingress.host="${DEPLOYMENT_HOST}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --wait
+      ${HELM_NAME}
+      .helm-chart
+
+.node:
+  image: node:alpine
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  before_script:
+    - npm install
 
 retire-js-dependency_scanning:
   only:
@@ -20,30 +60,15 @@ license_management:
     changes:
       - package-lock.json
 
-stages:
-  - test
-  - build
-  - deploy
-
 lint:
   stage: test
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-  before_script:
-    - npm install
+  extends: .node
   script:
     - npm run lint
 
 test:
   stage: test
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-  before_script:
-    - npm install
+  extends: .node
   script:
     - npm run test
 
@@ -58,3 +83,29 @@ build:
       --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+deploy_review:
+  extends: .deploy
+  variables:
+    K8S_USER: ${K8S_DEV_USER}
+    K8S_TOKEN: ${K8S_DEV_TOKEN}
+    K8S_NAMESPACE: ${K8S_DEV_NAMESPACE}
+    DEPLOYMENT_HOST: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
+    HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
+  except:
+    refs:
+      - tags
+      - master
+      - develop
+
+deploy_staging:
+  extends: .deploy
+  variables:
+    K8S_USER: ${K8S_STAGING_USER}
+    K8S_TOKEN: ${K8S_STAGING_TOKEN}
+    K8S_NAMESPACE: ${K8S_STAGING_NAMESPACE}
+    DEPLOYMENT_HOST: ${STAGING_DOMAIN}
+    HELM_NAME: backend
+  only:
+    refs:
+      - develop
