@@ -1,0 +1,10 @@
+flow-typed
+# Variables
+.env
+# Lib
+node_modules
+# Build
+build
+# Others
+.DS_Store
+.vscode

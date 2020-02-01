@@ -1,0 +1,60 @@
+image: node:alpine
+
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Management.gitlab-ci.yml
+
+variables:
+  DS_DISABLE_DIND: "true"
+
+retire-js-dependency_scanning:
+  only:
+    changes:
+      - package-lock.json
+gemnasium-dependency_scanning:
+  only:
+    changes:
+      - package-lock.json
+license_management:
+  only:
+    changes:
+      - package-lock.json
+
+stages:
+  - test
+  - build
+  - deploy
+
+lint:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  before_script:
+    - npm install
+  script:
+    - npm run lint
+
+test:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  before_script:
+    - npm install
+  script:
+    - npm run test
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
