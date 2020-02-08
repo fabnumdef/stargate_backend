@@ -20,8 +20,8 @@
   "homepage": "https://gitlab.com/fabnum-minarm/stargate/backend#readme",
   "dependencies": {
     "@babel/runtime": "^7.8.4",
-    "@koa/router": "^8.0.6",
-    "apollo-server-koa": "^2.9.16",
+    "@koa/router": "^8.0.7",
+    "apollo-server-koa": "^2.10.0",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "graphql": "^14.6.0",
@@ -32,7 +32,8 @@
     "lodash": "^4.17.15",
     "pg": "^7.18.1",
     "pg-hstore": "^2.3.3",
-    "sequelize": "^5.21.3"
+    "prom-client": "^11.5.3",
+    "sequelize": "^5.21.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -44,7 +45,7 @@
     "apollo": "^2.22.0",
     "apollo-link": "^1.2.13",
     "apollo-link-http": "^1.5.16",
-    "apollo-server-testing": "^2.9.16",
+    "apollo-server-testing": "^2.10.0",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^25.1.0",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
