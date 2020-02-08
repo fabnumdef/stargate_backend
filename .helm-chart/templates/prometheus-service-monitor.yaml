@@ -19,7 +19,5 @@ spec:
       - "{{ $.Release.Namespace }}"
   selector:
     matchLabels:
-      app: {{ $name }}
-      release: "{{ .Release.Name }}"
-      heritage: "{{ .Release.Service }}"
+      {{- include "node.labels" . | nindent 6 }}
 {{- end}}

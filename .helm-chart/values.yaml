@@ -27,7 +27,6 @@ securityContext: {}
 
 
 imageCredentials:
-  name: name
   registry: registry.gitlab.com
   username: user
   password: pass

@@ -15,7 +15,7 @@ spec:
         {{- include "node.selectorLabels" . | nindent 8 }}
     spec:
       imagePullSecrets:
-        - name: {{ .Values.imageCredentials.name }}
+        - name: {{ include "node.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -27,6 +27,9 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.monitoring.exporter.port }}
               protocol: TCP
           livenessProbe:
             httpGet:

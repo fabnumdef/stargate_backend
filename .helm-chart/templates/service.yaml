@@ -11,5 +11,11 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+{{- if .Values.monitoring.exporter.enabled }}
+    - port: {{ .Values.monitoring.exporter.port }}
+      targetPort: {{ .Values.monitoring.exporter.port }}
+      protocol: TCP
+      name: metrics
+{{- end }}
   selector:
     {{- include "node.selectorLabels" . | nindent 4 }}
