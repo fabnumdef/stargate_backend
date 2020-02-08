@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ printf "%s-%s" $fullName "grafana-dashboard" | trunc 63 | trimSuffix "-" }}
+  namespace: monitoring
   labels:
     {{- include "node.labels" . | nindent 4 }}
 {{- if $.Values.monitoring.dashboard.sidecarLabel }}
@@ -18,7 +19,7 @@ data:
             "builtIn": 1,
             "datasource": "Prometheus",
             "enable": true,
-            "expr": "time() == BOOL timestamp(rate(kube_pod_container_status_restarts_total{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[2m]) > 0)",
+            "expr": "time() == BOOL timestamp(rate(kube_pod_container_status_restarts_total{job=\"kube-state-metrics\", namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[2m]) > 0)",
             "hide": false,
             "iconColor": "rgba(215, 44, 44, 1)",
             "limit": 100,
@@ -83,7 +84,7 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "ALERTS{deployment=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "ALERTS{deployment=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "legendFormat": "{{`{{alertname}} / Severity : {{severity}} / State : {{alertstate}}`}}",
             "refId": "A"
           }
@@ -172,7 +173,7 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "sum by(phase) (kube_pod_status_phase{namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"})",
+            "expr": "sum by(phase) (kube_pod_status_phase{namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\"})",
             "instant": false,
             "legendFormat": "{{`Status: {{phase}}`}}",
             "refId": "A"
@@ -272,14 +273,14 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "irate(process_cpu_user_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[2m]) * 100",
+            "expr": "irate(process_cpu_user_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[2m]) * 100",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`User CPU - {{job}} ({{instance}})`}}",
             "refId": "A"
           },
           {
-            "expr": "irate(process_cpu_system_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[2m]) * 100",
+            "expr": "irate(process_cpu_system_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[2m]) * 100",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Sys CPU - {{job}} ({{instance}})`}}",
@@ -393,7 +394,7 @@ data:
           "tableColumn": "",
           "targets": [
           {
-            "expr": "sum(nodejs_version_info{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}) by (version)",
+            "expr": "sum(nodejs_version_info{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}) by (version)",
             "legendFormat": "{{`{{version}}`}}",
             "refId": "A"
           }
@@ -478,7 +479,7 @@ data:
           "tableColumn": "",
           "targets": [
           {
-            "expr": "sum(changes(process_start_time_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m]))",
+            "expr": "sum(changes(process_start_time_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[1m]))",
             "refId": "A"
           }
           ],
@@ -635,7 +636,7 @@ data:
           "pluginVersion": "6.5.2",
           "targets": [
           {
-            "expr": "sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\", code=~\"^5..$\"}[1m])) /  sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) * 100",
+            "expr": "sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\", code=~\"^5..$\"}[1m])) /  sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[1m])) * 100",
             "instant": false,
             "intervalFactor": 2,
             "refId": "A"
@@ -692,28 +693,28 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "process_resident_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "process_resident_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Process Memory - {{instance}}`}}",
             "refId": "A"
           },
           {
-            "expr": "nodejs_heap_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_heap_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Heap Total - {{instance}}`}}",
             "refId": "B"
           },
           {
-            "expr": "nodejs_heap_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_heap_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Heap Used - {{instance}}`}}",
             "refId": "C"
           },
           {
-            "expr": "nodejs_external_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_external_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`External Memory - {{instance}}`}}",
@@ -805,7 +806,7 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "nodejs_eventloop_lag_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_eventloop_lag_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`{{job}} ({{instance}})`}}",
@@ -897,14 +898,14 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "nodejs_active_handles_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_active_handles_total{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Active Handler - {{instance}}`}}",
             "refId": "A"
           },
           {
-            "expr": "nodejs_active_requests_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "expr": "nodejs_active_requests_total{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{`Active Request - {{instance}}`}}",
@@ -1095,7 +1096,7 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "histogram_quantile(0.5, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) by (le, service, route, method))",
+            "expr": "histogram_quantile(0.5, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[1m])) by (le, service, route, method))",
             "legendFormat": "{{`{{service}} - {{method}} {{route}}`}}",
             "refId": "A"
           }
@@ -1182,7 +1183,7 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) by (le, service, route, method))",
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}[1m])) by (le, service, route, method))",
             "intervalFactor": 2,
             "legendFormat": "{{`{{service}} - {{method}} {{route}}`}}",
             "refId": "A"
@@ -1285,7 +1286,7 @@ data:
             "steppedLine": false,
             "targets": [
             {
-              "expr": "nodejs_heap_space_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "expr": "nodejs_heap_space_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{`Heap Total - {{instance}} - {{space}}`}}",
@@ -1378,7 +1379,7 @@ data:
             "steppedLine": false,
             "targets": [
             {
-              "expr": "nodejs_heap_space_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "expr": "nodejs_heap_space_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{`Heap Used - {{instance}} - {{space}}`}}",
@@ -1471,7 +1472,7 @@ data:
             "steppedLine": false,
             "targets": [
             {
-              "expr": "nodejs_heap_space_size_available_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "expr": "nodejs_heap_space_size_available_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Release.Namespace }}\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{`Heap Used - {{instance}} - {{space}}`}}",
@@ -1578,19 +1579,19 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "sum by (container) (irate(container_cpu_usage_seconds_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", image!=\"\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[4m]))",
+            "expr": "sum by (container) (irate(container_cpu_usage_seconds_total{job=\"kubelet\", namespace=\"{{ .Release.Namespace }}\", image!=\"\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[4m]))",
             "format": "time_series",
             "legendFormat": "{{`Current: {{ container }}`}}",
             "refId": "A"
           },
           {
-            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Release.Namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "format": "time_series",
             "legendFormat": "{{`Requested: {{ container }}`}}",
             "refId": "B"
           },
           {
-            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Release.Namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "legendFormat": "{{`Limit: {{ container }}`}}",
             "refId": "C"
           }
@@ -1677,24 +1678,24 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "sum by (container) (container_memory_usage_bytes{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by (container) (container_memory_usage_bytes{job=\"kubelet\", namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "format": "time_series",
             "legendFormat": "{{`Current: {{ container }}`}}",
             "refId": "A"
           },
           {
-            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Release.Namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "legendFormat": "{{`Requested: {{ container }}`}}",
             "refId": "B"
           },
           {
-            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Release.Namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "hide": false,
             "legendFormat": "{{`Limit: {{ container }}`}}",
             "refId": "C"
           },
           {
-            "expr": "sum by(container) (container_memory_cache{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "expr": "sum by(container) (container_memory_cache{job=\"kubelet\", namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
             "hide": false,
             "legendFormat": "{{`Cache: {{ container }}`}}",
             "refId": "D"
@@ -1782,13 +1783,13 @@ data:
           "steppedLine": false,
           "targets": [
           {
-            "expr": "sort_desc(sum by (container) (irate(container_network_receive_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
+            "expr": "sort_desc(sum by (container) (irate(container_network_receive_bytes_total{job=\"kubelet\", namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
             "format": "time_series",
             "legendFormat": "RX",
             "refId": "A"
           },
           {
-            "expr": "sort_desc(sum by (container) (irate(container_network_transmit_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
+            "expr": "sort_desc(sum by (container) (irate(container_network_transmit_bytes_total{job=\"kubelet\", namespace=\"{{ .Release.Namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
             "format": "time_series",
             "legendFormat": "TX",
             "refId": "B"
@@ -1861,7 +1862,7 @@ data:
             },
             "targets": [
             {
-              "expr": "{job=\"{{ .Values.namespace }}/{{ $fullName }}\"}",
+              "expr": "{job=\"{{ .Release.Namespace }}/{{ $fullName }}\"}",
               "refId": "A"
             }
             ],
