@@ -12,7 +12,7 @@ variables:
 
 .deploy:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.2
+  image: dtzar/helm-kubectl:3.0.3
   variables:
     KUBECONFIG: /etc/deploy/config
     K8S_CLUSTER_NAME: current
@@ -34,6 +34,7 @@ variables:
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
       --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --wait
       ${HELM_NAME}
       .helm-chart
