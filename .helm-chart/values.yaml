@@ -8,6 +8,14 @@ image:
   repository: registry.gitlab.com/fabnum-minarm/stargate/backend
   pullPolicy: Always
 
+monitoring:
+  exporter:
+    enabled: true
+    port: 9091
+  dashboard:
+    deploy: true
+    sidecarLabel: grafana-dashboard
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -19,7 +27,6 @@ securityContext: {}
 
 
 imageCredentials:
-  name: name
   registry: registry.gitlab.com
   username: user
   password: pass

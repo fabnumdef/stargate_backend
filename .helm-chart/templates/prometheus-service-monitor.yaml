@@ -1,0 +1,23 @@
+{{- if .Values.monitoring.exporter.enabled }}
+{{- $fullName := include "node.fullname" . -}}
+{{- $name := include "node.name" . -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app: {{ $name }}
+    heritage: {{ .Release.Service }}
+    release: prometheus
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+  jobLabel: {{ $fullName }}
+  namespaceSelector:
+    matchNames:
+      - "{{ $.Release.Namespace }}"
+  selector:
+    matchLabels:
+      {{- include "node.labels" . | nindent 6 }}
+{{- end}}
