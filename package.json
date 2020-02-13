@@ -24,7 +24,6 @@
     "apollo-server-koa": "^2.10.0",
     "graphql": "^14.6.0",
     "graphql-scalars": "^1.0.6",
-    "graphql-tools": "^4.0.6",
     "koa": "^2.11.0",
     "koa-compress": "^3.0.0",
     "koa-pino-logger": "^2.1.3",
@@ -32,7 +31,8 @@
     "mongoose": "^5.8.13",
     "nconf": "^0.10.0",
     "pino": "^5.16.0",
-    "prom-client": "^11.5.3"
+    "prom-client": "^11.5.3",
+    "readdir": "^1.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
