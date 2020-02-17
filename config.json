@@ -1,0 +1,15 @@
+{
+  "port": 3000,
+  "version": null,
+  "prometheus_exporter": 9091,
+  "token": {
+    "secret": "json web token secret",
+    "duration": 3600
+  },
+  "mongodb": "mongodb://localhost/stargate",
+  "website_url": "",
+  "mail": {
+    "whitelist_domains": [""]
+  },
+  "default_timezone": "Europe/Paris"
+}

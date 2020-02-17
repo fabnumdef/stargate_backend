@@ -1,0 +1,7 @@
+type Mutation {
+    placeholder: Boolean
+}
+
+type Query {
+    placeholder: Boolean
+}
