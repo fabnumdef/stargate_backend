@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import pino from 'pino';
 
 const log = pino();
+mongoose.plugin(updateIfCurrentPlugin, { strategy: 'timestamp' });
 
 const connect = async (config) => {
   try {

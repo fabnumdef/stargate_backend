@@ -1,0 +1,34 @@
+extend type Query {
+    listCampuses(cursor: OffsetCursor, filters: CampusFilters): CampusesList!
+    getCampus(id: String!): Campus
+}
+
+extend type Mutation {
+    createCampus(campus: CampusInput): Campus!
+    editCampus(id: String, campus: CampusInput): Campus!
+}
+
+type CampusesList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Campus]!
+}
+
+input CampusFilters {
+    name: String
+}
+
+input CampusInput {
+    id: String
+    name: String
+}
+
+type Campus implements Revisionnable {
+    # Unique id of the campus
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Name of the campus
+    name: String
+}
