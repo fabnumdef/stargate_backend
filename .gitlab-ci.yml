@@ -70,6 +70,10 @@ lint:
 test:
   stage: test
   extends: .node
+  services:
+    - mongo:latest
+  variables:
+    MONGODB: "mongodb://mongo/stargate"
   script:
     - npm run test
 

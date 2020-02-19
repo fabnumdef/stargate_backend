@@ -7,7 +7,7 @@ type Query {
 }
 
 # Ensure that entity return id and revision
-interface Revisionnable {
+interface Node {
     # Unique id of the ressource
     id: String!
     # Date of creation

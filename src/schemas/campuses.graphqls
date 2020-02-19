@@ -22,7 +22,7 @@ input CampusInput {
     name: String
 }
 
-type Campus implements Revisionnable {
+type Campus implements Node {
     # Unique id of the campus
     id: String!
     # Date of creation

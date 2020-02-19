@@ -4,11 +4,11 @@ interface OffsetPaginator {
 
 input OffsetCursor {
     offset: Int
-    limit: Int
+    first: Int
 }
 
 type OffsetPaginatorMeta {
     offset: Int!
-    limit: Int!
+    first: Int!
     total: Int!
 }

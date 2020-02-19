@@ -1,0 +1,51 @@
+extend type Query {
+    listUsers(cursor: OffsetCursor, filters: UserFilters): UsersList!
+    getUser(id: String!): User
+}
+
+extend type Mutation {
+    createUser(user: UserInput): User!
+    editUser(id: String!, user: UserInput): User!
+    login(email: EmailAddress!, password: String!): RequestableTokens
+}
+
+type RequestableTokens {
+    jwt: String
+}
+
+type UsersList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [User]!
+}
+
+input UserFilters {
+    firstname: String
+}
+
+input UserInput {
+    firstname: String
+    lastname: String
+    email: EmailAddress
+    password: String
+}
+
+type UserEmail {
+    original: EmailAddress
+    canonical: EmailAddress
+    confirmed: Boolean
+}
+
+type User implements Node {
+    # Unique id of the user
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Firstname of the user
+    firstname: String
+    # Lastname of the user
+    lastname: String
+    # Email, will be indexed
+    email: UserEmail
+}
