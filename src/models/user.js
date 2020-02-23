@@ -32,7 +32,12 @@ const UserSchema = new Schema({
   email: {
     original: {
       type: String,
+      match: new RegExp(
+          '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}'
+          + '[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
+      ),
       required: true,
+      maxlength: 256,
       validate: {
         validator(v) {
           return [].concat(whitelistedDomains).reduce((acc, cur) => acc || v.endsWith(cur), false);
