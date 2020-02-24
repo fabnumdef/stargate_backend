@@ -8,7 +8,9 @@
     "start": " NODE_ENV=production babel-node src/server.js",
     "test": "jest",
     "flow": "flow",
-    "lint": "eslint --ext .js src tests"
+    "fixtures:clear": "babel-node fixtures/clear.js",
+    "fixtures:load": "babel-node fixtures",
+    "lint": "eslint --ext .js src fixtures tests"
   },
   "repository": {
     "type": "git",
