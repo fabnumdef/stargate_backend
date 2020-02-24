@@ -1,3 +1,4 @@
+/* eslint-disable */ //this file will be removed in another branch, so we can just ignore new linting to prevent some conflicts
 import { HttpLink } from 'apollo-link-http';
 import Koa from 'koa';
 import { execute, toPromise } from 'apollo-link';

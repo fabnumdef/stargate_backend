@@ -1,10 +1,8 @@
-const { readSync, CASELESS_SORT } = require('readdir');
-import fs from 'fs';
+/* eslint-disable import/no-dynamic-require,global-require */
 import path from 'path';
 
-export default readSync(__dirname, ['**.js'], CASELESS_SORT)
-    .filter(f => f !== path.basename(__filename))
-    .map((fileName) => {
-        return require(path.join(__dirname, fileName));
-    });
+const { readSync, CASELESS_SORT } = require('readdir');
 
+export default readSync(__dirname, ['**.js'], CASELESS_SORT)
+  .filter((f) => f !== path.basename(__filename))
+  .map((fileName) => require(path.join(__dirname, fileName)));
