@@ -1,7 +1,12 @@
 import './configure';
 
 import { createTestClient } from 'apollo-server-testing';
+import { ApolloServer } from 'apollo-server-koa';
 export { gql } from 'apollo-server-koa'
-import server from '../../src/apollo-server';
+import server, { schema } from '../../src/apollo-server';
 
-export const { query } = createTestClient(server);
+export default (user) => createTestClient(new ApolloServer({
+    schema,
+    context: ({ctx}) => ({...ctx, user}),
+}));
+export const { query, mutate } = createTestClient(server);

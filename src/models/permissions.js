@@ -4,6 +4,7 @@ import { isAuthenticated, isSuperAdmin, allow } from "./rules";
 export default shield({
     Query: {
         listCampuses: isAuthenticated,
+        getCampus: isAuthenticated,
         '*': isSuperAdmin,
     },
     Mutation: {

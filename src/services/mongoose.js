@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
+import graphqlProjection from '../models/helpers/graphql-projection';
 import pino from 'pino';
 
 const log = pino();
-mongoose.plugin(updateIfCurrentPlugin, { strategy: 'timestamp' });
+mongoose.plugin(updateIfCurrentPlugin);
+mongoose.plugin(graphqlProjection);
 
 const connect = async (config) => {
   try {

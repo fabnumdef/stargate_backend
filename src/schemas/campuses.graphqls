@@ -4,8 +4,8 @@ extend type Query {
 }
 
 extend type Mutation {
-    createCampus(campus: CampusInput): Campus!
-    editCampus(id: String, campus: CampusInput): Campus!
+    createCampus(campus: CampusInput!): Campus!
+    editCampus(id: String!, campus: CampusInput!): Campus!
 }
 
 type CampusesList implements OffsetPaginator {
@@ -14,12 +14,12 @@ type CampusesList implements OffsetPaginator {
 }
 
 input CampusFilters {
-    name: String
+    label: String
 }
 
 input CampusInput {
-    id: String
-    name: String
+    id: String!
+    label: String!
 }
 
 type Campus implements Node {
@@ -29,6 +29,6 @@ type Campus implements Node {
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition
     updatedAt: DateTime!
-    # Name of the campus
-    name: String
+    # Label of the campus
+    label: String
 }

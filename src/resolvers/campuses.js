@@ -2,33 +2,32 @@ import Campus from '../models/campus';
 
 export const Mutation = {
     async createCampus(_, { campus }) {
-        // @todo test rights
         return Campus.create(campus);
     },
     async editCampus(_, { campus, id}) {
-        // @todo test rights
         const c = await Campus.findById(id);
         c.set(campus);
         return c.save();
     }
 };
 
+const MAX_REQUESTABLE_CAMPUSES = 30;
 export const Query = {
-    async listCampuses() {
-        // @todo handle offset position
-        // @todo handle filters
-        // @todo test rights
-        // @todo lazy loading fields in the find query
-        // @todo lazy triggering queries on demand
+    async listCampuses(_parent, {filters = {}, cursor: {offset = 0, first = MAX_REQUESTABLE_CAMPUSES} = {}}, _ctx, info) {
         return {
-            list: await Campus.find(),
-            meta: {
-                total: await Campus.count(),
-            }
+            filters,
+            cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_CAMPUSES) },
+            Model: Campus,
         };
     },
-    async getCampus(_, {id}) {
-        // @todo test rights
-        return Campus.findById(id);
+    async getCampus(_parent, {id}, _ctx, info) {
+        return Campus.findByIdWithProjection(id, info);
     }
-}
+};
+
+export const CampusesList = {
+    async list({filters, cursor: {offset, first} = {}}, _params, _ctx, info) {
+        return Campus.findWithProjection(filters, info).skip(offset).limit(first);
+    },
+    meta: (parent) => parent,
+};

@@ -1,0 +1,7 @@
+extend type Mutation {
+    login(email: EmailAddress!, password: String!): RequestableTokens
+}
+
+type RequestableTokens {
+    jwt: String
+}

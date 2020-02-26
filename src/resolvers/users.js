@@ -9,55 +9,29 @@ export const Mutation = {
     },
 
     async editUser(_, { user: data, id}) {
-        // @todo test rights
         const user = await User.findById(id);
         user.setFromGraphQLSchema(data);
         return user.save();
     },
-
-    async login(_, { email, password }) {
-        const user = await User.findByEmail(email);
-
-        if (!password) {
-            throw new Error('To generate a JWT, password is required.');
-        }
-
-        if (!user
-            || !(await user.comparePassword(password))
-        ) {
-            throw new Error(`Email "${email}" and password do not match.`);
-        }
-
-        if (user.hasPasswordExpired()) {
-            throw new Error('Password expired');
-        }
-
-        return {user};
-    }
 };
 
-export const RequestableTokens = {
-    async jwt({ user }) {
-        return user.emitJWT();
-    },
-};
-
+const MAX_REQUESTABLE_USERS = 30;
 export const Query = {
-    async listUsers() {
-        // @todo handle offset position
-        // @todo handle filters
-        // @todo test rights
-        // @todo lazy loading fields in the find query
-        // @todo lazy triggering queries on demand
+    async listUsers(_parent, {filters = {}, cursor: {offset = 0, first = MAX_REQUESTABLE_USERS} = {}}, _ctx, info) {
         return {
-            list: await User.find(),
-            meta: {
-                total: await User.count(),
-            }
+            filters,
+            cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_USERS) },
+            Model: User,
         };
     },
-    async getUser(_, { id }) {
-        // @todo test rights
-        return User.findById(id);
+    async getUser(_parent, {id}, _ctx, info) {
+        return User.findByIdWithProjection(id, info);
     }
 }
+
+export const UsersList = {
+    async list({filters, cursor: {offset, first} = {}}, _params, _ctx, info) {
+        return User.findWithProjection(filters, info).skip(offset).limit(first);
+    },
+    meta: (parent) => parent,
+};

@@ -6,11 +6,6 @@ extend type Query {
 extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
-    login(email: EmailAddress!, password: String!): RequestableTokens
-}
-
-type RequestableTokens {
-    jwt: String
 }
 
 type UsersList implements OffsetPaginator {
@@ -20,6 +15,8 @@ type UsersList implements OffsetPaginator {
 
 input UserFilters {
     firstname: String
+    lastname: String
+    email: EmailAddress
 }
 
 input UserInput {

@@ -8,7 +8,7 @@ const { Schema } = mongoose;
 
 const CampusSchema = new Schema({
   _id: { type: String, alias: 'id' },
-  name: { type: String, required: true },
+  label: { type: String, required: true },
   timezone: {
     type: String,
     default: process.env.TZ || DEFAULT_TIMEZONE,

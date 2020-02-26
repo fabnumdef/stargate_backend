@@ -77,6 +77,20 @@ const UserSchema = new Schema({
       },
     },
   },
+  roles: [{
+    _id: false,
+    role: { type: String, required: true },
+    campuses: [{
+      _id: { type: String, required: true },
+      label: { type: String, required: true },
+    }],
+    units: [
+      {
+        _id: { type: Schema.ObjectId, required: true },
+        label: { type: String, required: true },
+      }
+    ],
+  }],
 }, { timestamps: true });
 
 UserSchema.pre('validate', function preValidate() {

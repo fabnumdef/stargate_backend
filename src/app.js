@@ -1,6 +1,7 @@
 // @flow
 import Koa from 'koa';
 import compression from 'koa-compress';
+import jwt from 'koa-jwt';
 import apolloServer from './apollo-server';
 import config from './services/config';
 import routes from './routes';
@@ -17,8 +18,8 @@ if (exporterPort) {
 }
 app.use(pino);
 app.use(compression());
+app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app.use(routes);
-
 apolloServer.applyMiddleware({ app, path: '/api' });
 
 export default app;
