@@ -44,7 +44,7 @@ const UserSchema = new Schema({
       validate: {
         async validator(v) {
           if (![]
-            .concat(config.get('whitelist_domains'))
+            .concat(whitelistedDomains)
             .reduce((acc, cur) => acc || v.endsWith(cur), false)) {
             return false;
           }
