@@ -40,7 +40,7 @@ variables:
       .helm-chart
 
 .node:
-  image: node:alpine
+  image: node:latest
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
