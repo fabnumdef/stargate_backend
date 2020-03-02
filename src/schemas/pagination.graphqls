@@ -1,0 +1,14 @@
+interface OffsetPaginator {
+    meta: OffsetPaginatorMeta
+}
+
+input OffsetCursor {
+    offset: Int
+    first: Int
+}
+
+type OffsetPaginatorMeta {
+    offset: Int!
+    first: Int!
+    total: Int!
+}

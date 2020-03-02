@@ -5,3 +5,13 @@ type Mutation {
 type Query {
     placeholder: Boolean
 }
+
+# Ensure that entity return id and revision
+interface Node {
+    # Unique id of the ressource
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+}

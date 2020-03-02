@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import pino from 'pino';
+import graphqlProjection from '../models/helpers/graphql-projection';
 
 const log = pino();
+mongoose.plugin(updateIfCurrentPlugin);
+mongoose.plugin(graphqlProjection);
 
 const connect = async (config) => {
   try {
