@@ -4,8 +4,9 @@ import compression from 'koa-compress';
 import apolloServer from './apollo-server';
 import config from './services/config';
 import routes from './routes';
-const pino = require('koa-pino-logger')();
 import metricsMiddleware from './middlewares/metrics';
+
+const pino = require('koa-pino-logger')();
 
 const exporterPort = config.get('prometheus_exporter');
 
@@ -13,7 +14,7 @@ const exporterPort = config.get('prometheus_exporter');
 const app = new Koa();
 app.silent = true;
 if (exporterPort) {
-    app.use(metricsMiddleware);
+  app.use(metricsMiddleware);
 }
 app.use(pino);
 app.use(compression());

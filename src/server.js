@@ -7,12 +7,12 @@ import config from './services/config';
 const log = pino();
 
 (async () => {
-    await services;
-    const port = config.get('port');
-    const exporterPort = config.get('prometheus_exporter');
-    if (exporterPort) {
-        prometheusExporter(exporterPort);
-    }
-    app.listen(port);
-    log.info(`Koa listening on port ${port}`)
+  await services;
+  const port = config.get('port');
+  const exporterPort = config.get('prometheus_exporter');
+  if (exporterPort) {
+    prometheusExporter(exporterPort);
+  }
+  app.listen(port);
+  log.info(`Koa listening on port ${port}`);
 })();
