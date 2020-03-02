@@ -35,10 +35,12 @@ spec:
               containerPort: {{ .Values.monitoring.exporter.port }}
               protocol: TCP
           livenessProbe:
+            initialDelaySeconds: 25
             httpGet:
               path: /
               port: http
           readinessProbe:
+            initialDelaySeconds: 25
             httpGet:
               path: /
               port: http
