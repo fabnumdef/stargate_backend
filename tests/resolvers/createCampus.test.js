@@ -1,30 +1,46 @@
 import queryFactory, { gql } from '../helpers/apollo-query';
-
-const CREATE_CAMPUS_MUTATION = gql`
-    mutation CreateCampusMutation($campus: CampusInput!) {
-        createCampus(campus: $campus) {
-            id
-            label
-        }
-    }
-`;
+import { generateDummySuperAdmin } from '../models/user';
+import Campus, { generateDummyCampus } from '../models/campus';
 
 function mutateCreateCampus(campus, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
-    mutation: CREATE_CAMPUS_MUTATION,
+    mutation: gql`
+      mutation CreateCampusMutation($campus: CampusInput!) {
+        createCampus(campus: $campus) {
+          id
+          label
+        }
+      }
+    `,
     variables: { campus },
-    http: {
-      headers: { Authorization: 'Bearer Foo' },
-    },
   });
 }
 
 it('Test to create a campus', async () => {
-  const { errors } = await mutateCreateCampus({
-    id: 'FOO',
-    label: 'Foo',
-  });
+  const dummyCampus = generateDummyCampus();
 
-  expect(errors).toHaveLength(1);
+  try {
+    {
+      const { errors } = await mutateCreateCampus({ id: dummyCampus._id, label: dummyCampus.label });
+
+      // You're not authorized to create campus while without rights
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Not Authorised');
+    }
+
+    {
+      const { data } = await mutateCreateCampus(
+        { id: dummyCampus._id, label: dummyCampus.label },
+        generateDummySuperAdmin(),
+      );
+      expect(data.createCampus).toHaveProperty('id', dummyCampus._id);
+      expect(data.createCampus).toHaveProperty('label', dummyCampus.label);
+      const dbVersion = await Campus.findOne(dummyCampus);
+      expect(dbVersion).toMatchObject(dummyCampus);
+      expect(dbVersion).toHaveProperty('__v', 0);
+    }
+  } finally {
+    await Campus.findOneAndDelete(dummyCampus);
+  }
 });

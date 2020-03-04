@@ -3,7 +3,7 @@ import Campus from '../../src/models/campus';
 
 export const generateDummyCampus = (...params) => ({
   _id: nanoid(),
-  name: 'Test',
+  label: nanoid(),
   ...params,
 });
 
