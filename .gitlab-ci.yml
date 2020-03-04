@@ -76,7 +76,7 @@ test:
   variables:
     MONGODB: "mongodb://mongo/stargate"
   script:
-    - npm run test
+    - npm test -- --coverage
 
 build:
   stage: build
