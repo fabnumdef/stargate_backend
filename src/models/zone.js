@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
+export const MODEL_NAME = 'Zone';
 
-const CampusSchema = new Schema({
-  name: { type: String, required: true },
+const ZoneSchema = new Schema({
+  label: { type: String, required: true },
   campus: {
     _id: String,
     label: String,
@@ -11,4 +12,4 @@ const CampusSchema = new Schema({
   },
 }, { timestamps: true });
 
-export default mongoose.model('Zone', CampusSchema, 'zones');
+export default mongoose.model(MODEL_NAME, ZoneSchema, 'zones');

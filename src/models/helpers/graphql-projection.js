@@ -7,7 +7,7 @@ function transformProjection(graphQLInfo) {
       .reduce((acc, row) => ({ ...acc, [row]: 1 }), {});
     return {
       ...projection,
-      _id: projection.id,
+      _id: true,
     };
   } catch (e) {
     return {};
