@@ -21,7 +21,7 @@ export const Query = {
     return {
       filters,
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_USERS) },
-      Model: User,
+      countMethod: User.countDocuments.bind(User),
     };
   },
   async getUser(_parent, { id }, _ctx, info) {
@@ -30,7 +30,7 @@ export const Query = {
 };
 
 export const UsersList = {
-  async list({ filters, cursor: { offset, first } = {} }, _params, _ctx, info) {
+  async list({ filters, cursor: { offset, first } }, _params, _ctx, info) {
     return User.findWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,

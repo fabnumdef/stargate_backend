@@ -20,7 +20,6 @@ export const MODEL_NAME = 'User';
 
 const resolveDNS = util.promisify(dns.resolve);
 const { Schema } = mongoose;
-const whitelistedDomains = config.get('mail:whitelist_domains');
 
 const UserSchema = new Schema({
   firstname: String,
@@ -43,6 +42,7 @@ const UserSchema = new Schema({
       maxlength: 256,
       validate: {
         async validator(v) {
+          const whitelistedDomains = config.get('mail:whitelist_domains');
           if (![]
             .concat(whitelistedDomains)
             .reduce((acc, cur) => acc || v.endsWith(cur), false)) {
@@ -56,6 +56,7 @@ const UserSchema = new Schema({
           return addresses && addresses.length > 0;
         },
         message({ value }) {
+          const whitelistedDomains = config.get('mail:whitelist_domains');
           return `"${value}" should ends with ${whitelistedDomains.join(', ')}`;
         },
       },

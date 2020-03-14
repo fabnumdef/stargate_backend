@@ -1,5 +1,3 @@
-import Zone from '../models/zone';
-
 export const CampusMutation = {
   async createZone(campus, { zone }) {
     return campus.createZone(zone);
@@ -21,7 +19,7 @@ export const Campus = {
       countMethod: campus.countZones.bind(campus),
     };
   },
-  async getZone(campus, { id }, _ctx, info) {
+  async getZone(campus, { id }) {
     return campus.findZonebyId(id);
   },
 };
