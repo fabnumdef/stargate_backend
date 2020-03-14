@@ -1,0 +1,33 @@
+extend type Campus {
+    listUnits(cursor: OffsetCursor, filters: UnitFilters): UnitsList!
+    getUnit(id: String!): Unit
+}
+
+type CampusMutation {
+    createUnit(unit: UnitInput!): Unit!
+    editUnit(id: String!, unit: UnitInput!): Unit!
+}
+
+type UnitsList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Unit]!
+}
+
+input UnitFilters {
+    label: String
+}
+
+input UnitInput {
+    label: String!
+}
+
+type Unit implements Node {
+    # Unique id of the unit
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Label of the unit
+    label: String
+}
