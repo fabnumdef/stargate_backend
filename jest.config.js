@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
+  globalTeardown: './tests/teardown.js',
   coverageThreshold: {
     global: {
       branches: 80,
