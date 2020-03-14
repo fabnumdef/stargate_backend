@@ -21,13 +21,13 @@ export const Campus = {
       countMethod: campus.countZones.bind(campus),
     };
   },
-  async getZone(campus, { id } = {}, _ctx, info) {
+  async getZone(campus, { id }, _ctx, info) {
     return campus.findZonebyId(id);
   },
 };
 
 export const ZonesList = {
-  async list({ campus, filters, cursor: { offset, first } = {} }, _params, _ctx, info) {
+  async list({ campus, filters, cursor: { offset, first } }, _params, _ctx, info) {
     return campus.findZonesWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,

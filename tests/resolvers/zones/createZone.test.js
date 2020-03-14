@@ -1,7 +1,7 @@
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../models/user';
-import Zone, { generateDummyZone } from '../models/zone';
-import { createDummyCampus } from '../models/campus';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummySuperAdmin } from '../../models/user';
+import Zone, { generateDummyZone } from '../../models/zone';
+import { createDummyCampus } from '../../models/campus';
 
 function mutateCreateZone(campusId, zone, user = null) {
   const { mutate } = queryFactory(user);
