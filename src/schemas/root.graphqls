@@ -1,10 +1,4 @@
-type Mutation {
-    placeholder: Boolean
-}
-
-type Query {
-    placeholder: Boolean
-}
+# base Mutation & Query are in campuses.graphqls
 
 # Ensure that entity return id and revision
 interface Node {
