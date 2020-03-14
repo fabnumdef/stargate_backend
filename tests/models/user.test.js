@@ -74,7 +74,7 @@ describe('Ensure that original password match security criteria', () => {
   it('It should pass when regex is validated', async () => {
     const baseUser = await createDummyUser();
     expect(baseUser).toBeDefined();
-  }, 30000);
+  });
 
   it('It should not pass when regex is not validated', async () => {
     const baseUser = generateDummyUser();
@@ -83,5 +83,25 @@ describe('Ensure that original password match security criteria', () => {
       password: nanoid(5),
     });
     await expect(user.save()).rejects.toThrow('Password should match security criteria');
+  });
+});
+
+describe('Test password comparaison', () => {
+  it('It should pass when password match', async () => {
+    const password = nanoid();
+    const baseUser = await createDummyUser({ password });
+    await expect(baseUser.comparePassword(password)).resolves.toBeTruthy();
+  });
+
+  it('It should fail when no password set', async () => {
+    const baseUser = await createDummyUser({ password: undefined });
+    expect(() => baseUser.comparePassword(nanoid())).toThrow('No password set');
+  });
+
+  it('It should fail when password don\'t match', async () => {
+    const password = nanoid();
+    const baseUser = await createDummyUser({ password });
+    const badPassword = nanoid();
+    await expect(baseUser.comparePassword(badPassword)).resolves.toBeFalsy();
   });
 });

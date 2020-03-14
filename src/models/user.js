@@ -125,16 +125,6 @@ UserSchema.pre('save', function preSave(next) {
     .catch((err) => next(err));
 });
 
-UserSchema.virtual('name')
-  .get(function getName() {
-    return `${this.firstname || ''} ${this.lastname || ''}`;
-  })
-  .set(function setName(name) {
-    if (!this.firstname && !this.lastname) {
-      [this.firstname, this.lastname = ''] = name.split(' ') || [name];
-    }
-  });
-
 UserSchema.virtual('activeTokens')
   .get(function getName() {
     const [firsts = []] = chunk(orderBy(
