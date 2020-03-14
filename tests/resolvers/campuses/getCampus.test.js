@@ -1,6 +1,6 @@
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../models/user';
-import Campus, { createDummyCampus } from '../models/campus';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummySuperAdmin } from '../../models/user';
+import Campus, { createDummyCampus } from '../../models/campus';
 
 function queryGetCampus(id, user = null) {
   const { mutate } = queryFactory(user);

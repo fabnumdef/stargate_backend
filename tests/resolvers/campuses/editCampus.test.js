@@ -1,7 +1,7 @@
 import nanoid from 'nanoid';
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../models/user';
-import Campus, { createDummyCampus } from '../models/campus';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummySuperAdmin } from '../../models/user';
+import Campus, { createDummyCampus } from '../../models/campus';
 
 function mutateEditionCampus(id, campus, user = null) {
   const { mutate } = queryFactory(user);
@@ -23,7 +23,7 @@ it('Test to edit a campus', async () => {
   const newLabel = nanoid();
   try {
     {
-      const { errors } = await mutateEditionCampus(dummyCampus._id, { id: dummyCampus._id, label: newLabel });
+      const { errors } = await mutateEditionCampus(dummyCampus._id, { label: newLabel });
 
       // You're not authorized to create campus while without rights
       expect(errors).toHaveLength(1);
@@ -33,7 +33,7 @@ it('Test to edit a campus', async () => {
     {
       const { data } = await mutateEditionCampus(
         dummyCampus._id,
-        { id: dummyCampus._id, label: newLabel },
+        { label: newLabel },
         generateDummySuperAdmin(),
       );
       expect(data.editCampus).toHaveProperty('id', dummyCampus._id);

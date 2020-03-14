@@ -1,19 +1,19 @@
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../models/user';
-import Campus, { generateDummyCampus } from '../models/campus';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummySuperAdmin } from '../../models/user';
+import Campus, { generateDummyCampus } from '../../models/campus';
 
-function mutateCreateCampus(campus, user = null) {
+function mutateCreateCampus(id, campus, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation CreateCampusMutation($campus: CampusInput!) {
-        createCampus(campus: $campus) {
+      mutation CreateCampusMutation($id: String!,$campus: CampusInput!) {
+        createCampus(id: $id, campus: $campus) {
           id
           label
         }
       }
     `,
-    variables: { campus },
+    variables: { id, campus },
   });
 }
 
@@ -22,7 +22,7 @@ it('Test to create a campus', async () => {
 
   try {
     {
-      const { errors } = await mutateCreateCampus({ id: dummyCampus._id, label: dummyCampus.label });
+      const { errors } = await mutateCreateCampus(dummyCampus._id, { label: dummyCampus.label });
 
       // You're not authorized to create campus while without rights
       expect(errors).toHaveLength(1);
@@ -31,7 +31,8 @@ it('Test to create a campus', async () => {
 
     {
       const { data } = await mutateCreateCampus(
-        { id: dummyCampus._id, label: dummyCampus.label },
+        dummyCampus._id,
+        { label: dummyCampus.label },
         generateDummySuperAdmin(),
       );
       expect(data.createCampus).toHaveProperty('id', dummyCampus._id);

@@ -1,6 +1,6 @@
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../models/user';
-import Campus, { createDummyCampus } from '../models/campus';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummySuperAdmin } from '../../models/user';
+import Campus, { createDummyCampus } from '../../models/campus';
 
 function queryListCampus(user = null) {
   const { mutate } = queryFactory(user);
@@ -23,6 +23,10 @@ function queryListCampus(user = null) {
     variables: { },
   });
 }
+
+beforeAll(async () => {
+  await Campus.deleteMany({});
+});
 
 it('Test to list campuses', async () => {
   const list = await Promise.all(Array.from({ length: 5 }).map(() => createDummyCampus()));
