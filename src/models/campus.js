@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
-import { MODEL_NAME as UserModelName } from './user';
 import { MODEL_NAME as UnitModelName } from './unit';
 import { MODEL_NAME as ZoneModelName } from './zone';
 import config from '../services/config';
@@ -24,31 +23,6 @@ const CampusSchema = new Schema({
     },
   },
 }, { timestamps: true });
-
-const campusFilter = (campus) => ({
-  'roles.campuses._id': campus,
-});
-
-CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {
-  const User = mongoose.model(UserModelName);
-  const f = { ...campusFilter(campus), ...filters };
-  return User.countDocuments(f);
-};
-
-CampusSchema.statics.findUsers = async function findUsers(campus, pagination, filters = {}) {
-  const User = mongoose.model(UserModelName);
-  const f = { ...campusFilter(campus), ...filters };
-  if (pagination) {
-    return User.find(f).skip(pagination.offset).limit(pagination.limit);
-  }
-  return User.find(f);
-};
-
-CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
-  const f = { _id: id, ...campusFilter(campus), ...filters };
-  const User = mongoose.model(UserModelName);
-  return User.findOne(f);
-};
 
 CampusSchema.methods.createUnit = async function createUnit(data) {
   const Unit = mongoose.model(UnitModelName);
