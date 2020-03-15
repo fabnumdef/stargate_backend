@@ -2,6 +2,8 @@ import nanoid from 'nanoid';
 import '../helpers/configure';
 import User, { createDummyUser, generateDummyUser } from './user';
 import config from '../../src/services/config';
+import { createDummyCampus } from './campus';
+import { ROLE_ADMIN } from '../../src/models/rules';
 
 
 describe('Ensure that original email is valid', () => {
@@ -103,5 +105,23 @@ describe('Test password comparaison', () => {
     const baseUser = await createDummyUser({ password });
     const badPassword = nanoid();
     await expect(baseUser.comparePassword(badPassword)).resolves.toBeFalsy();
+  });
+});
+
+describe('Test accessible campuses', () => {
+  it('Check empty user don\'t have any accessible campus', async () => {
+    await createDummyCampus(); // Ensure that at least one campus exists.
+    const baseUser = new User(generateDummyUser());
+    await expect(baseUser.getCampusesAccessibles()).resolves.toHaveLength(0);
+  });
+  it('Check that user with configured right should have accessible campus', async () => {
+    const campus = await createDummyCampus(); // Ensure that at least one campus exists.
+    const baseUser = new User(generateDummyUser({
+      roles: [{
+        role: ROLE_ADMIN,
+        campuses: [campus],
+      }],
+    }));
+    await expect(baseUser.getCampusesAccessibles()).resolves.toHaveLength(1);
   });
 });

@@ -29,8 +29,8 @@ export const generateDummySuperAdmin = (params) => generateDummyUser({
 });
 
 export const createDummyUser = async (params) => {
-  const dummyCampus = generateDummyUser(params);
-  return User.create(dummyCampus);
+  const dummyUser = generateDummyUser(params);
+  return User.create(dummyUser);
 };
 
 export default User;
