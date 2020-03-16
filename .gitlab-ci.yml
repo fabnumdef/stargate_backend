@@ -12,7 +12,7 @@ variables:
 
 .deploy:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.3
+  image: dtzar/helm-kubectl:3.1.2
   variables:
     KUBECONFIG: /etc/deploy/config
     K8S_CLUSTER_NAME: current
@@ -85,7 +85,7 @@ test:
 build:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:debug
+    name: gcr.io/kaniko-project/executor:debug-v0.17.1
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json

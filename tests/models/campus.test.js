@@ -1,4 +1,3 @@
-import '../helpers/configure';
 import Campus, { generateDummyCampus } from './campus';
 
 describe('Ensure that timezone exists', () => {
