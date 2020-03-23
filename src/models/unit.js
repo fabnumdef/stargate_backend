@@ -8,7 +8,12 @@ const UnitSchema = new Schema({
   campus: {
     _id: String,
     label: String,
-    timeunit: String,
+    timezone: String,
+  },
+  workflow: {
+    steps: [
+      {},
+    ],
   },
 }, { timestamps: true });
 
