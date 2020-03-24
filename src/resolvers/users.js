@@ -13,9 +13,9 @@ export const Mutation = {
     return user.save();
   },
   async deleteUser(_, { id }) {
-    const removedUser = User.findByIdAndRemove(id);
+    const removedUser = await User.findByIdAndRemove(id);
     if (!removedUser) {
-      throw new Error('Error');
+      throw new Error('Error - User not found');
     }
     return removedUser;
   },
