@@ -7,11 +7,17 @@ export const Mutation = {
     await user.save();
     return user;
   },
-
   async editUser(_, { user: data, id }) {
     const user = await User.findById(id);
     user.setFromGraphQLSchema(data);
     return user.save();
+  },
+  async deleteUser(_, { id }) {
+    const removedUser = User.findByIdAndRemove(id);
+    if (!removedUser) {
+      throw new Error('Error');
+    }
+    return removedUser;
   },
 };
 
