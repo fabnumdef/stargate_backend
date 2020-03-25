@@ -1,12 +1,15 @@
-extend type Query {
+type Query {
     listCampuses(cursor: OffsetCursor, filters: CampusFilters): CampusesList!
     getCampus(id: String!): Campus
 }
 
-extend type Mutation {
-    createCampus(campus: CampusInput!): Campus!
+type Mutation {
+    createCampus(id: String!, campus: CampusInput!): Campus!
     editCampus(id: String!, campus: CampusInput!): Campus!
+    mutateCampus(id: String!): CampusMutation!
 }
+
+# CampusMutation non-extended in units.graphqls
 
 type CampusesList implements OffsetPaginator {
     meta: OffsetPaginatorMeta!
@@ -18,7 +21,6 @@ input CampusFilters {
 }
 
 input CampusInput {
-    id: String!
     label: String!
 }
 
