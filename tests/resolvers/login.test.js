@@ -1,5 +1,5 @@
 import nanoid from 'nanoid';
-import { query, gql } from '../helpers/apollo-query';
+import queryFactory, { gql } from '../helpers/apollo-query';
 import { generateDummyUser, createDummyUser } from '../models/user';
 
 const JWT_LOGIN_QUERY = gql`
@@ -11,6 +11,7 @@ const JWT_LOGIN_QUERY = gql`
 `;
 
 function queryJwt(email, password) {
+  const { query } = queryFactory();
   return query({ query: JWT_LOGIN_QUERY, variables: { email, password } });
 }
 

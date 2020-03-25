@@ -1,0 +1,33 @@
+extend type Campus {
+    listZones(cursor: OffsetCursor, filters: ZoneFilters): ZonesList!
+    getZone(id: String!): Zone
+}
+
+extend type CampusMutation {
+    createZone(zone: ZoneInput!): Zone!
+    editZone(id: String!, zone: ZoneInput!): Zone!
+}
+
+type ZonesList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Zone]!
+}
+
+input ZoneFilters {
+    label: String
+}
+
+input ZoneInput {
+    label: String!
+}
+
+type Zone implements Node {
+    # Unique id of the zone
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Label of the zone
+    label: String
+}

@@ -1,13 +1,16 @@
 import Campus from '../models/campus';
 
 export const Mutation = {
-  async createCampus(_, { campus }) {
-    return Campus.create(campus);
+  async createCampus(_, { id, campus }) {
+    return Campus.create({ id, ...campus });
   },
   async editCampus(_, { campus, id }) {
     const c = await Campus.findById(id);
     c.set(campus);
     return c.save();
+  },
+  async mutateCampus(_, { id }) {
+    return Campus.findById(id);
   },
 };
 
@@ -17,7 +20,7 @@ export const Query = {
     return {
       filters,
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_CAMPUSES) },
-      Model: Campus,
+      countMethod: Campus.countDocuments.bind(Campus),
     };
   },
   async getCampus(_parent, { id }, _ctx, info) {
@@ -26,7 +29,7 @@ export const Query = {
 };
 
 export const CampusesList = {
-  async list({ filters, cursor: { offset, first } = {} }, _params, _ctx, info) {
+  async list({ filters, cursor: { offset, first } }, _params, _ctx, info) {
     return Campus.findWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,
