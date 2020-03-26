@@ -41,7 +41,7 @@ it('Test to delete an zone', async () => {
       );
       // Found no zone with this id
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Error - Zone not found');
+      expect(errors[0].message).toContain('Zone not found');
     }
     {
       const { data } = await mutateDeleteZone(
