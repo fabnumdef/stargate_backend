@@ -41,7 +41,7 @@ it('Test to delete an unit', async () => {
       );
       // Found no unit with this id
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Error - Unit not found');
+      expect(errors[0].message).toContain('Unit not found');
     }
     {
       const { data } = await mutateDeleteUnit(
