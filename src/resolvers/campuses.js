@@ -15,7 +15,7 @@ export const Mutation = {
   async deleteCampus(_, { id }) {
     const removedCampus = await Campus.findByIdAndRemove(id);
     if (!removedCampus) {
-      throw new Error('Error - Campus not found');
+      throw new Error('Campus not found');
     }
     return removedCampus;
   },
