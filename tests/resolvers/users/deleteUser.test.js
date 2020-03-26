@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import User, { createDummyUser, generateDummySuperAdmin } from '../../models/user';
 
@@ -8,7 +8,8 @@ function mutateDeleteUser(id, userRole = null) {
     mutation: gql`
       mutation DeleteUserMutation($id: String!) {
           deleteUser(id: $id) {
-              id
+              id,
+              firstname
           }
       }
     `,
@@ -18,6 +19,7 @@ function mutateDeleteUser(id, userRole = null) {
 
 it('Test to delete a user', async () => {
   const dummyUser = await createDummyUser();
+  const fakeId = mongoose.Types.ObjectId();
   try {
     {
       const { errors } = await mutateDeleteUser(dummyUser._id);
@@ -28,12 +30,12 @@ it('Test to delete a user', async () => {
     }
     {
       const { errors } = await mutateDeleteUser(
-        nanoid(),
+        fakeId,
         generateDummySuperAdmin(),
       );
       // Found no user with this id
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Cast to ObjectId failed');
+      expect(errors[0].message).toContain('Error - User not found');
     }
     {
       const { data } = await mutateDeleteUser(

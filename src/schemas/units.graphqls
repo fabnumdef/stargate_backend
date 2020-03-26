@@ -6,6 +6,7 @@ extend type Campus {
 type CampusMutation {
     createUnit(unit: UnitInput!): Unit!
     editUnit(id: String!, unit: UnitInput!): Unit!
+    deleteUnit(id: String!): Unit!
 }
 
 type UnitsList implements OffsetPaginator {

@@ -7,6 +7,13 @@ export const CampusMutation = {
     c.set(zone);
     return c.save();
   },
+  async deleteZone(campus, { id }) {
+    const removedZone = await campus.findZoneByIdAndRemove(id);
+    if (!removedZone) {
+      throw new Error('Error - Zone not found');
+    }
+    return removedZone;
+  },
 };
 
 const MAX_REQUESTABLE_ZONES = 30;

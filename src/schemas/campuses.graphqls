@@ -7,6 +7,7 @@ type Mutation {
     createCampus(id: String!, campus: CampusInput!): Campus!
     editCampus(id: String!, campus: CampusInput!): Campus!
     mutateCampus(id: String!): CampusMutation!
+    deleteCampus(id: String!): Campus!
 }
 
 # CampusMutation non-extended in units.graphqls

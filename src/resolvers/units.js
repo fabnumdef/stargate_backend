@@ -9,6 +9,13 @@ export const CampusMutation = {
     c.set(unit);
     return c.save();
   },
+  async deleteUnit(campus, { id }) {
+    const removedUnit = await Unit.findByIdAndRemove(id);
+    if (!removedUnit) {
+      throw new Error('Error - Unit not found');
+    }
+    return removedUnit;
+  },
 };
 
 const MAX_REQUESTABLE_UNITS = 30;

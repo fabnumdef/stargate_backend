@@ -68,4 +68,9 @@ CampusSchema.methods.findZonebyId = async function findZonebyId(id) {
   return Zone.findOne({ _id: id, 'campus._id': this._id });
 };
 
+CampusSchema.methods.findZoneByIdAndRemove = async function findZoneByIdAndRemove(id) {
+  const Zone = mongoose.model(ZoneModelName);
+  return Zone.findByIdAndRemove({ _id: id, 'campus._id': this._id });
+};
+
 export default mongoose.model('Campus', CampusSchema, 'campuses');
