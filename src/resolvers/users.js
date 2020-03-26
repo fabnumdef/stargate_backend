@@ -15,7 +15,7 @@ export const Mutation = {
   async deleteUser(_, { id }) {
     const removedUser = await User.findByIdAndRemove(id);
     if (!removedUser) {
-      throw new Error('Error - User not found');
+      throw new Error('User not found');
     }
     return removedUser;
   },
