@@ -35,7 +35,7 @@ it('Test to delete a user', async () => {
       );
       // Found no user with this id
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Error - User not found');
+      expect(errors[0].message).toContain('User not found');
     }
     {
       const { data } = await mutateDeleteUser(
