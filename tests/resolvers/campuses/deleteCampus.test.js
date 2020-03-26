@@ -34,7 +34,7 @@ it('Test to delete a campus', async () => {
       );
       // Found no campus with this id
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Error - Campus not found');
+      expect(errors[0].message).toContain('Campus not found');
     }
     {
       const { data } = await mutateDeleteCampus(
