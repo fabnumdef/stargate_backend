@@ -12,7 +12,7 @@ export const CampusMutation = {
   async deleteUnit(campus, { id }) {
     const removedUnit = await Unit.findByIdAndRemove(id);
     if (!removedUnit) {
-      throw new Error('Error - Unit not found');
+      throw new Error('Unit not found');
     }
     return removedUnit;
   },
