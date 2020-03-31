@@ -12,6 +12,13 @@ export const Mutation = {
   async mutateCampus(_, { id }) {
     return Campus.findById(id);
   },
+  async deleteCampus(_, { id }) {
+    const removedCampus = await Campus.findByIdAndRemove(id);
+    if (!removedCampus) {
+      throw new Error('Campus not found');
+    }
+    return removedCampus;
+  },
 };
 
 const MAX_REQUESTABLE_CAMPUSES = 30;

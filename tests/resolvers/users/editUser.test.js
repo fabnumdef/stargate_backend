@@ -25,7 +25,7 @@ it('Test to edit a user', async () => {
     {
       const { errors } = await mutateEditionUser(dummyUser._id, { firstname: newFirstname });
 
-      // You're not authorized to create user while without rights
+      // You're not authorized to edit user while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
     }
