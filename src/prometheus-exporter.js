@@ -15,6 +15,5 @@ export default (port) => {
     res.writeHead(200, { 'Content-Type': Prometheus.register.contentType });
     res.end(Prometheus.register.metrics());
   }).listen(port, '0.0.0.0');
-  log.info(`Prometheus exporter listening on port ${port}`)
-}
-
+  log.info(`Prometheus exporter listening on port ${port}`);
+};
