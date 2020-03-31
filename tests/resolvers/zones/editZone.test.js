@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin } from '../../models/user';
 import Zone, { createDummyZone } from '../../models/zone';

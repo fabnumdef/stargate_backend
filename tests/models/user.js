@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import User from '../../src/models/user';
 import { ROLE_SUPERADMIN } from '../../src/models/rules';
 import config from '../../src/services/config';

@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import Place from '../../src/models/place';
 
 export const generateDummyPlace = (...params) => ({
