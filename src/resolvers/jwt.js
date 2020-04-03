@@ -20,6 +20,15 @@ export const Mutation = {
 
     return { user };
   },
+
+  async jwtRefresh(_, args, ctx) {
+    const user = await User.findById(ctx.user.id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return { user };
+  },
 };
 
 export const RequestableTokens = {

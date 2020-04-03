@@ -1,6 +1,6 @@
 import nanoid from 'nanoid';
-import queryFactory, { gql } from '../helpers/apollo-query';
-import { generateDummyUser, createDummyUser } from '../models/user';
+import queryFactory, { gql } from '../../helpers/apollo-query';
+import { generateDummyUser, createDummyUser } from '../../models/user';
 
 const JWT_LOGIN_QUERY = gql`
     mutation ScratchQuery($email: EmailAddress!, $password: String!) {
