@@ -16,6 +16,7 @@ variables:
   variables:
     KUBECONFIG: /etc/deploy/config
     K8S_CLUSTER_NAME: current
+    RESET_JOB: "false"
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - touch $KUBECONFIG
@@ -36,9 +37,11 @@ variables:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set env.MONGODB="${MONGODB}"
+      --set resetJob=${RESET_JOB}
       --wait
       ${HELM_NAME}
       .helm-chart
+    - kubectl logs -f job/${HELM_NAME}-node || true
 
 .node:
   image: node:latest
@@ -101,8 +104,9 @@ deploy_review:
     K8S_TOKEN: ${K8S_DEV_TOKEN}
     K8S_NAMESPACE: ${K8S_DEV_NAMESPACE}
     DEPLOYMENT_HOST: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
-    MONGODB: ${STAGING_MONGODB}
+    MONGODB: "${DEVELOPMENT_MONGODB}${CI_COMMIT_REF_SLUG}"
     HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
+    RESET_JOB: "true"
   except:
     refs:
       - tags
@@ -118,6 +122,7 @@ deploy_staging:
     DEPLOYMENT_HOST: ${STAGING_DOMAIN}
     MONGODB: ${STAGING_MONGODB}
     HELM_NAME: backend
+    RESET_JOB: "true"
   only:
     refs:
       - develop
