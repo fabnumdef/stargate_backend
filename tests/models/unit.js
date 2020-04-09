@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import Unit from '../../src/models/unit';
 
 export const generateDummyUnit = (...params) => ({

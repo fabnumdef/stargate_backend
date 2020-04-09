@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 // import '../helpers/configure';
 import User, { createDummyUser, generateDummyUser } from './user';
 import config from '../../src/services/config';

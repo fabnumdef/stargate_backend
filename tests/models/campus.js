@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import Campus from '../../src/models/campus';
 
 export const generateDummyCampus = (params) => ({

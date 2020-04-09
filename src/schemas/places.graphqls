@@ -1,0 +1,33 @@
+extend type Campus {
+    listPlaces(cursor: OffsetCursor, filters: PlaceFilters): PlacesList!
+    getPlace(id: String!): Place
+}
+
+extend type CampusMutation {
+    createPlace(place: PlaceInput!): Place!
+    editPlace(id: String!, place: PlaceInput!): Place!
+}
+
+type PlacesList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Place]!
+}
+
+input PlaceFilters {
+    label: String
+}
+
+input PlaceInput {
+    label: String!
+}
+
+type Place implements Node {
+    # Unique id of the place
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Label of the place
+    label: String
+}

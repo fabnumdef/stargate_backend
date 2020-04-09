@@ -18,8 +18,31 @@ input UnitFilters {
     label: String
 }
 
+input UnitWorkflowStepInput {
+    role: String
+    behavior: UnitWorkflowBehavior
+}
+input UnitWorkflowInput {
+    steps: [UnitWorkflowStepInput]
+}
+
 input UnitInput {
     label: String!
+    workflow: UnitWorkflowInput
+}
+
+enum UnitWorkflowBehavior {
+    Information
+    Validation
+}
+
+type UnitWorkflowStep {
+    role: String
+    behavior: UnitWorkflowBehavior
+}
+
+type UnitWorkflow {
+    steps: [UnitWorkflowStep]
 }
 
 type Unit implements Node {
@@ -31,4 +54,5 @@ type Unit implements Node {
     updatedAt: DateTime!
     # Label of the unit
     label: String
+    workflow: UnitWorkflow
 }

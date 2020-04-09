@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import { ROLE_ADMIN, ROLE_SUPERADMIN } from '../../src/models/rules';
 import { MIDDLE_EARTH, MORDOR } from './campus';
 

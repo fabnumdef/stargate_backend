@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
 import { MODEL_NAME as UnitModelName } from './unit';
 import { MODEL_NAME as ZoneModelName } from './zone';
+import { MODEL_NAME as PlaceModelName } from './place';
 import config from '../services/config';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
@@ -38,6 +39,13 @@ CampusSchema.methods.createZone = async function createZone(data) {
   return zone.save();
 };
 
+CampusSchema.methods.createPlace = async function createPlace(data) {
+  const Place = mongoose.model(PlaceModelName);
+  const place = new Place(data);
+  place.campus = this;
+  return place.save();
+};
+
 CampusSchema.methods.findUnitsWithProjection = function findUnitsWithProjection(filters, ...params) {
   const Unit = mongoose.model(UnitModelName);
   return Unit.findWithProjection({ ...filters, 'campus._id': this._id }, ...params);
@@ -66,6 +74,21 @@ CampusSchema.methods.countZones = async function countZones(filters) {
 CampusSchema.methods.findZonebyId = async function findZonebyId(id) {
   const Zone = mongoose.model(ZoneModelName);
   return Zone.findOne({ _id: id, 'campus._id': this._id });
+};
+
+CampusSchema.methods.findPlacesWithProjection = function findPlacesWithProjection(filters, ...params) {
+  const Place = mongoose.model(PlaceModelName);
+  return Place.findWithProjection({ ...filters, 'campus._id': this._id }, ...params);
+};
+
+CampusSchema.methods.countPlaces = async function countPlaces(filters) {
+  const Place = mongoose.model(PlaceModelName);
+  return Place.countDocuments({ ...filters, 'campus._id': this._id });
+};
+
+CampusSchema.methods.findPlacebyId = async function findPlacebyId(id) {
+  const Place = mongoose.model(PlaceModelName);
+  return Place.findOne({ _id: id, 'campus._id': this._id });
 };
 
 CampusSchema.methods.findZoneByIdAndRemove = async function findZoneByIdAndRemove(id) {
