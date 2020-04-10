@@ -1,0 +1,80 @@
+extend type Campus {
+#    listRequests(as: Role, cursor: OffsetCursor, filters: RequestFilters): RequestsList!
+    getRequest(id: String!): Request
+}
+
+extend type CampusMutation {
+    createRequest(request: RequestInput!): Request!
+    editRequest(id: String!, request: RequestInput!): Request!
+}
+
+type RequestsList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Request]!
+}
+
+input RequestFilters {
+    from: DateTime
+    to: DateTime
+}
+
+enum RequestObject {
+    PRIVATE
+    PROFESSIONAL
+}
+
+input RequestVisitorInput {
+    nid: String
+    firstname: String!
+    birthdayLastname: String!
+    usageLastname: String!
+    rank: String
+    company: String
+    email: String!
+    vip: Boolean
+    vipReason: String
+    nationality: String!
+    identityRef: String!
+    birthday: DateTime!
+    birthdayPlace: String!
+}
+
+input RequestInput {
+    object: String!
+    reason: String!
+    from: DateTime!
+    to: DateTime!
+    visitors: [RequestVisitorInput]!
+    places: [String]!
+}
+
+type RequestStateContext {
+    string: String
+}
+
+type RequestState {
+    value: String
+    context: RequestStateContext
+}
+
+type RequestVisitor {
+    visitor: User
+    currentSteps: RequestState
+}
+
+type Request implements Node {
+    # Unique id of the request
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    object: String!
+    reason: String!
+    from: DateTime!
+    to: DateTime!
+    # List of visitors
+    visitors: [RequestVisitor]!
+    # List of places to be visited
+    places: [Place]!
+}

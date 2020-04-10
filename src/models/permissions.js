@@ -11,6 +11,9 @@ export default shield({
     login: allow,
     '*': isSuperAdmin,
   },
+  CampusMutation: {
+    '*': isSuperAdmin,
+  },
 }, {
   allowExternalErrors: true,
 });
