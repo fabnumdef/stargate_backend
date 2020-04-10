@@ -23,7 +23,7 @@ const DATA_DIR = path.join(__dirname, 'data');
     await Promise.all(files.filter((f) => f.endsWith(JSON_EXT)).map(async (filename) => {
       const { default: Model } = require(path.join(MODELS_DIR, path.basename(filename, JSON_EXT)));
       const data = require(path.join(DATA_DIR, filename));
-      return Model.insertMany(data);
+      return Promise.all(data.map((d) => Model.create(d)));
     }));
 
     const JS_EXT = '.js';
@@ -31,7 +31,7 @@ const DATA_DIR = path.join(__dirname, 'data');
       const { default: Model } = require(path.join(MODELS_DIR, path.basename(filename, JS_EXT)));
       const { default: factory } = require(path.join(DATA_DIR, filename));
       const data = await factory({ log, config });
-      return Model.insertMany(data);
+      return Promise.all(data.map((d) => Model.create(d)));
     }));
   } finally {
     await mongoose.connection.close();

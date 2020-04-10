@@ -16,6 +16,7 @@ monitoring:
     deploy: true
     sidecarLabel: grafana-dashboard
 
+resetJob: false
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
