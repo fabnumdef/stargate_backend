@@ -1,0 +1,31 @@
+{{- if .Values.resetJob }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "node.fullname" . }}
+  labels:
+    {{- include "node.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["run", "fixtures:load"]
+          env:
+            - name: MONGODB
+              value: "{{ .Values.env.MONGODB }}"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end}}

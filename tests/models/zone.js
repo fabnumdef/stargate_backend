@@ -1,4 +1,4 @@
-import nanoid from 'nanoid';
+import { nanoid } from 'nanoid';
 import Zone from '../../src/models/zone';
 
 export const generateDummyZone = (...params) => ({
