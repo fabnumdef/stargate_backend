@@ -9,6 +9,7 @@ export default shield({
   },
   Mutation: {
     login: allow,
+    jwtRefresh: isAuthenticated,
     '*': isSuperAdmin,
   },
 }, {

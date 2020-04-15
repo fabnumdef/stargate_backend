@@ -1,5 +1,6 @@
 extend type Mutation {
-    login(email: EmailAddress!, password: String!): RequestableTokens
+    login(email: EmailAddress!, password: String!): RequestableTokens,
+    jwtRefresh: RequestableTokens,
 }
 
 type RequestableTokens {
