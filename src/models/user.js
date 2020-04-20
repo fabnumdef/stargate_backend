@@ -202,7 +202,7 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
 };
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
-  const email = encodeURIComponent(this.email.original);
+  const email = encodeURIComponent(this.email.canonical);
   // TODO change for good url when front will be ready
   // return `${config.get('website_url')}/mon-compte/edit-account?email=${email}&token=${token}`;
   return `${config.get('website_url')}?email=${email}&token=${token}`;

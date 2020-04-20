@@ -24,7 +24,7 @@ export const Mutation = {
     if (!userExists) {
       throw new Error('User not found');
     }
-    const token = await userExists.generateResetToken({ email });
+    const { token } = await userExists.generateResetToken({ email });
     await userExists.save();
 
     await userExists.sendResetPasswordMail(token);
