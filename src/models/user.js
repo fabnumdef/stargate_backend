@@ -217,10 +217,12 @@ UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(
 UserSchema.methods.generateResetToken = async function generateResetToken({ email = null }) {
   const expiration = new Date();
   expiration.setSeconds(expiration.getSeconds() + RESET_TOKEN_EXPIRATION_SECONDS);
+  const nanoidToken = customAlphabet(RESET_TOKEN_ALPHABET, 6);
+
   const token = {
     expiration,
     email,
-    token: customAlphabet(RESET_TOKEN_ALPHABET, 6),
+    token: nanoidToken(),
   };
   this.tokens.unshift(token);
   return token;
