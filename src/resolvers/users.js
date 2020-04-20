@@ -19,6 +19,20 @@ export const Mutation = {
     }
     return removedUser;
   },
+  async resetPassword(_, { email }) {
+    const userExists = await User.findByEmail(email);
+    if (!userExists) {
+      throw new Error('User not found');
+    }
+    const token = await userExists.generateResetToken({ email });
+    try {
+      await userExists.save();
+    } catch (e) {
+      throw new Error('Error saving user');
+    }
+    await userExists.sendResetPasswordMail(token);
+    return userExists;
+  },
 };
 
 const MAX_REQUESTABLE_USERS = 30;
