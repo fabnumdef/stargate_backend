@@ -20,7 +20,6 @@ export default async function sendMail(recipients, options = {}) {
     from: config.get('mail:default_from'),
     subject: '',
     text: '',
-    html: '',
     ...options,
   };
   const transporter = Nodemailer.createTransport(conf);
@@ -43,11 +42,10 @@ export function prepareSendMailFromTemplate(template, subject) {
   const path = resolve(join(currentPath, '..', 'templates', 'mail', template));
   const templates = {
     txt: compileTemplates(path, '.txt.hbs'),
-    html: compileTemplates(path, '.html.hbs'),
   };
 
   return async (to, { data = {}, lang = DEFAULT_LANG }) => {
-    if (!templates.txt[lang] && !templates.html[lang]) {
+    if (!templates.txt[lang]) {
       throw new Error('No mail template found');
     }
 
@@ -55,15 +53,9 @@ export function prepareSendMailFromTemplate(template, subject) {
     if (templates.txt[lang]) {
       opts.text = templates.txt[lang](data);
     }
-    if (templates.html[lang]) {
-      opts.html = templates.html[lang](data);
-    }
+
     // @todo: async in queue management
-    try {
-      sendMail(to, opts);
-    } catch (e) {
-      console.error(e);
-    }
+    sendMail(to, opts);
   };
 }
 
