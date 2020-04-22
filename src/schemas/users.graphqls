@@ -7,7 +7,7 @@ extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
     deleteUser(id: String!): User!
-    resetPassword(email: EmailAddress!): User!
+    resetPassword(email: EmailAddress!): Boolean!
 }
 
 type UsersList implements OffsetPaginator {

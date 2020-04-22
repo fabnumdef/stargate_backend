@@ -22,13 +22,13 @@ export const Mutation = {
   async resetPassword(_, { email }) {
     const userExists = await User.findByEmail(email);
     if (!userExists) {
-      throw new Error('User not found');
+      return true;
     }
     const { token } = await userExists.generateResetToken({ email });
     await userExists.save();
 
     await userExists.sendResetPasswordMail(token);
-    return userExists;
+    return true;
   },
 };
 
