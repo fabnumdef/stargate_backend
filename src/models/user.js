@@ -7,11 +7,15 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { normalizeEmail } from 'validator';
 import { DateTime } from 'luxon';
+import { customAlphabet } from 'nanoid';
 import config from '../services/config';
+import { sendPasswordResetMail } from '../services/mail';
 
 const SALT_WORK_FACTOR = 10;
 const PASSWORD_TEST = /.{8,}/;
 export const MODEL_NAME = 'User';
+const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
+const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
 
 const resolveDNS = util.promisify(dns.resolve);
 const { Schema } = mongoose;
@@ -87,6 +91,20 @@ const UserSchema = new Schema({
       },
     ],
   }],
+  tokens: [
+    {
+      _id: false,
+      token: String,
+      email: String,
+      attempts: [
+        {
+          _id: false,
+          date: Date,
+        },
+      ],
+      expiration: Date,
+    },
+  ],
 }, { timestamps: true });
 
 UserSchema.pre('validate', function preValidate() {
@@ -181,6 +199,33 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
     };
   }
   this.set(filteredData);
+};
+
+UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
+  const email = encodeURIComponent(this.email.canonical);
+  // TODO change for good url when front will be ready
+  // return `${config.get('website_url')}/mon-compte/edit-account?email=${email}&token=${token}`;
+  return `${config.get('website_url')}?email=${email}&token=${token}`;
+};
+
+UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendPasswordResetMail(this.email.canonical,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.generateResetToken = async function generateResetToken({ email = null }) {
+  const expiration = new Date();
+  expiration.setSeconds(expiration.getSeconds() + RESET_TOKEN_EXPIRATION_SECONDS);
+  const nanoidToken = customAlphabet(RESET_TOKEN_ALPHABET, 6);
+
+  const token = {
+    expiration,
+    email,
+    token: nanoidToken(),
+  };
+  this.tokens.unshift(token);
+  return token;
 };
 
 export default mongoose.model(MODEL_NAME, UserSchema);
