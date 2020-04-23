@@ -1,6 +1,8 @@
 import dns from 'dns';
 import util from 'util';
 import mongoose from 'mongoose';
+import orderBy from 'lodash.orderby';
+import chunk from 'lodash.chunk';
 import differenceWith from 'lodash/differenceWith';
 import isEqual from 'lodash/isEqual';
 import bcrypt from 'bcrypt';
@@ -14,7 +16,7 @@ import { sendPasswordResetMail } from '../services/mail';
 const SALT_WORK_FACTOR = 10;
 const PASSWORD_TEST = /.{8,}/;
 export const MODEL_NAME = 'User';
-const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
+export const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
 
 const resolveDNS = util.promisify(dns.resolve);
@@ -122,6 +124,8 @@ UserSchema.pre('save', function preSave(next) {
     next();
   }
 
+  this.tokens = this.activeTokens;
+
   if (!PASSWORD_TEST.test(this.password)) {
     throw new Error('Password should match security criteria');
   }
@@ -138,12 +142,25 @@ UserSchema.pre('save', function preSave(next) {
     .catch((err) => next(err));
 });
 
+UserSchema.virtual('activeTokens')
+  .get(function getName() {
+    const [firsts = []] = chunk(orderBy(
+      this.tokens
+        .filter((t) => t.attempts.length < 3 && t.expiration > new Date()),
+      ['expiration'],
+      ['desc'],
+    ), 10);
+    return firsts;
+  });
+
+
 UserSchema.methods.hasPasswordExpired = function hasPasswordExpired() {
   return this.passwordExpiration && this.passwordExpiration < new Date();
 };
-UserSchema.methods.emitJWT = function emitJWT() {
+UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   const u = this.toObject();
   u.id = u._id;
+  u.isRenewable = isRenewable;
   delete u._id;
   delete u.password;
   return jwt.sign(
@@ -164,6 +181,28 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
   }
   return bcrypt.compare(password, this.password);
 };
+
+UserSchema.methods.compareResetToken = async function compareResetToken(token, email) {
+  const tokenRow = this.activeTokens
+    .filter((t) => !!t.email)
+    .find((t) => t.email === email);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    await this.save();
+    return false;
+  }
+
+  await this.save();
+
+  return true;
+};
+
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles
@@ -203,9 +242,7 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   const email = encodeURIComponent(this.email.canonical);
-  // TODO change for good url when front will be ready
-  // return `${config.get('website_url')}/mon-compte/edit-account?email=${email}&token=${token}`;
-  return `${config.get('website_url')}?email=${email}&token=${token}`;
+  return `${config.get('website_url')}/compte?email=${email}&token=${token}`;
 };
 
 UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
