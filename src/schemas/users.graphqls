@@ -51,19 +51,7 @@ type User implements Node {
     email: UserEmail
 }
 
-type OwnUser implements Node {
-    # Unique id of the user
-    id: String!
-    # Date of creation
-    createdAt: DateTime!
-    # Revision datetime to avoid collisions on edition
-    updatedAt: DateTime!
-    # Firstname of the user
-    firstname: String
-    # Lastname of the user
-    lastname: String
-    # Email, will be indexed
-    email: UserEmail
+type OwnUser {
     # Password, set by user
     password: String
 }
