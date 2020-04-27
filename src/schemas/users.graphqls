@@ -7,7 +7,7 @@ extend type Query {
 extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
-    editMe(user: UserInput): OwnUser!
+    editMe(user: OwnUserInput): User!
     deleteUser(id: String!): User!
     resetPassword(email: EmailAddress!): Boolean!
 }
@@ -27,6 +27,9 @@ input UserInput {
     firstname: String
     lastname: String
     email: EmailAddress
+}
+
+input OwnUserInput {
     password: String
 }
 
@@ -49,21 +52,4 @@ type User implements Node {
     lastname: String
     # Email, will be indexed
     email: UserEmail
-}
-
-type OwnUser implements Node {
-    # Unique id of the user
-    id: String!
-    # Date of creation
-    createdAt: DateTime!
-    # Revision datetime to avoid collisions on edition
-    updatedAt: DateTime!
-    # Firstname of the user
-    firstname: String
-    # Lastname of the user
-    lastname: String
-    # Email, will be indexed
-    email: UserEmail
-    # Password, set by user
-    password: String
 }
