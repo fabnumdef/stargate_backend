@@ -6,7 +6,7 @@ function mutateEditMe(user, me) {
   const { mutate } = queryFactory(me);
   return mutate({
     mutation: gql`
-        mutation EditMeMutation($user: UserInput!) {
+        mutation EditMeMutation($user: OwnUserInput!) {
             editMe(user: $user) {
                 id
                 firstname
@@ -18,7 +18,7 @@ function mutateEditMe(user, me) {
   });
 }
 
-it('Test to edit a user', async () => {
+it('Test to user edit himself', async () => {
   const dummyUser = await createDummyUser();
   const newFirstname = nanoid();
   try {

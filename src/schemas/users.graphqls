@@ -30,6 +30,8 @@ input UserInput {
 }
 
 input OwnUserInput {
+    firstname: String
+    lastname: String
     password: String
 }
 
