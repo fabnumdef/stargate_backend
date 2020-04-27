@@ -237,6 +237,11 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
       original: data.email,
     };
   }
+
+  if (data.password) {
+    filteredData.password = data.password;
+  }
+
   this.set(filteredData);
 };
 

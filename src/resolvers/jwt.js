@@ -10,9 +10,12 @@ export const Mutation = {
 
     if (!user
             || (password && !(await user.comparePassword(password)))
-            || (token && !(await user.compareResetToken(token, email)))
     ) {
       throw new Error(`Email "${email}" and password do not match.`);
+    }
+
+    if ((token && !(await user.compareResetToken(token, email)))) {
+      throw new Error('Expired link');
     }
 
     if (user.hasPasswordExpired()) {

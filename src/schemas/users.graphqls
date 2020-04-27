@@ -1,11 +1,13 @@
 extend type Query {
     listUsers(cursor: OffsetCursor, filters: UserFilters): UsersList!
     getUser(id: String!): User
+    me: User
 }
 
 extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
+    editMe(user: UserInput): OwnUser!
     deleteUser(id: String!): User!
     resetPassword(email: EmailAddress!): Boolean!
 }
@@ -47,4 +49,21 @@ type User implements Node {
     lastname: String
     # Email, will be indexed
     email: UserEmail
+}
+
+type OwnUser implements Node {
+    # Unique id of the user
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    # Firstname of the user
+    firstname: String
+    # Lastname of the user
+    lastname: String
+    # Email, will be indexed
+    email: UserEmail
+    # Password, set by user
+    password: String
 }
