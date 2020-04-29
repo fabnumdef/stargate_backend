@@ -1,11 +1,13 @@
 extend type Query {
     listUsers(cursor: OffsetCursor, filters: UserFilters): UsersList!
     getUser(id: String!): User
+    me: User
 }
 
 extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
+    editMe(user: OwnUserInput): User!
     deleteUser(id: String!): User!
     resetPassword(email: EmailAddress!): Boolean!
 }
@@ -25,6 +27,11 @@ input UserInput {
     firstname: String
     lastname: String
     email: EmailAddress
+}
+
+input OwnUserInput {
+    firstname: String
+    lastname: String
     password: String
 }
 
