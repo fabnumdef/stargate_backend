@@ -26,7 +26,7 @@ enum RequestObject {
 input RequestVisitorInput {
     nid: String
     firstname: String!
-    birthdayLastname: String!
+    birthLastname: String!
     usageLastname: String!
     rank: String
     company: String

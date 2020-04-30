@@ -8,11 +8,15 @@ const PlaceSchema = new Schema({
   campus: {
     _id: String,
     label: String,
-    timeplace: String,
+    timezone: String,
   },
-  place: {
+  zone: {
     _id: { type: Schema.ObjectId },
     label: { type: String },
+  },
+  unitInCharge: {
+    _id: { type: Schema.ObjectId },
+    label: { type: String, required: true },
   },
 }, { timestamps: true });
 

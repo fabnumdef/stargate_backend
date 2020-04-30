@@ -1,4 +1,4 @@
-import { StateNode, interpret } from 'xstate';
+import { StateNode, interpret, createMachine } from 'xstate';
 import Unit, { generateDummyUnit } from './unit';
 import { WORKFLOW_BEHAVIOR_VALIDATION } from '../../src/models/unit';
 
@@ -31,7 +31,7 @@ describe('Ensure that workflow is rightly generated for a unit', () => {
         ],
       },
     }));
-    expect(unit.buildWorkflow()).toBeInstanceOf(StateNode);
+    expect(createMachine(unit.buildWorkflow())).toBeInstanceOf(StateNode);
   });
 
   it('Should be validable from start to end, manually', async () => {
@@ -44,7 +44,7 @@ describe('Ensure that workflow is rightly generated for a unit', () => {
         ],
       },
     }));
-    const state = unit.buildWorkflow();
+    const state = createMachine(unit.buildWorkflow());
     const service = interpret(state);
     service.start();
     unit.workflow.steps.forEach((step) => {
