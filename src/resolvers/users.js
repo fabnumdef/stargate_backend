@@ -12,12 +12,29 @@ export const Mutation = {
     user.setFromGraphQLSchema(data);
     return user.save();
   },
+  async editMe(_, { user: data }, ctx) {
+    const { id } = ctx.user;
+    const user = await User.findById(id);
+    user.setFromGraphQLSchema(data);
+    return user.save();
+  },
   async deleteUser(_, { id }) {
     const removedUser = await User.findByIdAndRemove(id);
     if (!removedUser) {
       throw new Error('User not found');
     }
     return removedUser;
+  },
+  async resetPassword(_, { email }) {
+    const userExists = await User.findByEmail(email);
+    if (!userExists) {
+      return true;
+    }
+    const { token } = await userExists.generateResetToken({ email });
+    await userExists.save();
+
+    await userExists.sendResetPasswordMail(token);
+    return true;
   },
 };
 
@@ -31,6 +48,10 @@ export const Query = {
     };
   },
   async getUser(_parent, { id }, _ctx, info) {
+    return User.findByIdWithProjection(id, info);
+  },
+  async me(_parent, _, ctx, info) {
+    const { id } = ctx.user;
     return User.findByIdWithProjection(id, info);
   },
 };

@@ -17,6 +17,7 @@ export const generateDummyUser = (params) => {
     },
     password: nanoid(),
     createdAt: new Date(),
+    tokens: [],
     ...params,
   };
 };

@@ -7,9 +7,19 @@
     "duration": 3600
   },
   "mongodb": "mongodb://localhost/stargate",
-  "website_url": "",
+  "website_url": "http://localhost:4200",
   "mail": {
-    "whitelist_domains": [""]
+    "whitelist_domains": [""],
+    "transporter": {
+      "host": "",
+      "port": 1025,
+      "secure": false,
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    },
+    "default_from": "\"name\" <name@localhost>"
   },
   "default_timezone": "Europe/Paris"
 }
