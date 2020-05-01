@@ -50,8 +50,18 @@ type UserRole {
 
 input UserRoleInput {
     role: String
-    campuses: [CampusInput]
-    units: [UnitInput]
+    campuses: [UserCampusInput]
+    units: [UserUnitInput]
+}
+
+input UserCampusInput {
+    _id: String!
+    label: String
+}
+
+input UserUnitInput {
+    _id: String!
+    label: String
 }
 
 type User implements Node {
