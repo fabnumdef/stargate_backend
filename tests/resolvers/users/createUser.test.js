@@ -38,7 +38,8 @@ it('Test to create a user', async () => {
       expect(data.createUser).toHaveProperty('firstname', dummyUser.firstname);
       const dbVersion = await User.findById(data.createUser.id);
       expect(dbVersion).toHaveProperty('firstname', dummyUser.firstname);
-      expect(dbVersion).toHaveProperty('__v', 0);
+      expect(dbVersion).toHaveProperty('__v', 1);
+      expect(dbVersion.tokens[0]).toHaveProperty('token');
     }
   } finally {
     await User.findOneAndDelete(dummyUser);

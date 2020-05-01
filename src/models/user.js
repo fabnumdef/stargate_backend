@@ -11,7 +11,7 @@ import { normalizeEmail } from 'validator';
 import { DateTime } from 'luxon';
 import { customAlphabet } from 'nanoid';
 import config from '../services/config';
-import { sendPasswordResetMail } from '../services/mail';
+import { sendPasswordResetMail, sendUserCreateMail } from '../services/mail';
 
 const SALT_WORK_FACTOR = 10;
 const PASSWORD_TEST = /.{8,}/;
@@ -253,6 +253,12 @@ UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
 UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
   const resetTokenUrl = this.getResetTokenUrl(token);
   await sendPasswordResetMail(this.email.canonical,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendCreateUserMail = async function sendCreateUserMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendUserCreateMail(this.email.canonical,
     { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
 };
 

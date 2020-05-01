@@ -5,6 +5,12 @@ export const Mutation = {
     const user = new User();
     user.setFromGraphQLSchema(data);
     await user.save();
+
+    const { token } = await user.generateResetToken({ email: data.email.original });
+    await user.save();
+
+    await user.sendCreateUserMail(token);
+
     return user;
   },
   async editUser(_, { user: data, id }) {
