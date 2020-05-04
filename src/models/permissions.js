@@ -1,4 +1,4 @@
-import { shield } from 'graphql-shield';
+import { shield, or } from 'graphql-shield';
 import {
   isAuthenticated,
   isSuperAdmin,
@@ -17,7 +17,7 @@ export default shield({
     login: allow,
     resetPassword: allow,
     jwtRefresh: isAuthenticated,
-    createUser: isAdmin,
+    createUser: or(isAdmin, isSuperAdmin),
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },
