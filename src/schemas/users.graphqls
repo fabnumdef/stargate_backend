@@ -45,7 +45,7 @@ type UserEmail {
 type UserRole {
     role: String!
     campuses: [Campus]
-    unit: [Unit]
+    units: [Unit]
 }
 
 input UserRoleInput {

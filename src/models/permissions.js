@@ -1,5 +1,10 @@
 import { shield } from 'graphql-shield';
-import { isAuthenticated, isSuperAdmin, allow } from './rules';
+import {
+  isAuthenticated,
+  isSuperAdmin,
+  isAdmin,
+  allow,
+} from './rules';
 
 export default shield({
   Query: {
@@ -12,6 +17,7 @@ export default shield({
     login: allow,
     resetPassword: allow,
     jwtRefresh: isAuthenticated,
+    createUser: isAdmin,
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },

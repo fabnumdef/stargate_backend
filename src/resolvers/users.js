@@ -2,6 +2,10 @@ import User from '../models/user';
 
 export const Mutation = {
   async createUser(_, { user: data }) {
+    const userExists = await User.findByEmail(data.email);
+    if (userExists) {
+      throw new Error('User already exists');
+    }
     const user = new User();
     user.setFromGraphQLSchema(data);
     await user.save();

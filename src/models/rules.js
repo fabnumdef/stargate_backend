@@ -9,3 +9,7 @@ export const isAuthenticated = rule()(async (parent, args, ctx) => !!ctx.user);
 export const isSuperAdmin = rule()(
   async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_SUPERADMIN === role),
 );
+
+export const isAdmin = rule()(
+  async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_ADMIN === role),
+);
