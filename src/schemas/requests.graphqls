@@ -1,11 +1,16 @@
 extend type Campus {
-#    listRequests(as: Role, cursor: OffsetCursor, filters: RequestFilters): RequestsList!
     getRequest(id: String!): Request
 }
 
 extend type CampusMutation {
     createRequest(request: RequestInput!): Request!
     editRequest(id: String!, request: RequestInput!): Request!
+    mutateRequest(id: String!): RequestMutation!
+}
+
+type RequestMutation {
+    addVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    deleteVisitor(id: String!): RequestVisitor!
 }
 
 type RequestsList implements OffsetPaginator {
@@ -23,6 +28,11 @@ enum RequestObject {
     PROFESSIONAL
 }
 
+input RequestIdentityDocumentInput {
+    kind: String
+    reference: String
+}
+
 input RequestVisitorInput {
     nid: String
     firstname: String!
@@ -34,18 +44,18 @@ input RequestVisitorInput {
     vip: Boolean
     vipReason: String
     nationality: String!
-    identityRef: String!
+    identityDocuments: [RequestIdentityDocumentInput]
     birthday: DateTime!
     birthdayPlace: String!
 }
 
 input RequestInput {
-    object: String!
-    reason: String!
-    from: DateTime!
-    to: DateTime!
-    visitors: [RequestVisitorInput]!
-    places: [String]!
+    object: RequestObject
+    reason: String
+    from: DateTime
+    to: DateTime
+    # List of IDs of places where we request access
+    places: [String]
 }
 
 type RequestStateContext {
@@ -53,13 +63,30 @@ type RequestStateContext {
 }
 
 type RequestState {
-    value: String
     context: RequestStateContext
 }
 
+type RequestIdentityDocument {
+    kind: String
+    reference: String
+}
+
 type RequestVisitor {
-    visitor: User
-    currentSteps: RequestState
+    id: String
+    nid: String
+    firstname: String!
+    birthLastname: String!
+    usageLastname: String!
+    isInternal: Boolean!
+    rank: String
+    company: String
+    email: String!
+    vip: Boolean
+    vipReason: String
+    nationality: String!
+    identityDocuments: [RequestIdentityDocument]
+    birthday: DateTime!
+    birthplace: String!
 }
 
 type Request implements Node {

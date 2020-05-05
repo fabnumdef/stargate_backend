@@ -2,6 +2,7 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin } from '../../models/user';
 import Place, { generateDummyPlace } from '../../models/place';
 import { createDummyCampus } from '../../models/campus';
+import { createDummyUnit } from '../../models/unit';
 
 function mutateCreatePlace(campusId, place, user = null) {
   const { mutate } = queryFactory(user);
@@ -22,11 +23,14 @@ function mutateCreatePlace(campusId, place, user = null) {
 
 it('Test to create a place', async () => {
   const campus = await createDummyCampus();
+  const unit = await createDummyUnit();
   const dummyPlace = generateDummyPlace();
-
   try {
     {
-      const { errors } = await mutateCreatePlace(campus._id, dummyPlace);
+      const { errors } = await mutateCreatePlace(
+        campus._id,
+        { unitInCharge: unit._id.toString(), ...dummyPlace },
+      );
 
       // You're not authorized to create place while without rights
       expect(errors).toHaveLength(1);
@@ -36,7 +40,7 @@ it('Test to create a place', async () => {
     {
       const { data: { mutateCampus: { createPlace: createdPlace } } } = await mutateCreatePlace(
         campus._id,
-        dummyPlace,
+        { unitInCharge: unit._id.toString(), ...dummyPlace },
         generateDummySuperAdmin(),
       );
       expect(createdPlace).toHaveProperty('id');
@@ -48,6 +52,7 @@ it('Test to create a place', async () => {
     }
   } finally {
     await Place.findOneAndDelete(dummyPlace);
+    await unit.deleteOne();
     await campus.deleteOne();
   }
 });

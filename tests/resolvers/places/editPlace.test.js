@@ -3,6 +3,7 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin } from '../../models/user';
 import Place, { createDummyPlace } from '../../models/place';
 import { createDummyCampus } from '../../models/campus';
+import { createDummyUnit } from '../../models/unit';
 
 function mutateEditionPlace(campusId, id, place, user = null) {
   const { mutate } = queryFactory(user);
@@ -23,7 +24,8 @@ function mutateEditionPlace(campusId, id, place, user = null) {
 
 it('Test to edit a place', async () => {
   const campus = await createDummyCampus();
-  const dummyPlace = await createDummyPlace({ campus });
+  const unit = await createDummyUnit();
+  const dummyPlace = await createDummyPlace({ campus, unitInCharge: unit });
   const newLabel = nanoid();
   try {
     {
@@ -50,6 +52,7 @@ it('Test to edit a place', async () => {
     }
   } finally {
     await Place.findOneAndDelete({ _id: dummyPlace._id });
+    await unit.deleteOne();
     await campus.deleteOne();
   }
 });

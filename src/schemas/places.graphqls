@@ -18,7 +18,8 @@ input PlaceFilters {
 }
 
 input PlaceInput {
-    label: String!
+    label: String
+    unitInCharge: String
 }
 
 type Place implements Node {

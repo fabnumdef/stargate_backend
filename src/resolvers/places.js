@@ -1,10 +1,10 @@
 export const CampusMutation = {
   async createPlace(campus, { place }) {
-    return campus.createPlace(place);
+    return campus.createPlaceFromGraphQLSchema(place);
   },
   async editPlace(campus, { place, id }) {
     const c = await campus.findPlacebyId(id);
-    c.set(place);
+    await c.setFromGraphQLSchema(place);
     return c.save();
   },
 };

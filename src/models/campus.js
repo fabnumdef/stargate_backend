@@ -40,10 +40,11 @@ CampusSchema.methods.createZone = async function createZone(data) {
   return zone.save();
 };
 
-CampusSchema.methods.createPlace = async function createPlace(data) {
+CampusSchema.methods.createPlaceFromGraphQLSchema = async function createPlace(data) {
   const Place = mongoose.model(PlaceModelName);
-  const place = new Place(data);
+  const place = new Place();
   place.campus = this;
+  await place.setFromGraphQLSchema(data);
   return place.save();
 };
 

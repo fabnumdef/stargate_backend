@@ -48,10 +48,10 @@ describe('Ensure that workflow is rightly generated for a unit', () => {
     const service = interpret(state);
     service.start();
     unit.workflow.steps.forEach((step) => {
-      expect(service.state.value).toBe(step._id.toString());
-      service.send('VALIDATE');
+      expect(service.state.value).toBe(`U${unit._id.toString()}S${step._id.toString()}`);
+      service.send(`U${unit._id.toString()}S${step._id.toString()}_accept`);
     });
     service.stop();
-    expect(service.state.value).toBe('final');
+    expect(service.state.value).toBe('accepted');
   });
 });

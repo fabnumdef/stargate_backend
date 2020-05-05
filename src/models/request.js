@@ -5,6 +5,8 @@ import {
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
+export const ID_DOCUMENT_IDCARD = 'IDCard';
+export const ID_DOCUMENT_PASSPORT = 'Passport';
 
 const RequestSchema = new Schema({
   object: { type: String, required: true },
@@ -14,6 +16,19 @@ const RequestSchema = new Schema({
   campus: {
     _id: String,
     label: String,
+  },
+  owner: {
+    _id: {
+      type: Schema.ObjectId,
+      required: true,
+      alias: 'owner.id',
+    },
+    firstname: String,
+    lastname: String,
+    email: {
+      original: String,
+      canonical: String,
+    },
   },
   visitors: [
     {
@@ -30,18 +45,28 @@ const RequestSchema = new Schema({
         type: String,
         required: true,
       },
-      rank: String,
       company: String,
+      rank: String,
       email: String,
       vip: Boolean,
       vipReason: String,
       nationality: String,
-      identityRef: String,
+      identityDocuments: [{
+        kind: {
+          type: String,
+          enum: [ID_DOCUMENT_IDCARD, ID_DOCUMENT_PASSPORT],
+          required: true,
+        },
+        reference: {
+          type: String,
+          required: true,
+        },
+      }],
       birthday: {
         type: Date,
         required: true,
       },
-      birthdayPlace: {
+      birthplace: {
         type: String,
         required: true,
       },
