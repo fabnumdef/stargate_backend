@@ -198,6 +198,7 @@ UserSchema.methods.compareResetToken = async function compareResetToken(token, e
     return false;
   }
 
+  this.email.confirmed = true;
   await this.save();
 
   return true;
