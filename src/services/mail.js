@@ -64,7 +64,7 @@ export const sendPasswordResetMail = prepareSendMailFromTemplate(
   'Réinitialisation de votre mot de passe Stargate',
 );
 
-export const sendUserCreateMail = prepareSendMailFromTemplate(
+export const sendUserCreationMail = prepareSendMailFromTemplate(
   'create-user',
   'Initialisation de votre mot de passe Stargate',
 );

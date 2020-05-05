@@ -11,5 +11,6 @@ export const isSuperAdmin = rule()(
 );
 
 export const isAdmin = rule()(
+  // @todo: Check campus too
   async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_ADMIN === role),
 );

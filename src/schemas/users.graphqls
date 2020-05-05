@@ -55,12 +55,12 @@ input UserRoleInput {
 }
 
 input UserCampusInput {
-    _id: String!
+    id: String!
     label: String
 }
 
 input UserUnitInput {
-    _id: String!
+    id: String!
     label: String
 }
 
