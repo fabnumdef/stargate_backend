@@ -11,7 +11,7 @@ import { normalizeEmail } from 'validator';
 import { DateTime } from 'luxon';
 import { customAlphabet } from 'nanoid';
 import config from '../services/config';
-import { sendPasswordResetMail } from '../services/mail';
+import { sendPasswordResetMail, sendUserCreationMail } from '../services/mail';
 
 const SALT_WORK_FACTOR = 10;
 const PASSWORD_TEST = /.{8,}/;
@@ -83,12 +83,12 @@ const UserSchema = new Schema({
     _id: false,
     role: { type: String, required: true },
     campuses: [{
-      _id: { type: String, required: true },
+      _id: { type: String, required: true, alias: 'id' },
       label: { type: String, required: true },
     }],
     units: [
       {
-        _id: { type: Schema.ObjectId, required: true },
+        _id: { type: Schema.ObjectId, required: true, alias: 'id' },
         label: { type: String, required: true },
       },
     ],
@@ -198,6 +198,7 @@ UserSchema.methods.compareResetToken = async function compareResetToken(token, e
     return false;
   }
 
+  this.email.confirmed = true;
   await this.save();
 
   return true;
@@ -253,6 +254,12 @@ UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
 UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
   const resetTokenUrl = this.getResetTokenUrl(token);
   await sendPasswordResetMail(this.email.canonical,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendCreateUserMail = async function sendCreateUserMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendUserCreationMail(this.email.canonical,
     { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
 };
 

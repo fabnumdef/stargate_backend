@@ -27,6 +27,7 @@ input UserInput {
     firstname: String
     lastname: String
     email: EmailAddress
+    roles: [UserRoleInput]
 }
 
 input OwnUserInput {
@@ -39,6 +40,28 @@ type UserEmail {
     original: EmailAddress
     canonical: EmailAddress
     confirmed: Boolean
+}
+
+type UserRole {
+    role: String!
+    campuses: [Campus]
+    units: [Unit]
+}
+
+input UserRoleInput {
+    role: String
+    campuses: [UserCampusInput]
+    units: [UserUnitInput]
+}
+
+input UserCampusInput {
+    id: String!
+    label: String
+}
+
+input UserUnitInput {
+    id: String!
+    label: String
 }
 
 type User implements Node {
@@ -54,4 +77,6 @@ type User implements Node {
     lastname: String
     # Email, will be indexed
     email: UserEmail
+    # Roles, array of user's roles
+    roles: [UserRole]
 }
