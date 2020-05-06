@@ -116,6 +116,12 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
   return this;
 };
 
+// @todo: move this in separated collection
+RequestSchema.methods.addVisitor = async function addVisitor(visitor) {
+  this.visitors.push(visitor);
+  return this.save();
+};
+
 /**
  * Identifiers syntax in the state machine, design to be readable, functional & uniq :
  * {LETTER}{mongo id, hexadecimal}, chained, from the most global to the most specific, left to right

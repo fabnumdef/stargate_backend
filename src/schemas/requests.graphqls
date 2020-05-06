@@ -46,7 +46,7 @@ input RequestVisitorInput {
     nationality: String!
     identityDocuments: [RequestIdentityDocumentInput]
     birthday: DateTime!
-    birthdayPlace: String!
+    birthplace: String!
 }
 
 input RequestInput {

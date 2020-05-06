@@ -9,6 +9,15 @@ export const CampusMutation = {
     r.set(request);
     return r.save();
   },
+  async mutateRequest(_, { id }) {
+    return Request.findById(id);
+  },
+};
+
+export const RequestMutation = {
+  async addVisitor(request, { visitor }) {
+    return request.addVisitor(visitor);
+  },
 };
 
 export const Campus = {
