@@ -18,6 +18,9 @@ export const RequestMutation = {
   async addVisitor(request, { visitor }) {
     return request.addVisitor(visitor);
   },
+  async deleteVisitor(request, { id }) {
+    return request.removeVisitor(id);
+  },
 };
 
 export const Campus = {

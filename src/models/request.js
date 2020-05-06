@@ -3,7 +3,7 @@ import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 export const MODEL_NAME = 'Request';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
@@ -32,6 +32,7 @@ const RequestSchema = new Schema({
   },
   visitors: [
     {
+      _id: { type: Schema.ObjectId, default: () => Types.ObjectId(), alias: 'id' },
       nid: String,
       firstname: {
         type: String,
@@ -119,7 +120,15 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
 // @todo: move this in separated collection
 RequestSchema.methods.addVisitor = async function addVisitor(visitor) {
   this.visitors.push(visitor);
-  return this.save();
+  await this.save();
+  return visitor;
+};
+
+// @todo: move this in separated collection
+RequestSchema.methods.removeVisitor = async function removeVisitor(id) {
+  const visitor = this.visitors.splice(this.visitors.findIndex((v) => v._id.toString() === id), 1);
+  await this.save();
+  return visitor[0];
 };
 
 /**

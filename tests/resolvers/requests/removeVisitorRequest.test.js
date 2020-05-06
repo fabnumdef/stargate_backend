@@ -3,32 +3,36 @@ import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest, generateDummyVisitor } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 
-function mutateAddVisitorRequest(campusId, requestId, visitor, user = null) {
+function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation AddVisitorRequestMutation($campusId: String!, $requestId: String!, $visitor: RequestVisitorInput!) {
+      mutation RemoveVisitorRequestMutation($campusId: String!, $requestId: String!, $visitorId: String!) {
         mutateCampus(id: $campusId) {
           mutateRequest(id: $requestId) {
-            addVisitor(visitor: $visitor) {
+            deleteVisitor(id: $visitorId) {
               id
             }
           }
         }
       }
-        `,
-    variables: { campusId, requestId: requestId.toString ? requestId.toString() : requestId, visitor },
+    `,
+    variables: {
+      campusId,
+      requestId: requestId.toString ? requestId.toString() : requestId,
+      visitorId: visitorId.toString ? visitorId.toString() : visitorId,
+    },
   });
 }
 
-it('Test to add a visitor to a request', async () => {
+it('Test to remove a visitor from a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
-  const dummyRequest = await createDummyRequest({ campus, owner });
-  const visitor = await generateDummyVisitor();
+  const dummyRequest = await createDummyRequest({ campus, owner, visitors: [await generateDummyVisitor()] });
+  const visitor = dummyRequest.visitors[0];
   try {
     {
-      const { errors } = await mutateAddVisitorRequest(campus._id, dummyRequest._id, visitor);
+      const { errors } = await mutateRemoveVisitorRequest(campus._id, dummyRequest._id, visitor.id);
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -36,13 +40,13 @@ it('Test to add a visitor to a request', async () => {
     }
 
     {
-      const { data: { mutateCampus: { mutateRequest: { addVisitor } } } } = await mutateAddVisitorRequest(
+      const { data: { mutateCampus: { mutateRequest: { deleteVisitor } } } } = await mutateRemoveVisitorRequest(
         campus._id,
         dummyRequest._id,
-        visitor,
+        visitor._id,
         generateDummySuperAdmin(),
       );
-      expect(addVisitor).toHaveProperty('id');
+      expect(deleteVisitor).toHaveProperty('id');
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
