@@ -1,0 +1,61 @@
+extend type Request {
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters): RequestVisitorsList!
+}
+
+type RequestMutation {
+    addVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    deleteVisitor(id: String!): RequestVisitor!
+}
+
+type RequestVisitorsList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [RequestVisitor]!
+}
+
+input RequestVisitorFilters {
+    firstname: String
+}
+
+input RequestIdentityDocumentInput {
+    kind: String
+    reference: String
+}
+
+input RequestVisitorInput {
+    nid: String
+    firstname: String!
+    birthLastname: String!
+    usageLastname: String!
+    rank: String
+    company: String
+    email: String!
+    vip: Boolean
+    vipReason: String
+    nationality: String!
+    identityDocuments: [RequestIdentityDocumentInput]
+    birthday: DateTime!
+    birthplace: String!
+}
+
+type RequestIdentityDocument {
+    kind: String
+    reference: String
+}
+
+type RequestVisitor {
+    id: String
+    nid: String
+    firstname: String!
+    birthLastname: String!
+    usageLastname: String!
+    isInternal: Boolean!
+    rank: String
+    company: String
+    email: String!
+    vip: Boolean
+    vipReason: String
+    nationality: String!
+    identityDocuments: [RequestIdentityDocument]
+    birthday: DateTime!
+    birthplace: String!
+}

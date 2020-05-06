@@ -8,11 +8,6 @@ extend type CampusMutation {
     mutateRequest(id: String!): RequestMutation!
 }
 
-type RequestMutation {
-    addVisitor(visitor: RequestVisitorInput!): RequestVisitor!
-    deleteVisitor(id: String!): RequestVisitor!
-}
-
 type RequestsList implements OffsetPaginator {
     meta: OffsetPaginatorMeta!
     list: [Request]!
@@ -28,27 +23,6 @@ enum RequestObject {
     PROFESSIONAL
 }
 
-input RequestIdentityDocumentInput {
-    kind: String
-    reference: String
-}
-
-input RequestVisitorInput {
-    nid: String
-    firstname: String!
-    birthLastname: String!
-    usageLastname: String!
-    rank: String
-    company: String
-    email: String!
-    vip: Boolean
-    vipReason: String
-    nationality: String!
-    identityDocuments: [RequestIdentityDocumentInput]
-    birthday: DateTime!
-    birthplace: String!
-}
-
 input RequestInput {
     object: RequestObject
     reason: String
@@ -56,37 +30,6 @@ input RequestInput {
     to: DateTime
     # List of IDs of places where we request access
     places: [String]
-}
-
-type RequestStateContext {
-    string: String
-}
-
-type RequestState {
-    context: RequestStateContext
-}
-
-type RequestIdentityDocument {
-    kind: String
-    reference: String
-}
-
-type RequestVisitor {
-    id: String
-    nid: String
-    firstname: String!
-    birthLastname: String!
-    usageLastname: String!
-    isInternal: Boolean!
-    rank: String
-    company: String
-    email: String!
-    vip: Boolean
-    vipReason: String
-    nationality: String!
-    identityDocuments: [RequestIdentityDocument]
-    birthday: DateTime!
-    birthplace: String!
 }
 
 type Request implements Node {
@@ -100,8 +43,7 @@ type Request implements Node {
     reason: String!
     from: DateTime!
     to: DateTime!
-    # List of visitors
-    visitors: [RequestVisitor]!
     # List of places to be visited
     places: [Place]!
 }
+
