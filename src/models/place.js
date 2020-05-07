@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { MODEL_NAME as UnitModelName } from './unit';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Place';
@@ -8,12 +9,26 @@ const PlaceSchema = new Schema({
   campus: {
     _id: String,
     label: String,
-    timeplace: String,
+    timezone: String,
   },
-  place: {
+  zone: {
     _id: { type: Schema.ObjectId },
     label: { type: String },
   },
+  unitInCharge: {
+    _id: { type: Schema.ObjectId, required: true },
+    label: { type: String },
+  },
 }, { timestamps: true });
+
+PlaceSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(data) {
+  const Unit = mongoose.model(UnitModelName);
+  const filteredData = data;
+  if (data.unitInCharge) {
+    filteredData.unitInCharge = await Unit.findById(data.unitInCharge);
+  }
+
+  this.set(filteredData);
+};
 
 export default mongoose.model(MODEL_NAME, PlaceSchema, 'places');

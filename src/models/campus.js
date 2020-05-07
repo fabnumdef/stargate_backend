@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
 import { MODEL_NAME as UnitModelName } from './unit';
+import { MODEL_NAME as RequestModelName } from './request';
 import { MODEL_NAME as ZoneModelName } from './zone';
 import { MODEL_NAME as PlaceModelName } from './place';
 import config from '../services/config';
@@ -39,10 +40,11 @@ CampusSchema.methods.createZone = async function createZone(data) {
   return zone.save();
 };
 
-CampusSchema.methods.createPlace = async function createPlace(data) {
+CampusSchema.methods.createPlaceFromGraphQLSchema = async function createPlace(data) {
   const Place = mongoose.model(PlaceModelName);
-  const place = new Place(data);
+  const place = new Place();
   place.campus = this;
+  await place.setFromGraphQLSchema(data);
   return place.save();
 };
 
@@ -94,6 +96,13 @@ CampusSchema.methods.findPlacebyId = async function findPlacebyId(id) {
 CampusSchema.methods.findZoneByIdAndRemove = async function findZoneByIdAndRemove(id) {
   const Zone = mongoose.model(ZoneModelName);
   return Zone.findOneAndRemove({ _id: id, 'campus._id': this._id });
+};
+
+CampusSchema.methods.createRequest = async function createRequest(data) {
+  const Request = mongoose.model(RequestModelName);
+  const request = new Request(data);
+  request.campus = this;
+  return request.save();
 };
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');

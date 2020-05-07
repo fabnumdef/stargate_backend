@@ -1,0 +1,49 @@
+extend type Campus {
+    getRequest(id: String!): Request
+}
+
+extend type CampusMutation {
+    createRequest(request: RequestInput!): Request!
+    editRequest(id: String!, request: RequestInput!): Request!
+    mutateRequest(id: String!): RequestMutation!
+}
+
+type RequestsList implements OffsetPaginator {
+    meta: OffsetPaginatorMeta!
+    list: [Request]!
+}
+
+input RequestFilters {
+    from: DateTime
+    to: DateTime
+}
+
+enum RequestObject {
+    PRIVATE
+    PROFESSIONAL
+}
+
+input RequestInput {
+    object: RequestObject
+    reason: String
+    from: DateTime
+    to: DateTime
+    # List of IDs of places where we request access
+    places: [String]
+}
+
+type Request implements Node {
+    # Unique id of the request
+    id: String!
+    # Date of creation
+    createdAt: DateTime!
+    # Revision datetime to avoid collisions on edition
+    updatedAt: DateTime!
+    object: String!
+    reason: String!
+    from: DateTime!
+    to: DateTime!
+    # List of places to be visited
+    places: [Place]!
+}
+

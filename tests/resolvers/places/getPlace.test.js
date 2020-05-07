@@ -2,6 +2,7 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin } from '../../models/user';
 import Place, { createDummyPlace } from '../../models/place';
 import { createDummyCampus } from '../../models/campus';
+import { createDummyUnit } from '../../models/unit';
 
 function queryGetPlace(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
@@ -25,7 +26,8 @@ function queryGetPlace(campusId, id, user = null) {
 
 it('Test to get a place', async () => {
   const campus = await createDummyCampus();
-  const dummyPlace = await createDummyPlace({ campus });
+  const unit = await createDummyUnit();
+  const dummyPlace = await createDummyPlace({ campus, unitInCharge: unit });
   try {
     {
       const { errors } = await queryGetPlace(campus._id, dummyPlace._id);
@@ -46,6 +48,7 @@ it('Test to get a place', async () => {
     }
   } finally {
     await Place.findOneAndDelete({ _id: dummyPlace._id });
+    await unit.deleteOne();
     await campus.deleteOne();
   }
 });

@@ -21,6 +21,9 @@ export default shield({
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },
+  CampusMutation: {
+    '*': isSuperAdmin,
+  },
 }, {
   allowExternalErrors: true,
 });
