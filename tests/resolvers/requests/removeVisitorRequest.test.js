@@ -1,7 +1,8 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
-import Request, { createDummyRequest, generateDummyVisitor } from '../../models/request';
+import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import Visitor, { createDummyVisitor } from '../../models/visitor';
 
 function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null) {
   const { mutate } = queryFactory(user);
@@ -28,11 +29,11 @@ function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null)
 it('Test to remove a visitor from a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
-  const dummyRequest = await createDummyRequest({ campus, owner, visitors: [await generateDummyVisitor()] });
-  const visitor = dummyRequest.visitors[0];
+  const dummyRequest = await createDummyRequest({ campus, owner });
+  const visitor = await createDummyVisitor({ request: dummyRequest });
   try {
     {
-      const { errors } = await mutateRemoveVisitorRequest(campus._id, dummyRequest._id, visitor.id);
+      const { errors } = await mutateRemoveVisitorRequest(campus._id, dummyRequest._id, visitor._id.toString());
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -46,7 +47,9 @@ it('Test to remove a visitor from a request', async () => {
         visitor._id,
         generateDummySuperAdmin(),
       );
-      expect(deleteVisitor).toHaveProperty('id');
+      expect(deleteVisitor).toHaveProperty('id', visitor._id.toString());
+      const dbVersion = await Visitor.findOne({ _id: visitor._id });
+      expect(dbVersion).toBeNull();
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });

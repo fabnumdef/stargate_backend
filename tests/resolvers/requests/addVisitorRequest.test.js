@@ -1,16 +1,17 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
-import Request, { createDummyRequest, generateDummyVisitor } from '../../models/request';
+import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import Visitor, { generateDummyVisitor } from '../../models/visitor';
 
-function mutateAddVisitorRequest(campusId, requestId, visitor, user = null) {
+function mutatecreateVisitorRequest(campusId, requestId, visitor, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation AddVisitorRequestMutation($campusId: String!, $requestId: String!, $visitor: RequestVisitorInput!) {
+      mutation createVisitorRequestMutation($campusId: String!, $requestId: String!, $visitor: RequestVisitorInput!) {
         mutateCampus(id: $campusId) {
           mutateRequest(id: $requestId) {
-            addVisitor(visitor: $visitor) {
+            createVisitor(visitor: $visitor) {
               id
             }
           }
@@ -28,7 +29,7 @@ it('Test to add a visitor to a request', async () => {
   const visitor = await generateDummyVisitor();
   try {
     {
-      const { errors } = await mutateAddVisitorRequest(campus._id, dummyRequest._id, visitor);
+      const { errors } = await mutatecreateVisitorRequest(campus._id, dummyRequest._id, visitor);
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -36,13 +37,20 @@ it('Test to add a visitor to a request', async () => {
     }
 
     {
-      const { data: { mutateCampus: { mutateRequest: { addVisitor } } } } = await mutateAddVisitorRequest(
+      const { data: { mutateCampus: { mutateRequest: { createVisitor } } } } = await mutatecreateVisitorRequest(
         campus._id,
         dummyRequest._id,
         visitor,
         generateDummySuperAdmin(),
       );
-      expect(addVisitor).toHaveProperty('id');
+      expect(createVisitor).toHaveProperty('id');
+      const dbVersion = await Visitor.findById(createVisitor.id);
+      expect(dbVersion).toMatchObject({
+        firstname: visitor.firstname,
+        usageLastname: visitor.usageLastname,
+      });
+      expect(dbVersion).toHaveProperty('request._id', dummyRequest._id);
+      expect(dbVersion).toHaveProperty('__v', 0);
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });

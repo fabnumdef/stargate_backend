@@ -1,9 +1,10 @@
 extend type Request {
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters): RequestVisitorsList!
+    getVisitor(id: String!): RequestVisitor
 }
 
 type RequestMutation {
-    addVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
 }
 
