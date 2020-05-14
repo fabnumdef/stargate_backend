@@ -24,6 +24,10 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
+  isInternal: {
+    type: Boolean,
+    default: false,
+  },
   company: String,
   rank: String,
   email: String,
