@@ -9,6 +9,7 @@ export const generateDummyVisitor = (...params) => ({
   nationality: nanoid(),
   birthday: new Date(),
   birthplace: nanoid(),
+  isInternal: false,
   ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
 });
 

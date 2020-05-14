@@ -27,6 +27,7 @@ input RequestVisitorInput {
     firstname: String!
     birthLastname: String!
     usageLastname: String!
+    isInternal: Boolean!
     rank: String
     company: String
     email: String!
