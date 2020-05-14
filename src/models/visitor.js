@@ -8,6 +8,7 @@ const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
+export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
 
 const VisitorSchema = new Schema({
   nid: String,
@@ -32,7 +33,7 @@ const VisitorSchema = new Schema({
   identityDocuments: [{
     kind: {
       type: String,
-      enum: [ID_DOCUMENT_IDCARD, ID_DOCUMENT_PASSPORT],
+      enum: [ID_DOCUMENT_IDCARD, ID_DOCUMENT_PASSPORT, ID_DOCUMENT_CIMSCARD],
       required: true,
     },
     reference: {
@@ -60,7 +61,7 @@ const VisitorSchema = new Schema({
     from: { type: Date, required: true },
     to: { type: Date, required: true },
     campus: {
-      _id: String,
+      _id: { type: String, required: true, alias: 'campus.id' },
       label: String,
     },
     owner: {
@@ -78,21 +79,21 @@ const VisitorSchema = new Schema({
     },
     places: [
       {
-        _id: { type: Schema.ObjectId },
+        _id: { type: Schema.ObjectId, required: true, alias: 'id' },
         label: { type: String, required: true },
         zone: {
           _id: { type: Schema.ObjectId },
           label: { type: String },
         },
         unitInCharge: {
-          _id: { type: Schema.ObjectId },
+          _id: { type: Schema.ObjectId, required: true },
           label: { type: String, required: true },
         },
       },
     ],
     units: [
       {
-        _id: { type: Schema.ObjectId },
+        _id: { type: Schema.ObjectId, required: true, alias: 'id' },
         label: { type: String, required: true },
         workflow: {
           steps: [

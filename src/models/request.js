@@ -17,7 +17,7 @@ const RequestSchema = new Schema({
   from: { type: Date, required: true },
   to: { type: Date, required: true },
   campus: {
-    _id: String,
+    _id: { type: String, required: true },
     label: String,
   },
   owner: {
