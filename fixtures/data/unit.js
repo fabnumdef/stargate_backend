@@ -1,4 +1,12 @@
+import mongoose from 'mongoose';
+
+export const orcsId = new mongoose.Types.ObjectId();
+export const trollsId = new mongoose.Types.ObjectId();
+export const entsId = new mongoose.Types.ObjectId();
+export const dwarfsId = new mongoose.Types.ObjectId();
+
 export const ORCS = {
+  _id: orcsId,
   label: 'Orcs',
   campus: {
     _id: 'MORDOR',
@@ -7,6 +15,7 @@ export const ORCS = {
 };
 
 export const TROLLS = {
+  _id: trollsId,
   label: 'Trolls',
   campus: {
     _id: 'MORDOR',
@@ -15,6 +24,7 @@ export const TROLLS = {
 };
 
 export const ENTS = {
+  _id: entsId,
   label: 'Ents',
   campus: {
     _id: 'MIDDLE-EARTH',
@@ -23,6 +33,7 @@ export const ENTS = {
 };
 
 export const DWARFS = {
+  _id: dwarfsId,
   label: 'Dwarfs',
   campus: {
     _id: 'MIDDLE-EARTH',
