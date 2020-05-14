@@ -1,7 +1,8 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
-import Request, { createDummyRequest, generateDummyVisitor } from '../../models/request';
+import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import Visitor, { createDummyVisitor } from '../../models/visitor';
 
 function queryListVisitorsRequest(campusId, requestId, user = null) {
   const { mutate } = queryFactory(user);
@@ -30,8 +31,11 @@ function queryListVisitorsRequest(campusId, requestId, user = null) {
 it('Test to list visitors in a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
-  const visitors = [await generateDummyVisitor(), await generateDummyVisitor()];
-  const dummyRequest = await createDummyRequest({ campus, owner, visitors });
+  const dummyRequest = await createDummyRequest({ campus, owner });
+  const visitors = [
+    await createDummyVisitor({ request: dummyRequest }),
+    await createDummyVisitor({ request: dummyRequest }),
+  ];
 
   try {
     {
@@ -50,6 +54,7 @@ it('Test to list visitors in a request', async () => {
       expect(listVisitors.list).toHaveLength(visitors.length);
     }
   } finally {
+    await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
   }

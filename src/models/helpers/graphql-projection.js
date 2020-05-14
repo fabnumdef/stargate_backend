@@ -13,7 +13,7 @@ function transformProjection(graphQLInfo) {
     return {};
   }
 }
-export default function createdAtPlugin(schema) {
+export default function graphQLProjectionPlugin(schema) {
   /* eslint-disable no-param-reassign */
   schema.statics.findOneWithProjection = function findOneWithProjection(search, graphQLInfo) {
     return this.findOne(search, transformProjection(graphQLInfo));

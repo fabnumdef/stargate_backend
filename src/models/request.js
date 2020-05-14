@@ -2,8 +2,11 @@ import mongoose from 'mongoose';
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
+import {
+  MODEL_NAME as VISITOR_MODEL_NAME,
+} from './visitor';
 
-const { Schema, Types } = mongoose;
+const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
@@ -14,7 +17,7 @@ const RequestSchema = new Schema({
   from: { type: Date, required: true },
   to: { type: Date, required: true },
   campus: {
-    _id: String,
+    _id: { type: String, required: true },
     label: String,
   },
   owner: {
@@ -30,50 +33,6 @@ const RequestSchema = new Schema({
       canonical: String,
     },
   },
-  visitors: [
-    {
-      _id: { type: Schema.ObjectId, default: () => Types.ObjectId(), alias: 'id' },
-      nid: String,
-      firstname: {
-        type: String,
-        required: true,
-      },
-      birthLastname: {
-        type: String,
-        required: true,
-      },
-      usageLastname: {
-        type: String,
-        required: true,
-      },
-      company: String,
-      rank: String,
-      email: String,
-      vip: Boolean,
-      vipReason: String,
-      nationality: String,
-      identityDocuments: [{
-        kind: {
-          type: String,
-          enum: [ID_DOCUMENT_IDCARD, ID_DOCUMENT_PASSPORT],
-          required: true,
-        },
-        reference: {
-          type: String,
-          required: true,
-        },
-      }],
-      birthday: {
-        type: Date,
-        required: true,
-      },
-      birthplace: {
-        type: String,
-        required: true,
-      },
-      workflow: Object,
-    },
-  ],
   places: [
     {
       _id: { type: Schema.ObjectId },
@@ -117,107 +76,26 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
   return this;
 };
 
-// @todo: move this in separated collection
-RequestSchema.methods.addVisitor = async function addVisitor(visitor) {
-  this.visitors.push(visitor);
-  await this.save();
-  return visitor;
+RequestSchema.methods.createVisitor = async function createVisitor(data) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const visitor = new Visitor(data);
+  visitor.request = this;
+  return visitor.save();
 };
 
-// @todo: move this in separated collection
-RequestSchema.methods.removeVisitor = async function removeVisitor(id) {
-  const visitor = this.visitors.splice(this.visitors.findIndex((v) => v._id.toString() === id), 1);
-  await this.save();
-  return visitor[0];
+RequestSchema.methods.findVisitorByIdAndRemove = async function findVisitorByIdAndRemove(id) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Visitor.findOneAndRemove({ _id: id, 'request._id': this._id });
 };
 
-/**
- * Identifiers syntax in the state machine, design to be readable, functional & uniq :
- * {LETTER}{mongo id, hexadecimal}, chained, from the most global to the most specific, left to right
- * letters :
- * - R for request
- * - V for visitor
- * - U for unit
- * - S for step
- */
-RequestSchema.methods.buildWorkflow = function buildWorkflow() {
-  const Unit = mongoose.model(UNIT_MODEL_NAME);
-  if (this.units.length < 1 || this.visitors.length < 1) {
-    throw new Error('To build workflow, software needs at least one unit (at least one place), '
-        + 'and at least one visitor.');
-  }
-  return ({
-    id: `R${this._id}`,
-    initial: 'draft',
-    context: {},
-    states: {
-      draft: {
-        on: {
-          drafted: 'creation',
-          cancel: 'canceled',
-        },
-      },
-      canceled: {
-        type: 'final',
-      },
-      creation: {
-        on: {
-          created: 'validation',
-          cancel: 'canceled',
-        },
-      },
-      validation: {
-        type: 'parallel',
-        on: {
-          accept: 'accepted',
-          reject: 'rejected',
-          both: 'mixed',
-        },
-        states: {
-          ...this.visitors.map((visitor) => {
-            const visitorPrefix = `R${this._id}V${visitor._id}`;
-            return {
-              [visitorPrefix]: {
-                initial: `${visitorPrefix}_validation`,
-                states: {
-                  [`${visitorPrefix}_validation`]: {
-                    type: 'parallel',
-                    states: this.units.map((unit) => ({
-                      [`${visitorPrefix}U${unit._id}`]: (new Unit(unit)).buildWorkflow(visitorPrefix),
-                    })).reduce((acc, cur) => Object.assign(acc, cur), {}),
-                    on: {
-                      [`${visitorPrefix}_accept`]: 'accepted',
-                      [`${visitorPrefix}_reject`]: 'rejected',
-                      [`${visitorPrefix}_both`]: 'mixed',
-                    },
-                  },
-                  accepted: {
-                    type: 'final',
-                  },
-                  rejected: {
-                    type: 'final',
-                  },
-                  mixed: {
-                    type: 'final',
-                  },
-                },
-              },
-            };
-          }).reduce((acc, cur) => Object.assign(acc, cur), {}),
+RequestSchema.methods.findVisitorsWithProjection = function findVisitorsWithProjection(filters, ...params) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Visitor.findWithProjection({ ...filters, 'request._id': this._id }, ...params);
+};
 
-        },
-      },
-      accepted: {
-        type: 'final',
-      },
-      rejected: {
-        type: 'final',
-      },
-      mixed: {
-        type: 'final',
-      },
-    },
-  });
+RequestSchema.methods.countVisitors = async function countVisitors(filters) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Visitor.countDocuments({ ...filters, 'request._id': this._id });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');

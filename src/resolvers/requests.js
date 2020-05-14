@@ -14,31 +14,8 @@ export const CampusMutation = {
   },
 };
 
-export const RequestMutation = {
-  async addVisitor(request, { visitor }) {
-    return request.addVisitor(visitor);
-  },
-  async deleteVisitor(request, { id }) {
-    return request.removeVisitor(id);
-  },
-};
-
 export const Campus = {
   async getRequest(_parent, { id }) {
     return RequestModel.findById(id);
-  },
-};
-
-export const Request = {
-  async listVisitors(request) {
-    return {
-      request,
-    };
-  },
-};
-
-export const RequestVisitorsList = {
-  async list({ request }) {
-    return request.visitors;
   },
 };

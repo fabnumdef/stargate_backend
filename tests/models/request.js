@@ -15,15 +15,4 @@ export const createDummyRequest = async (...params) => {
   return Request.create(dummyRequest);
 };
 
-export const generateDummyVisitor = (...params) => ({
-  firstname: nanoid(),
-  usageLastname: nanoid(),
-  email: `${nanoid()}@localhost`,
-  birthLastname: nanoid(),
-  nationality: nanoid(),
-  birthday: new Date(),
-  birthplace: nanoid(),
-  ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
-});
-
 export default Request;

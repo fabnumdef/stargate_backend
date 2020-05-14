@@ -9,8 +9,8 @@ import {
 } from '../../src/models/unit';
 import { ROLE_ADMIN } from '../../src/models/rules';
 
-describe('Ensure that workflow is rightly generated for a request', () => {
-  it('Should fail if behavior value is not handled', async () => {
+describe('Ensure that units can be cached from places', () => {
+  it('Should growth units array when places are added then cache triggered', async () => {
     const campus = new Campus(generateDummyCampus());
     const unit1 = await createDummyUnit({
       campus,
@@ -54,29 +54,6 @@ describe('Ensure that workflow is rightly generated for a request', () => {
         _id: String,
         label: String,
       },
-      visitors: [
-        {
-          firstname: 'Foo',
-          birthLastname: 'Bar',
-          usageLastname: 'Bar',
-          birthday: new Date('1970-01-01'),
-          birthdayPlace: 'Paris',
-        },
-        {
-          firstname: 'Foo',
-          birthLastname: 'Bar',
-          usageLastname: 'Bar',
-          birthday: new Date('1970-01-01'),
-          birthdayPlace: 'Paris',
-        },
-        {
-          firstname: 'Foo',
-          birthLastname: 'Bar',
-          usageLastname: 'Bar',
-          birthday: new Date('1970-01-01'),
-          birthdayPlace: 'Paris',
-        },
-      ],
       places: [
         place1,
         place2,
@@ -84,6 +61,6 @@ describe('Ensure that workflow is rightly generated for a request', () => {
       ],
     }));
     await request.cacheUnitsFromPlaces(true);
-    request.buildWorkflow();
+    expect(request.units).toHaveLength(2);
   });
 });
