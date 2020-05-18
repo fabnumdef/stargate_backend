@@ -102,6 +102,7 @@ CampusSchema.methods.createRequest = async function createRequest(data) {
   const Request = mongoose.model(RequestModelName);
   const request = new Request(data);
   request.campus = this;
+  // @todo : find a way to separate concerns here
   request.places = await Promise.all(data.places.map((placeId) => this.findPlacebyId(placeId)));
   return request.save();
 };
