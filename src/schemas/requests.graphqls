@@ -5,6 +5,7 @@ extend type Campus {
 extend type CampusMutation {
     createRequest(request: RequestInput!): Request!
     editRequest(id: String!, request: RequestInput!): Request!
+    deleteRequest(id: String!): Request!
     mutateRequest(id: String!): RequestMutation!
 }
 

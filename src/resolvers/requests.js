@@ -9,6 +9,13 @@ export const CampusMutation = {
     r.set(request);
     return r.save();
   },
+  async deleteRequest(campus, { id }) {
+    const removedRequest = await RequestModel.findByIdAndRemove(id);
+    if (!removedRequest) {
+      throw new Error('Request not found');
+    }
+    return removedRequest;
+  },
   async mutateRequest(_, { id }) {
     return RequestModel.findById(id);
   },
