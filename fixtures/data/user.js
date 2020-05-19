@@ -20,7 +20,7 @@ export default async ({ log }) => {
       },
       password: superAdminPassword,
       roles: [
-        { role: ROLE_SUPERADMIN, campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SUPERADMIN },
       ],
     },
     {
