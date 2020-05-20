@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
 
@@ -39,7 +39,7 @@ it('Test to delete a request', async () => {
       const { errors } = await mutateDeleteRequest(
         dummyCampus._id,
         fakeId,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       // Found no campus with this id
       expect(errors).toHaveLength(1);
@@ -49,7 +49,7 @@ it('Test to delete a request', async () => {
       const { data } = await mutateDeleteRequest(
         dummyCampus._id,
         dummyRequest._id,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(data.mutateCampus.deleteRequest).toHaveProperty('id', dummyRequest.id);
       const dbVersion = await Request.findOne({ _id: dummyRequest._id });

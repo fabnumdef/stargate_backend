@@ -1,5 +1,5 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 
@@ -38,7 +38,7 @@ it('Test to edit a request', async () => {
         campus._id,
         dummyRequest._id,
         { from: newFrom.toISOString() },
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(editedRequest).toHaveProperty('id', dummyRequest.id);
       const dbVersion = await Request.findOne({ _id: dummyRequest._id });

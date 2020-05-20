@@ -1,5 +1,5 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { generateDummyVisitor } from '../../models/visitor';
@@ -41,7 +41,7 @@ it('Test to add a visitor to a request', async () => {
         campus._id,
         dummyRequest._id,
         visitor,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(createVisitor).toHaveProperty('id');
       const dbVersion = await Visitor.findById(createVisitor.id);
