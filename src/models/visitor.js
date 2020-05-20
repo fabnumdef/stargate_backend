@@ -56,7 +56,7 @@ const VisitorSchema = new Schema({
   stateValue: Object,
   request: {
     _id: {
-      type: Schema.ObjectId,
+      type: String,
       alias: 'request.id',
       required: true,
     },

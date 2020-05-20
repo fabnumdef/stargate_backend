@@ -1,15 +1,22 @@
 import mongoose from 'mongoose';
+import { DateTime } from 'luxon';
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
 import {
   MODEL_NAME as VISITOR_MODEL_NAME,
 } from './visitor';
+import RequestCounter from './request-counters';
+import config from '../services/config';
+
+
+export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
 
 const RequestSchema = new Schema({
+  _id: { type: String, alias: 'id' },
   object: { type: String, required: true },
   reason: { type: String, required: true },
   from: { type: Date, required: true },
@@ -17,6 +24,10 @@ const RequestSchema = new Schema({
   campus: {
     _id: { type: String, required: true },
     label: String,
+    timezone: {
+      type: String,
+      default: process.env.TZ || DEFAULT_TIMEZONE,
+    },
   },
   owner: {
     _id: {
@@ -63,6 +74,18 @@ const RequestSchema = new Schema({
     },
   ],
 }, { timestamps: true });
+
+RequestSchema.pre('save', async function preSave() {
+  if (!this._id) {
+    this._id = await this.generateID();
+  }
+});
+
+RequestSchema.methods.generateID = async function generateID() {
+  const date = DateTime.fromJSDate(this.createdAt).setZone(this.campus.timezone).startOf('day');
+  const sequence = await RequestCounter.getNextSequence(this.campus._id, date);
+  return `${this.campus._id}${date.toFormat('yyyyLLdd')}-${sequence}`;
+};
 
 RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDatabase = false) {
   const Unit = mongoose.model(UNIT_MODEL_NAME);
