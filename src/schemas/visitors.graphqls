@@ -5,6 +5,7 @@ extend type Request {
 
 type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
 }
 

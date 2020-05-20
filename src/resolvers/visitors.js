@@ -4,6 +4,14 @@ export const RequestMutation = {
   async createVisitor(request, { visitor }) {
     return request.createVisitor(visitor);
   },
+  async editVisitor(request, { visitor, id }) {
+    const v = await Visitor.findById(id);
+    if (!v) {
+      throw new Error('Visitor not found');
+    }
+    v.set(visitor);
+    return v.save();
+  },
   async deleteVisitor(request, { id }) {
     const removedVisitor = await request.findVisitorByIdAndRemove(id);
     if (!removedVisitor) {
