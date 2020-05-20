@@ -8,8 +8,6 @@ import {
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
-export const ID_DOCUMENT_IDCARD = 'IDCard';
-export const ID_DOCUMENT_PASSPORT = 'Passport';
 
 const RequestSchema = new Schema({
   object: { type: String, required: true },
