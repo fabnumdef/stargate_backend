@@ -56,7 +56,7 @@ it('Test to edit a visitor', async () => {
     }
 
     {
-      const { errors } = await mutateeditVisitorRequest(
+      const { errors } = await mutateEditVisitorRequest(
         campus._id,
         dummyRequest._id,
         visitorData,
