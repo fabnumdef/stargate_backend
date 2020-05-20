@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import Request, { generateDummyRequest } from './request';
 import { createDummyUnit } from './unit';
 import Campus, { generateDummyCampus } from './campus';
@@ -8,6 +9,28 @@ import {
   WORKFLOW_BEHAVIOR_VALIDATION,
 } from '../../src/models/unit';
 import { ROLE_ADMIN } from '../../src/models/rules';
+import { generateDummyUser } from './user';
+import config from '../../src/services/config';
+
+const DEFAULT_TIMEZONE = config.get('default_timezone');
+
+describe('Ensure that ID is generated from elements', () => {
+  it('Should generate an id if no one is provided', async () => {
+    const owner = generateDummyUser();
+    const campus = generateDummyCampus();
+    const date = DateTime.local().setZone(DEFAULT_TIMEZONE).startOf('day');
+    {
+      const request = new Request(generateDummyRequest({ owner, campus }));
+      await request.save();
+      expect(request._id).toEqual(`${campus._id}${date.toFormat('yyyyLLdd')}-1`);
+    }
+    {
+      const request = new Request(generateDummyRequest({ owner, campus }));
+      await request.save();
+      expect(request._id).toEqual(`${campus._id}${date.toFormat('yyyyLLdd')}-2`);
+    }
+  });
+});
 
 describe('Ensure that units can be cached from places', () => {
   it('Should growth units array when places are added then cache triggered', async () => {
