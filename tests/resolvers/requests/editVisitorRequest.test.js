@@ -5,7 +5,7 @@ import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor, generateDummyVisitor } from '../../models/visitor';
 
-function mutateeditVisitorRequest(campusId, requestId, visitorData, visitorId, user = null) {
+function mutateEditVisitorRequest(campusId, requestId, visitorData, visitorId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
@@ -48,7 +48,7 @@ it('Test to edit a visitor', async () => {
 
   try {
     {
-      const { errors } = await mutateeditVisitorRequest(campus._id, dummyRequest._id, visitorData, visitor.id);
+      const { errors } = await mutateEditVisitorRequest(campus._id, dummyRequest._id, visitorData, visitor.id);
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -70,7 +70,7 @@ it('Test to edit a visitor', async () => {
     }
 
     {
-      const { data: { mutateCampus: { mutateRequest: { editVisitor } } } } = await mutateeditVisitorRequest(
+      const { data: { mutateCampus: { mutateRequest: { editVisitor } } } } = await mutateEditVisitorRequest(
         campus._id,
         dummyRequest._id,
         visitorData,
