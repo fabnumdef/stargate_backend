@@ -1,5 +1,5 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
@@ -45,7 +45,7 @@ it('Test to remove a visitor from a request', async () => {
         campus._id,
         dummyRequest._id,
         visitor._id,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(deleteVisitor).toHaveProperty('id', visitor._id.toString());
       const dbVersion = await Visitor.findOne({ _id: visitor._id });

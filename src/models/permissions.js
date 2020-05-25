@@ -11,6 +11,7 @@ export default shield({
     listCampuses: isAuthenticated,
     getCampus: isAuthenticated,
     me: isAuthenticated,
+    listUsers: or(isAdmin, isSuperAdmin),
     '*': isSuperAdmin,
   },
   Mutation: {
@@ -18,11 +19,23 @@ export default shield({
     resetPassword: allow,
     jwtRefresh: isAuthenticated,
     createUser: or(isAdmin, isSuperAdmin),
+    editUser: or(isAdmin, isSuperAdmin),
+    deleteUser: or(isAdmin, isSuperAdmin),
+    mutateCampus: or(isAdmin, isSuperAdmin),
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },
   CampusMutation: {
+    createRequest: isAdmin,
+    editRequest: isAdmin,
+    deleteRequest: isAdmin,
+    mutateRequest: isAdmin,
     '*': isSuperAdmin,
+  },
+  RequestMutation: {
+    createVisitor: isAdmin,
+    editVisitor: isAdmin,
+    deleteVisitor: isAdmin,
   },
 }, {
   allowExternalErrors: true,

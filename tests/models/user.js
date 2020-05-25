@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { nanoid } from 'nanoid';
 import User from '../../src/models/user';
-import { ROLE_SUPERADMIN } from '../../src/models/rules';
+import { ROLE_SUPERADMIN, ROLE_ADMIN } from '../../src/models/rules';
 import config from '../../src/services/config';
 
 const { Types: { ObjectId } } = mongoose;
@@ -26,6 +26,13 @@ export const generateDummySuperAdmin = (params) => generateDummyUser({
   ...params,
   roles: [
     { role: ROLE_SUPERADMIN },
+  ],
+});
+
+export const generateDummyAdmin = (params) => generateDummyUser({
+  ...params,
+  roles: [
+    { role: ROLE_ADMIN },
   ],
 });
 

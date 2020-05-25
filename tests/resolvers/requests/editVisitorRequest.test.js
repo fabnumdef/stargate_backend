@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor, generateDummyVisitor } from '../../models/visitor';
@@ -61,7 +61,7 @@ it('Test to edit a visitor', async () => {
         dummyRequest._id,
         visitorData,
         fakeId,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
 
       // You're not authorized to create request while without rights
@@ -75,7 +75,7 @@ it('Test to edit a visitor', async () => {
         dummyRequest._id,
         visitorData,
         visitor.id,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       const dbVersion = await Visitor.findById(editVisitor.id);
       expect(dbVersion).toMatchObject({
