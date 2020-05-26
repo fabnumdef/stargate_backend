@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import Request, { generateDummyRequest } from './request';
+import Request, { createDummyRequest, generateDummyRequest } from './request';
 import { createDummyUnit } from './unit';
 import Campus, { generateDummyCampus } from './campus';
 import Place, { generateDummyPlace } from './place';
@@ -11,6 +11,7 @@ import {
 import { ROLE_ADMIN } from '../../src/models/rules';
 import { generateDummyUser } from './user';
 import config from '../../src/services/config';
+import { EVENT_REMOVE } from '../../src/models/request';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -73,10 +74,7 @@ describe('Ensure that units can be cached from places', () => {
     const place2 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
     const place3 = new Place(generateDummyPlace({ campus, unitInCharge: unit2 }));
     const request = new Request(generateDummyRequest({
-      campus: {
-        _id: String,
-        label: String,
-      },
+      campus,
       places: [
         place1,
         place2,
@@ -85,5 +83,15 @@ describe('Ensure that units can be cached from places', () => {
     }));
     await request.cacheUnitsFromPlaces(true);
     expect(request.units).toHaveLength(2);
+  });
+});
+
+describe('Ensure that workflow is working', () => {
+  it('Entity should be removed when state switch to removed', async () => {
+    const campus = new Campus(generateDummyCampus());
+    const owner = await generateDummyUser();
+    const request = await createDummyRequest({ campus, owner });
+    await request.stateMutation(EVENT_REMOVE);
+    expect(await Request.findById(request._id)).toBeNull();
   });
 });

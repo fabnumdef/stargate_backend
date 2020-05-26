@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { DateTime } from 'luxon';
-import { Machine as StateMachine, interpret, State } from 'xstate';
+import {
+  Machine as StateMachine, interpret, State,
+} from 'xstate';
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
@@ -125,6 +127,12 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         },
       },
       [STATE_REMOVED]: {
+        invoke: {
+          src: async () => {
+            const Request = mongoose.model(MODEL_NAME);
+            return Request.deleteOne({ _id: this._id, __v: this.__v });
+          },
+        },
         type: 'final',
       },
       [STATE_CANCELED]: {
@@ -159,9 +167,9 @@ RequestSchema.methods.listPossibleEvents = function listPossibleEvents() {
   return this.interpretedStateMachine.state.nextEvents;
 };
 
-RequestSchema.methods.stateMutation = function stateMutation(...params) {
+RequestSchema.methods.stateMutation = async function stateMutation(...params) {
   const service = this.interpretedStateMachine;
-  service.send(...params);
+  await service.send(...params);
   this.status = service.state.value;
   return this;
 };

@@ -1,4 +1,4 @@
-import RequestModel from '../models/request';
+import RequestModel, { EVENT_REMOVE, STATE_REMOVED } from '../models/request';
 
 export const CampusMutation = {
   async createRequest(campus, { request }, { user }) {
@@ -9,13 +9,20 @@ export const CampusMutation = {
     r.set(request);
     return r.save();
   },
+
   async deleteRequest(campus, { id }) {
-    const removedRequest = await RequestModel.findByIdAndRemove(id);
-    if (!removedRequest) {
+    const r = await RequestModel.findById(id);
+    if (!r) {
       throw new Error('Request not found');
     }
-    return removedRequest;
+    const possibleEvents = r.listPossibleEvents();
+    if (possibleEvents.indexOf(EVENT_REMOVE) === -1) {
+      throw new Error('You cannot shift to this state');
+    }
+    await r.stateMutation(EVENT_REMOVE);
+    return r;
   },
+
   async mutateRequest(_, { id }) {
     return RequestModel.findById(id);
   },
@@ -29,7 +36,7 @@ export const CampusMutation = {
       throw new Error('You cannot shift to this state');
     }
     await r.stateMutation(transition);
-    return r.save();
+    return r.status === STATE_REMOVED ? r : r.save();
   },
 
 };
