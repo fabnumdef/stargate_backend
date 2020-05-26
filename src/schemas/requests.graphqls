@@ -2,9 +2,25 @@ extend type Campus {
     getRequest(id: String!): Request
 }
 
+enum RequestTransition {
+    CANCEL
+    REMOVE
+    CREATE
+}
+
+enum RequestStatus {
+    drafted
+    created
+    canceled
+    accepted
+    mixed
+    rejected
+}
+
 extend type CampusMutation {
     createRequest(request: RequestInput!): Request!
     editRequest(id: String!, request: RequestInput!): Request!
+    shiftRequest(id: String!, transition: RequestTransition!): Request!
     deleteRequest(id: String!): Request!
     mutateRequest(id: String!): RequestMutation!
 }
@@ -43,6 +59,7 @@ type Request implements Node {
     object: String!
     reason: String!
     from: DateTime!
+    status: RequestStatus!
     to: DateTime!
     # List of places to be visited
     places: [Place]!

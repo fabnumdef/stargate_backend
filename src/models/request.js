@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { DateTime } from 'luxon';
+import { Machine as StateMachine, interpret, State } from 'xstate';
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
@@ -14,6 +15,21 @@ export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
+
+export const STATE_DRAFTED = 'drafted';
+export const STATE_CREATED = 'created';
+export const STATE_CANCELED = 'canceled';
+export const STATE_REMOVED = 'removed';
+export const STATE_ACCEPTED = 'accepted';
+export const STATE_REJECTED = 'rejected';
+export const STATE_MIXED = 'mixed';
+
+export const EVENT_CREATE = 'CREATE';
+export const EVENT_CANCEL = 'CANCEL';
+export const EVENT_REMOVE = 'REMOVE';
+export const EVENT_ACCEPT = 'ACCEPT';
+export const EVENT_REJECT = 'REJECT';
+export const EVENT_MIX = 'MIX';
 
 const RequestSchema = new Schema({
   _id: { type: String, alias: 'id' },
@@ -41,6 +57,10 @@ const RequestSchema = new Schema({
       original: String,
       canonical: String,
     },
+  },
+  status: {
+    type: String,
+    default: STATE_DRAFTED,
   },
   places: [
     {
@@ -80,6 +100,71 @@ RequestSchema.pre('save', async function preSave() {
     this._id = await this.generateID();
   }
 });
+
+RequestSchema.virtual('stateMachine').get(function stateMachineVirtual() {
+  return new StateMachine(this.workflow);
+});
+
+RequestSchema.virtual('workflow').get(function workflowVirtual() {
+  return ({
+    id: this._id,
+    initial: STATE_DRAFTED,
+    states: {
+      [STATE_DRAFTED]: {
+        on: {
+          [EVENT_REMOVE]: STATE_REMOVED,
+          [EVENT_CREATE]: STATE_CREATED,
+        },
+      },
+      [STATE_CREATED]: {
+        on: {
+          [EVENT_CANCEL]: STATE_CANCELED,
+          [EVENT_ACCEPT]: STATE_ACCEPTED,
+          [EVENT_REJECT]: STATE_REJECTED,
+          [EVENT_MIX]: STATE_MIXED,
+        },
+      },
+      [STATE_REMOVED]: {
+        type: 'final',
+      },
+      [STATE_CANCELED]: {
+        type: 'final',
+      },
+      [STATE_ACCEPTED]: {
+        type: 'final',
+      },
+      [STATE_REJECTED]: {
+        type: 'final',
+      },
+      [STATE_MIXED]: {
+        type: 'final',
+      },
+    },
+  });
+});
+
+RequestSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
+  const service = interpret(this.stateMachine);
+  if (this.status) {
+    const previousState = State.from(this.status);
+    const resolvedState = this.stateMachine.resolveState(previousState);
+    service.start(resolvedState);
+  } else {
+    service.start();
+  }
+  return service;
+});
+
+RequestSchema.methods.listPossibleEvents = function listPossibleEvents() {
+  return this.interpretedStateMachine.state.nextEvents;
+};
+
+RequestSchema.methods.stateMutation = function stateMutation(...params) {
+  const service = this.interpretedStateMachine;
+  service.send(...params);
+  this.status = service.state.value;
+  return this;
+};
 
 RequestSchema.methods.generateID = async function generateID() {
   const date = DateTime.fromJSDate(this.createdAt).setZone(this.campus.timezone).startOf('day');
