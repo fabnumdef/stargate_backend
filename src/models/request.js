@@ -79,6 +79,7 @@ RequestSchema.pre('save', async function preSave() {
   if (!this._id) {
     this._id = await this.generateID();
   }
+  this.cacheUnitsFromPlaces(true);
 });
 
 RequestSchema.methods.generateID = async function generateID() {

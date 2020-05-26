@@ -17,12 +17,20 @@ export const CampusMutation = {
     return removedRequest;
   },
   async mutateRequest(_, { id }) {
-    return RequestModel.findById(id);
+    const request = await RequestModel.findById(id);
+    if (!request) {
+      throw new Error('Request not found');
+    }
+    return request;
   },
 };
 
 export const Campus = {
   async getRequest(_parent, { id }) {
-    return RequestModel.findById(id);
+    const request = await RequestModel.findById(id);
+    if (!request) {
+      throw new Error('Request not found');
+    }
+    return request;
   },
 };

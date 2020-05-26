@@ -4,7 +4,7 @@ import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 export const MODEL_NAME = 'Visitor';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
@@ -162,9 +162,8 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
   });
 });
 
-VisitorSchema.methods.stateMutation = async function stateMutation(unit, step, transition) {
+VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
   const service = interpret(this.stateMachine);
-
   if (this.stateValue) {
     const previousState = State.from(this.stateValue);
     const resolvedState = this.stateMachine.resolveState(previousState);
@@ -172,9 +171,53 @@ VisitorSchema.methods.stateMutation = async function stateMutation(unit, step, t
   } else {
     service.start();
   }
-
-  service.send(`U${unit._id}S${step._id}_${transition}`);
   return service;
+});
+
+VisitorSchema.methods.getStep = function getStep(unitID, role) {
+  const unitObjectID = new Types.ObjectId(unitID);
+  try {
+    return this.request.units
+      .find((u) => u._id.equals(unitObjectID))
+      .workflow.steps
+      .find((s) => s.role === role) || null;
+  } catch (_) {
+    return null;
+  }
+};
+
+VisitorSchema.methods.predicateEvent = function predicateEvent(unitID, stepID, event) {
+  let predicatedEvent = '';
+  if (unitID) {
+    predicatedEvent += `U${unitID.toString ? unitID.toString() : unitID}`;
+    if (stepID) {
+      predicatedEvent += `S${stepID.toString ? stepID.toString() : stepID}`;
+      if (event) {
+        predicatedEvent += `_${event}`;
+      }
+    }
+  }
+  return predicatedEvent;
+};
+
+VisitorSchema.methods.listPossibleEvents = function listPossibleEvents() {
+  return this.interpretedStateMachine.state.nextEvents;
+};
+
+VisitorSchema.methods.stateMutation = function stateMutation(...params) {
+  const service = this.interpretedStateMachine;
+  switch (params.length) {
+    case 1:
+      service.send(...params);
+      break;
+    case 3:
+      service.send(this.predicateEvent(...params));
+      break;
+    default:
+      throw new Error('You should pass 1 or 3 parameters');
+  }
+  this.stateValue = service.state.value;
+  return this;
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');
