@@ -3,10 +3,16 @@ extend type Request {
     getVisitor(id: String!): RequestVisitor
 }
 
+input ValidationPersonas {
+    role: String,
+    unit: String,
+}
+
 type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
+    shiftVisitor(id: String!, as: ValidationPersonas!, transition: String!): RequestVisitor!
 }
 
 type RequestVisitorsList implements OffsetPaginator {

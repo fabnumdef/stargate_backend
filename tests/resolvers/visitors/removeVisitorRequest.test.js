@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
@@ -39,7 +40,18 @@ it('Test to remove a visitor from a request', async () => {
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
     }
+    {
+      const { errors } = await mutateRemoveVisitorRequest(
+        campus._id,
+        dummyRequest._id,
+        new mongoose.Types.ObjectId(),
+        generateDummySuperAdmin(),
+      );
 
+      // You're should not get a visitor that not exists.
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Visitor not found');
+    }
     {
       const { data: { mutateCampus: { mutateRequest: { deleteVisitor } } } } = await mutateRemoveVisitorRequest(
         campus._id,

@@ -12,12 +12,28 @@ export const RequestMutation = {
     v.set(visitor);
     return v.save();
   },
+
   async deleteVisitor(request, { id }) {
     const removedVisitor = await request.findVisitorByIdAndRemove(id);
     if (!removedVisitor) {
       throw new Error('Visitor not found');
     }
     return removedVisitor;
+  },
+
+  async shiftVisitor(request, { id, as: { unit, role } = {}, transition }) {
+    const v = await Visitor.findById(id);
+    if (!v) {
+      throw new Error('Visitor not found');
+    }
+    const step = v.getStep(unit, role);
+    const predicatedEvent = v.predicateEvent(unit, step._id, transition);
+    const possibleEvents = v.listPossibleEvents();
+    if (possibleEvents.indexOf(predicatedEvent) === -1) {
+      throw new Error('You cannot shift to this state');
+    }
+    await v.stateMutation(predicatedEvent);
+    return v.save();
   },
 };
 
@@ -32,7 +48,11 @@ export const Request = {
     };
   },
   async getVisitor(_parent, { id }, _ctx, info) {
-    return Visitor.findByIdWithProjection(id, info);
+    const v = await Visitor.findByIdWithProjection(id, info);
+    if (!v) {
+      throw new Error('Visitor not found');
+    }
+    return v;
   },
 };
 
