@@ -3,6 +3,7 @@ import { Machine as StateMachine, interpret, State } from 'xstate';
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
+import { HYDRATION_FORCE, HYDRATION_KEY } from './helpers/graphql-projection';
 
 const { Schema, Types } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -53,7 +54,17 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
-  stateValue: Object,
+  state: {
+    records: [{
+      _id: {
+        unit: Schema.ObjectId,
+        step: Schema.ObjectId,
+      },
+      date: Date,
+      action: String,
+    }],
+    value: Object,
+  },
   request: {
     _id: {
       type: String,
@@ -113,7 +124,12 @@ const VisitorSchema = new Schema({
       },
     ],
   },
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  [HYDRATION_KEY]: {
+    [HYDRATION_FORCE]: ['request', 'state'],
+  },
+});
 
 VisitorSchema.virtual('stateMachine').get(function stateMachineVirtual() {
   return new StateMachine(this.workflow);
@@ -164,14 +180,47 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
 
 VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
   const service = interpret(this.stateMachine);
-  if (this.stateValue) {
-    const previousState = State.from(this.stateValue);
+  if (this.state.value) {
+    const previousState = State.from(this.state.value);
     const resolvedState = this.stateMachine.resolveState(previousState);
     service.start(resolvedState);
   } else {
     service.start();
   }
+  service.onTransition(({ changed }, {
+    unitID, stepID, event,
+  } = {}) => {
+    if (!changed || !unitID || !stepID || !event) {
+      return;
+    }
+    this.state.records.push({
+      _id: {
+        unit: unitID,
+        step: stepID,
+      },
+      action: event,
+      date: new Date(),
+    });
+  });
   return service;
+});
+
+VisitorSchema.virtual('status').get(function getSteps() {
+  return this.request.units.reduce((unitAcc, unit) => Object.assign(unitAcc, {
+    [unit._id.toString()]: unit.workflow.steps.reduce((stepAcc, step) => {
+      const stepRecord = this.state.records
+        .find(({ _id }) => _id.unit.equals(unit._id) && _id.step.equals(step._id)) || {};
+      return Object.assign(stepAcc, {
+        _id: unit._id,
+        [step._id.toString()]: {
+          ...step.toObject(),
+          status: stepRecord.action || null,
+          date: stepRecord.date || null,
+          done: !!stepRecord.action,
+        },
+      });
+    }, {}),
+  }), {});
 });
 
 VisitorSchema.methods.getStep = function getStep(unitID, role) {
@@ -204,19 +253,10 @@ VisitorSchema.methods.listPossibleEvents = function listPossibleEvents() {
   return this.interpretedStateMachine.state.nextEvents;
 };
 
-VisitorSchema.methods.stateMutation = function stateMutation(...params) {
+VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, event) {
   const service = this.interpretedStateMachine;
-  switch (params.length) {
-    case 1:
-      service.send(...params);
-      break;
-    case 3:
-      service.send(this.predicateEvent(...params));
-      break;
-    default:
-      throw new Error('You should pass 1 or 3 parameters');
-  }
-  this.stateValue = service.state.value;
+  service.send(this.predicateEvent(unitID, stepID, event), { unitID, stepID, event });
+  this.state.value = service.state.value;
   return this;
 };
 
