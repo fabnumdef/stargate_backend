@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummyAdmin, generateDummyUser } from '../../models/user';
-import { createDummyRequest } from '../../models/request';
+import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { createDummyVisitor } from '../../models/visitor';
 import { createDummyCampus } from '../../models/campus';
-import Visitor, { createDummyVisitor } from '../../models/visitor';
+import { createDummyRequest } from '../../models/request';
 import { createDummyUnit } from '../../models/unit';
 import { ROLE_ADMIN } from '../../../src/models/rules';
 import {
@@ -13,22 +13,24 @@ import {
 } from '../../../src/models/unit';
 import Place, { generateDummyPlace } from '../../models/place';
 
-function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, transition, user = null) {
+function queryGetVisitorRequest(campusId, requestId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
-    mutation: gql`
-      mutation shiftVisitorRequestMutation(
-        $campusId: String!,
-        $requestId: String!,
-        $visitorId: String!,
-        $personas: ValidationPersonas!,
-        $transition: String!
-      ) {
-        mutateCampus(id: $campusId) {
-          mutateRequest(id: $requestId) {
-            shiftVisitor(id: $visitorId, as: $personas, transition: $transition) {
-              id
-              firstname
+    query: gql`
+      query GetVisitorRequestQuery($campusId: String!, $requestId: String!, $id: String!) {
+        getCampus(id: $campusId) {
+          getRequest(id: $requestId) {
+            getVisitor(id: $id) {
+              status {
+                unit
+                steps {
+                  step
+                  role
+                  behavior
+                  status
+                  done
+                }
+              }
             }
           }
         }
@@ -36,15 +38,13 @@ function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, tra
     `,
     variables: {
       campusId,
-      requestId: requestId.toString ? requestId.toString() : requestId,
-      visitorId: visitorId.toString ? visitorId.toString() : visitorId,
-      personas,
-      transition,
+      requestId,
+      id: typeof id === 'string' ? id : id.toString(),
     },
   });
 }
 
-it('Test to shift a visitor', async () => {
+it('Test to get a status of visitor', async () => {
   const campus = await createDummyCampus();
   const unit1 = await createDummyUnit({
     campus,
@@ -104,70 +104,46 @@ it('Test to shift a visitor', async () => {
     birthday: new Date('1970-01-01'),
     birthdayPlace: 'Paris',
   });
-
+  const step = visitor.getStep(unit1._id, ROLE_ADMIN);
+  await visitor.stateMutation(unit1._id.toString(), step._id, 'positive');
+  await visitor.save();
   try {
     {
-      const { errors } = await mutateShiftVisitorRequest(
-        campus._id,
-        request._id,
-        visitor._id,
-        {},
-        '',
-      );
+      const { errors } = await queryGetVisitorRequest(campus._id, request._id, visitor._id);
 
-      // You're not authorized to create request while without rights
+      // You're not authorized to create visitorRequest while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
     }
     {
-      const { errors } = await mutateShiftVisitorRequest(
+      const { errors } = await queryGetVisitorRequest(
         campus._id,
         request._id,
         new mongoose.Types.ObjectId(),
-        {},
-        '',
-        generateDummyAdmin(),
+        generateDummySuperAdmin(),
       );
-      // You're should not mutate a visitor that not exists.
+
+      // you cannot get not existing data
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Visitor not found');
     }
-    {
-      const { errors } = await mutateShiftVisitorRequest(
-        campus._id,
-        request._id,
-        visitor._id,
-        {
-          unit: unit1._id.toString(),
-          role: ROLE_ADMIN,
-        },
-        'foo',
-        generateDummyAdmin(),
-      );
 
-      expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('You cannot shift to this state');
-    }
     {
-      const { data: { mutateCampus: { mutateRequest: { shiftVisitor } } } } = await mutateShiftVisitorRequest(
+      const { data: { getCampus: { getRequest: { getVisitor: { status } } } } } = await queryGetVisitorRequest(
         campus._id,
         request._id,
         visitor._id,
-        {
-          unit: unit1._id.toString(),
-          role: ROLE_ADMIN,
-        },
-        'positive',
-        generateDummyAdmin(),
+        generateDummySuperAdmin(),
       );
-      const dbVersion = await Visitor.findById(shiftVisitor.id);
-      expect(dbVersion.interpretedStateMachine.state.value).toMatchObject({
-        validation: {
-          [`U${unit1.id}`]: `U${unit1.id}S${unit1.workflow.steps[1]._id}`,
-          [`U${unit2.id}`]: `U${unit2.id}S${unit2.workflow.steps[0]._id}`,
-        },
-      });
-      expect(dbVersion).toHaveProperty('__v', 1);
+      expect(
+        status
+          .find((unitRow) => unit1._id.toString() === unitRow.unit).steps
+          .find((stepRow) => stepRow.step === step._id.toString()),
+      )
+        .toMatchObject({
+          status: 'positive',
+          done: true,
+        });
     }
   } finally {
     await visitor.deleteOne();

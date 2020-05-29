@@ -45,7 +45,7 @@ it('Test to remove a visitor from a request', async () => {
         campus._id,
         dummyRequest._id,
         new mongoose.Types.ObjectId(),
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
 
       // You're should not get a visitor that not exists.

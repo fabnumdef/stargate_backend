@@ -32,7 +32,7 @@ export const RequestMutation = {
     if (possibleEvents.indexOf(predicatedEvent) === -1) {
       throw new Error('You cannot shift to this state');
     }
-    await v.stateMutation(predicatedEvent);
+    await v.stateMutation(unit, step._id, transition);
     return v.save();
   },
 };
@@ -53,6 +53,20 @@ export const Request = {
       throw new Error('Visitor not found');
     }
     return v;
+  },
+};
+
+export const RequestVisitor = {
+  async status(visitor) {
+    return Object.values(visitor.status).map(({ _id, ...steps }) => ({ unit: _id, steps }));
+  },
+};
+
+export const UnitStatus = {
+  async steps({ steps }) {
+    return Object.values(steps)
+      .map((s) => (s.toObject ? s.toObject() : s))
+      .map(({ _id, ...other }) => ({ step: _id, ...other }));
   },
 };
 

@@ -137,40 +137,6 @@ describe('Ensure that workflow is rightly generated for a visitor', () => {
     expect(visitor.stateMachine).toBeTruthy();
   });
 
-  it('You cannot call stateMutation without expected number of parameters ', async () => {
-    const campus = new Campus(generateDummyCampus());
-    const unit1 = await createDummyUnit({
-      campus,
-      workflow: {
-        steps: [
-          {
-            role: ROLE_ADMIN,
-            behavior: WORKFLOW_BEHAVIOR_VALIDATION,
-          },
-        ],
-      },
-    });
-    const place1 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
-    const request = new Request(generateDummyRequest({
-      campus,
-      places: [
-        place1,
-      ],
-    }));
-    await request.cacheUnitsFromPlaces(true);
-    const visitor = new Visitor(generateDummyVisitor({
-      request,
-      firstname: 'Foo',
-      birthLastname: 'Bar',
-      usageLastname: 'Bar',
-      birthday: new Date('1970-01-01'),
-      birthdayPlace: 'Paris',
-    }));
-
-    expect(() => visitor.stateMutation(unit1._id, unit1.workflow.steps[0]._id))
-      .toThrow('You should pass 1 or 3 parameters');
-  });
-
   it('getStep should never throw, but return null', async () => {
     // When no unit at all
     {

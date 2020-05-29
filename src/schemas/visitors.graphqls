@@ -51,6 +51,19 @@ type RequestIdentityDocument {
     reference: String
 }
 
+type UnitStepStatus {
+    step: String
+    role: String
+    behavior: String
+    status: String
+    done: Boolean
+}
+
+type UnitStatus {
+    unit: String!
+    steps: [UnitStepStatus]!
+}
+
 type RequestVisitor {
     id: String
     nid: String
@@ -67,4 +80,5 @@ type RequestVisitor {
     identityDocuments: [RequestIdentityDocument]
     birthday: DateTime!
     birthplace: String!
+    status: [UnitStatus]!
 }
