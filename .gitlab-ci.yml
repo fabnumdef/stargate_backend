@@ -37,6 +37,10 @@ variables:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set env.MONGODB="${MONGODB}"
+      --set env.MAIL__TRANSPORTER__HOST="${MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${MAIL__DEFAULT_FROM}"
       --set resetJob=${RESET_JOB}
       --wait
       ${HELM_NAME}
