@@ -44,6 +44,11 @@ ingress:
 env:
   VERSION: null
   MONGODB: null
+  MAIL__TRANSPORTER__HOST: null
+  MAIL__TRANSPORTER__PORT: 587
+  MAIL__TRANSPORTER__AUTH__USER: null
+  MAIL__TRANSPORTER__AUTH__PASS: null
+  MAIL__DEFAULT_FROM: null
 
 resources:
   limits:

@@ -29,6 +29,16 @@ spec:
               value: "{{ .Values.env.MONGODB }}"
             - name: VERSION
               value: "{{ .Values.env.VERSION }}"
+            - name: MAIL__TRANSPORTER__HOST
+              value: "{{ .Values.env.MAIL__TRANSPORTER__HOST }}"
+            - name: MAIL__TRANSPORTER__PORT
+              value: "{{ .Values.env.MAIL__TRANSPORTER__PORT }}"
+            - name: MAIL__TRANSPORTER__AUTH__USER
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__USER }}"
+            - name: MAIL__TRANSPORTER__AUTH__PASS
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__PASS }}"
+            - name: MAIL__DEFAULT_FROM
+              value: "{{ .Values.env.MAIL__DEFAULT_FROM }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -19,12 +19,15 @@ const server = new ApolloServer({
   schema,
   playground: process.env.NODE_ENV === 'development',
   context: (req) => {
+    /* istanbul ignore next */
     const context = {
       ...req.ctx,
     };
+    /* istanbul ignore next */
     if (req.ctx && req.ctx.state) {
       context.user = req.ctx.state.user;
     }
+    /* istanbul ignore next */
     return context;
   },
 });
