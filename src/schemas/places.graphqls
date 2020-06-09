@@ -22,6 +22,10 @@ input PlaceInput {
     unitInCharge: String
 }
 
+type UnitInCharge {
+    label: String!
+}
+
 type Place implements Node {
     # Unique id of the place
     id: String!
@@ -31,4 +35,6 @@ type Place implements Node {
     updatedAt: DateTime!
     # Label of the place
     label: String
+    # Label of unit in charge of this place
+    unitInCharge: UnitInCharge!
 }
