@@ -4,6 +4,7 @@ import {
   isSuperAdmin,
   isAdmin,
   allow,
+  canHandleRequest,
 } from './rules';
 
 export default shield({
@@ -26,16 +27,17 @@ export default shield({
     '*': isSuperAdmin,
   },
   CampusMutation: {
-    createRequest: isAdmin,
-    editRequest: isAdmin,
-    deleteRequest: isAdmin,
-    mutateRequest: isAdmin,
+    createRequest: canHandleRequest,
+    editRequest: canHandleRequest,
+    deleteRequest: canHandleRequest,
+    mutateRequest: canHandleRequest,
+    shiftRequest: canHandleRequest,
     '*': isSuperAdmin,
   },
   RequestMutation: {
-    createVisitor: isAdmin,
-    editVisitor: isAdmin,
-    deleteVisitor: isAdmin,
+    createVisitor: canHandleRequest,
+    editVisitor: canHandleRequest,
+    deleteVisitor: canHandleRequest,
   },
 }, {
   allowExternalErrors: true,

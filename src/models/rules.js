@@ -20,3 +20,12 @@ export const isAdmin = rule()(
   // @todo: Check campus too
   async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_ADMIN === role),
 );
+
+export const canHandleRequest = rule()(
+  async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => [
+    ROLE_UNIT_CORRESPONDENT,
+    ROLE_SECURITY_OFFICER,
+    ROLE_ACCESS_OFFICE,
+    ROLE_HOST,
+  ].includes(role)),
+);
