@@ -1,9 +1,9 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
-import { createDummyCampus } from '../../models/campus';
+import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
-import { createDummyUnit } from '../../models/unit';
-import { createDummyPlace } from '../../models/place';
+import Unit, { createDummyUnit } from '../../models/unit';
+import Place, { createDummyPlace } from '../../models/place';
 
 function queryListRequests(campusId, as, user = null) {
   const { mutate } = queryFactory(user);
@@ -71,9 +71,9 @@ it('Test to list requests', async () => {
       });
     }
   } finally {
-    await Request.deleteMany({ _id: list.map((c) => c._id) });
-    await unit1.deleteOne();
-    await unit2.deleteOne();
-    await campus.deleteOne();
+    await Request.deleteMany();
+    await Place.deleteMany();
+    await Unit.deleteMany();
+    await Campus.deleteOne({ _id: campus._id });
   }
 });
