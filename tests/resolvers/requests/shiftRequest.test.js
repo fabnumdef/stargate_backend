@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import { EVENT_CANCEL, EVENT_CREATE, STATE_CREATED } from '../../../src/models/request';
@@ -57,7 +57,7 @@ it('Test to shift a request', async () => {
         campus._id,
         new mongoose.Types.ObjectId(),
         EVENT_CANCEL,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       // You're should not mutate a request that not exists.
       expect(errors).toHaveLength(1);
@@ -68,7 +68,7 @@ it('Test to shift a request', async () => {
         campus._id,
         request._id,
         EVENT_CANCEL,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
 
       expect(errors).toHaveLength(1);
@@ -79,7 +79,7 @@ it('Test to shift a request', async () => {
         campus._id,
         request._id,
         EVENT_CREATE,
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(shiftRequest).toHaveProperty('status', STATE_CREATED);
       const dbVersion = await Request.findById(shiftRequest.id);
