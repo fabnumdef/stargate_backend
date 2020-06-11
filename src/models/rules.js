@@ -21,6 +21,10 @@ export const isAdmin = rule()(
   async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_ADMIN === role),
 );
 
+export const isUnitCorrespondent = rule()(
+  async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => ROLE_UNIT_CORRESPONDENT === role),
+);
+
 export const canHandleRequest = rule()(
   async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => [
     ROLE_UNIT_CORRESPONDENT,
