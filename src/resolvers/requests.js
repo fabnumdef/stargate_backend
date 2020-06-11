@@ -45,6 +45,7 @@ export const CampusMutation = {
 
 };
 
+const MAX_REQUESTABLE_REQUESTS = 10;
 export const Campus = {
   async getRequest(_parent, { id }) {
     const request = await RequestModel.findById(id);
@@ -53,4 +54,27 @@ export const Campus = {
     }
     return request;
   },
+  async listRequests(campus, { as, filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {} }) {
+    return {
+      campus,
+      filters,
+      as,
+      cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
+      countMethod: campus.countRequests.bind(campus, { 'units.label': as.unit }),
+    };
+  },
+};
+
+export const RequestsList = {
+  async list(
+    {
+      campus, filters, as, cursor: { offset, first },
+    },
+    _params,
+    _ctx,
+    info,
+  ) {
+    return campus.findRequestsWithProjection(filters, as, info).skip(offset).limit(first);
+  },
+  meta: (parent) => parent,
 };
