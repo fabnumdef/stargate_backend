@@ -21,14 +21,12 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
-  usageLastname: {
-    type: String,
-    required: true,
-  },
+  usageLastname: String,
   isInternal: {
     type: Boolean,
     default: false,
   },
+  employeeType: String,
   company: String,
   rank: String,
   email: String,

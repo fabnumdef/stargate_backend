@@ -33,8 +33,9 @@ input RequestVisitorInput {
     nid: String
     firstname: String!
     birthLastname: String!
-    usageLastname: String!
+    usageLastname: String
     isInternal: Boolean!
+    employeeType: String
     rank: String
     company: String
     email: String!
@@ -69,8 +70,9 @@ type RequestVisitor {
     nid: String
     firstname: String!
     birthLastname: String!
-    usageLastname: String!
+    usageLastname: String
     isInternal: Boolean!
+    employeeType: String
     rank: String
     company: String
     email: String!
