@@ -107,9 +107,9 @@ CampusSchema.methods.createRequest = async function createRequest(data) {
   return request.save();
 };
 
-CampusSchema.methods.findRequestsWithProjection = function findRequestsWithProjection(filters, as, ...params) {
+CampusSchema.methods.findRequestsWithProjection = function findRequestsWithProjection(filters, ...params) {
   const Request = mongoose.model(RequestModelName);
-  return Request.findWithProjection({ ...filters, 'campus._id': this._id, 'units.label': as.unit }, ...params);
+  return Request.findWithProjection({ ...filters, 'campus._id': this._id }, ...params);
 };
 
 CampusSchema.methods.countRequests = async function countRequests(filters) {

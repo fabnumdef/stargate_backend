@@ -1,4 +1,6 @@
+import mongoose from 'mongoose';
 import RequestModel, { EVENT_REMOVE, STATE_REMOVED } from '../models/request';
+import { ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT } from '../models/rules';
 
 export const CampusMutation = {
   async createRequest(campus, { request }, { user }) {
@@ -55,12 +57,33 @@ export const Campus = {
     return request;
   },
   async listRequests(campus, { as, filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {} }) {
+    const roleFilters = { 'units.workflow.steps.role': as.role };
+    const unitFilters = [ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT].includes(as.role)
+      ? { 'units.label': as.unit }
+      : {};
+
     return {
       campus,
-      filters,
-      as,
+      filters: { ...filters, ...roleFilters, ...unitFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
-      countMethod: campus.countRequests.bind(campus, { 'units.label': as.unit }),
+      countMethod: campus.countRequests.bind(campus, { ...filters, ...roleFilters, ...unitFilters }),
+    };
+  },
+  async listMyRequests(
+    campus,
+    { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {} },
+    { user },
+  ) {
+    const userFilters = {
+      ...filters,
+      'owner._id': mongoose.Types.ObjectId(user.id),
+    };
+
+    return {
+      campus,
+      filters: userFilters,
+      cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
+      countMethod: campus.countRequests.bind(campus, userFilters),
     };
   },
 };
@@ -68,13 +91,13 @@ export const Campus = {
 export const RequestsList = {
   async list(
     {
-      campus, filters, as, cursor: { offset, first },
+      campus, filters, cursor: { offset, first },
     },
     _params,
     _ctx,
     info,
   ) {
-    return campus.findRequestsWithProjection(filters, as, info).skip(offset).limit(first);
+    return campus.findRequestsWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,
 };

@@ -1,6 +1,7 @@
 extend type Campus {
     getRequest(id: String!): Request
     listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters): RequestsList!
+    listMyRequests(cursor: OffsetCursor, filters: RequestFilters): RequestsList!
 }
 
 enum RequestTransition {

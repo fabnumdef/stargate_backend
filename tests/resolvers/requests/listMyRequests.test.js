@@ -1,18 +1,17 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummyAdmin, generateDummyUser } from '../../models/user';
+import User, { createDummyUser, generateDummyUser } from '../../models/user';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
 import Unit, { createDummyUnit } from '../../models/unit';
 import Place, { createDummyPlace } from '../../models/place';
-import { ROLE_ACCESS_OFFICE } from '../../../src/models/rules';
 
-function queryListRequests(campusId, as, user = null) {
+function queryListMyRequests(campusId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-        query ListRequestsQuery($campusId: String!, $as: ValidationPersonas!) {
+        query ListMyRequestsQuery($campusId: String!) {
             getCampus(id: $campusId) {
-                listRequests(as: $as) {
+                listMyRequests {
                     list {
                         id
                     }
@@ -25,7 +24,7 @@ function queryListRequests(campusId, as, user = null) {
             }
         }
     `,
-    variables: { campusId, as },
+    variables: { campusId },
   });
 }
 
@@ -33,23 +32,21 @@ beforeAll(async () => {
   await Request.deleteMany({});
 });
 
-it('Test to list requests', async () => {
+it('Test to list my requests', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
-  const unit1 = await createDummyUnit({ workflow: { steps: [{ role: ROLE_ACCESS_OFFICE }] } });
-  const unit2 = await createDummyUnit();
-  const place1 = await createDummyPlace({ unitInCharge: unit1 });
-  const place2 = await createDummyPlace({ unitInCharge: unit2 });
+  const owner = await createDummyUser();
+  const unit = await createDummyUnit();
+  const place = await createDummyPlace({ unitInCharge: unit });
   await Promise.all(Array.from({ length: 1 })
-    .map(() => createDummyRequest({ campus, owner, places: [place2] })));
+    .map(() => createDummyRequest({ campus, owner: generateDummyUser(), places: [place] })));
   const list = await Promise.all(
     Array.from({ length: 5 })
-      .map(() => createDummyRequest({ campus, owner, places: [place1] })),
+      .map(() => createDummyRequest({ campus, owner, places: [place] })),
   );
 
   try {
     {
-      const { errors } = await queryListRequests(campus._id, { unit: unit1.label });
+      const { errors } = await queryListMyRequests(campus._id);
 
       // You're not authorized to query requests list while without rights
       expect(errors).toHaveLength(1);
@@ -57,15 +54,14 @@ it('Test to list requests', async () => {
     }
 
     {
-      const { data: { getCampus: { listRequests } } } = await queryListRequests(
+      const { data: { getCampus: { listMyRequests } } } = await queryListMyRequests(
         campus._id,
-        { role: ROLE_ACCESS_OFFICE },
-        generateDummyAdmin(),
+        owner,
       );
 
       // Check default values
-      expect(listRequests.list).toHaveLength(list.length);
-      expect(listRequests.meta).toMatchObject({
+      expect(listMyRequests.list).toHaveLength(list.length);
+      expect(listMyRequests.meta).toMatchObject({
         total: list.length,
         first: 10,
         offset: 0,
@@ -73,8 +69,9 @@ it('Test to list requests', async () => {
     }
   } finally {
     await Request.deleteMany();
-    await Place.deleteMany();
-    await Unit.deleteMany();
+    await Place.deleteOne({ _id: place.id });
+    await Unit.deleteOne({ _id: unit.id });
+    await User.deleteOne({ _id: owner.id });
     await Campus.deleteOne({ _id: campus._id });
   }
 });

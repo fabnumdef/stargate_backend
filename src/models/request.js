@@ -101,7 +101,7 @@ RequestSchema.pre('save', async function preSave() {
   if (!this._id) {
     this._id = await this.generateID();
   }
-  this.cacheUnitsFromPlaces(true);
+  await this.cacheUnitsFromPlaces(true);
 });
 
 RequestSchema.virtual('stateMachine').get(function stateMachineVirtual() {
