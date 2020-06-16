@@ -107,4 +107,14 @@ CampusSchema.methods.createRequest = async function createRequest(data) {
   return request.save();
 };
 
+CampusSchema.methods.findRequestsWithProjection = function findRequestsWithProjection(filters, ...params) {
+  const Request = mongoose.model(RequestModelName);
+  return Request.findWithProjection({ ...filters, 'campus._id': this._id }, ...params);
+};
+
+CampusSchema.methods.countRequests = async function countRequests(filters) {
+  const Request = mongoose.model(RequestModelName);
+  return Request.countDocuments({ ...filters, 'campus._id': this._id });
+};
+
 export default mongoose.model('Campus', CampusSchema, 'campuses');

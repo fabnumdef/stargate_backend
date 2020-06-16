@@ -1,5 +1,7 @@
 extend type Campus {
     getRequest(id: String!): Request
+    listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters): RequestsList!
+    listMyRequests(cursor: OffsetCursor, filters: RequestFilters): RequestsList!
 }
 
 enum RequestTransition {
@@ -33,11 +35,17 @@ type RequestsList implements OffsetPaginator {
 input RequestFilters {
     from: DateTime
     to: DateTime
+    status: RequestStatus
+    owner: RequestOwner
 }
 
 enum RequestObject {
     PRIVATE
     PROFESSIONAL
+}
+
+input RequestOwner {
+    id: String
 }
 
 input RequestInput {
