@@ -60,7 +60,8 @@ type UnitStepStatus {
 }
 
 type UnitStatus {
-    unit: String!
+    unitId: String!
+    label: String!
     steps: [UnitStepStatus]!
 }
 

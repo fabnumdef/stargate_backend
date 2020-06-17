@@ -212,6 +212,7 @@ VisitorSchema.virtual('status').get(function getSteps() {
         .find(({ _id }) => _id.unit.equals(unit._id) && _id.step.equals(step._id)) || {};
       return Object.assign(stepAcc, {
         _id: unit._id,
+        label: unit.label,
         [step._id.toString()]: {
           ...step.toObject(),
           status: stepRecord.action || null,

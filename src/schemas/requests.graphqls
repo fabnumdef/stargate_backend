@@ -36,7 +36,7 @@ input RequestFilters {
     from: DateTime
     to: DateTime
     status: RequestStatus
-    owner: RequestOwner
+    owner: RequestOwnerInput
 }
 
 enum RequestObject {
@@ -44,8 +44,13 @@ enum RequestObject {
     PROFESSIONAL
 }
 
-input RequestOwner {
+input RequestOwnerInput {
     id: String
+}
+
+type RequestOwner {
+    firstname: String!
+    lastname: String!
 }
 
 input RequestInput {
@@ -69,6 +74,7 @@ type Request implements Node {
     from: DateTime!
     status: RequestStatus!
     to: DateTime!
+    owner: RequestOwner!
     # List of places to be visited
     places: [Place]!
 }
