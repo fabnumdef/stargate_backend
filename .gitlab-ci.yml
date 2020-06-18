@@ -42,6 +42,8 @@ deploy:staging:
     HELM_NAME: backend
   after_script:
     - kubectl logs -f job/${HELM_NAME}-nodejs || true
+  environment:
+    url: https://${BASE_DOMAIN}
 
 deploy:staging:uninstall:
   variables:
@@ -55,6 +57,8 @@ deploy:review:
     HELM_UPGRADE_EXTRA_ARGS: --set envVars.MONGODB="${HELM_ENV_VAR_MONGODB}${CI_COMMIT_REF_SLUG}"
   after_script:
     - kubectl logs -f job/${HELM_NAME}-nodejs || true
+  environment:
+    url: https://${CI_ENVIRONMENT_SLUG}.${BASE_DOMAIN}
 
 deploy:review:uninstall:
   variables:
