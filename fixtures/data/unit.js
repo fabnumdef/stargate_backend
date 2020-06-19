@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import {
   WORKFLOW_BEHAVIOR_ADVISEMENT,
   WORKFLOW_BEHAVIOR_VALIDATION,
-  WORKFLOW_BEHAVIOR_INFORMATION,
 } from '../../src/models/unit';
 import {
   ROLE_SECURITY_OFFICER,
@@ -41,6 +40,22 @@ export const ENTS = {
     _id: 'MIDDLE-EARTH',
     label: 'Middle-Earth',
   },
+  workflow: {
+    steps: [
+      {
+        role: ROLE_SCREENING,
+        behavior: WORKFLOW_BEHAVIOR_ADVISEMENT,
+      },
+      {
+        role: ROLE_UNIT_CORRESPONDENT,
+        behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+      },
+      {
+        role: ROLE_ACCESS_OFFICE,
+        behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+      },
+    ],
+  },
 };
 
 export const DWARFS = {
@@ -54,7 +69,7 @@ export const DWARFS = {
     steps: [
       {
         role: ROLE_SECURITY_OFFICER,
-        behavior: WORKFLOW_BEHAVIOR_INFORMATION,
+        behavior: WORKFLOW_BEHAVIOR_VALIDATION,
       },
       {
         role: ROLE_SCREENING,
