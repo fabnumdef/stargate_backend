@@ -11,6 +11,19 @@ export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
 
+export const EMPLOYEE_TYPE_ENUM = [
+  'Visiteur',
+  'Sous-traitant',
+  'Intérimaire',
+  'Stagiaire',
+  'Livreur',
+  'Militaire d\'active',
+  'Réserviste',
+  'Civil de la défense',
+  'Famille',
+  'Autorité',
+];
+
 const VisitorSchema = new Schema({
   nid: String,
   firstname: {
@@ -26,7 +39,10 @@ const VisitorSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  employeeType: String,
+  employeeType: {
+    type: String,
+    enum: EMPLOYEE_TYPE_ENUM,
+  },
   company: String,
   rank: String,
   email: String,
