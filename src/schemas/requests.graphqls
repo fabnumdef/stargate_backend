@@ -21,7 +21,7 @@ enum RequestStatus {
 
 extend type CampusMutation {
     createRequest(request: RequestInput!, unit: RequestOwnerUnitInput!): Request!
-    editRequest(id: String!, request: RequestInput!, unit: RequestOwnerUnitInput!): Request!
+    editRequest(id: String!, request: RequestInput!): Request!
     shiftRequest(id: String!, transition: RequestTransition!): Request!
     deleteRequest(id: String!): Request!
     mutateRequest(id: String!): RequestMutation!

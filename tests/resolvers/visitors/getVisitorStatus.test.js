@@ -22,7 +22,7 @@ function queryGetVisitorRequest(campusId, requestId, id, user = null) {
           getRequest(id: $requestId) {
             getVisitor(id: $id) {
               status {
-                unit
+                unitId
                 steps {
                   step
                   role
@@ -137,7 +137,7 @@ it('Test to get a status of visitor', async () => {
       );
       expect(
         status
-          .find((unitRow) => unit1._id.toString() === unitRow.unit).steps
+          .find((unitRow) => unit1._id.toString() === unitRow.unitId).steps
           .find((stepRow) => stepRow.step === step._id.toString()),
       )
         .toMatchObject({
