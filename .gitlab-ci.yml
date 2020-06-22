@@ -1,119 +1,65 @@
 stages:
-  - test
   - build
+  - test
   - deploy
 
 include:
-  - template: Dependency-Scanning.gitlab-ci.yml
-  - template: License-Scanning.gitlab-ci.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /proxy/licence-scanning.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /proxy/dependency-scanning.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /proxy/container-scanning.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /proxy/secret-scanning.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /proxy/sast.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /npm.auto.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /docker.auto.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /helm.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /helm.reviews.auto.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /helm.staging.auto.yml
 
 variables:
-  DS_DISABLE_DIND: "true"
+  HELM_CHART: igloo-stable/nodejs
+  HELM_ENV_VAR_VERSION: Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})
 
-.deploy:
-  stage: deploy
-  image: dtzar/helm-kubectl:3.1.2
-  variables:
-    KUBECONFIG: /etc/deploy/config
-    K8S_CLUSTER_NAME: current
-    RESET_JOB: "false"
-  before_script:
-    - mkdir -p `dirname $KUBECONFIG`
-    - touch $KUBECONFIG
-    - kubectl config set-cluster ${K8S_CLUSTER_NAME} --server="${K8S_HOST}"
-    - kubectl config set clusters.${K8S_CLUSTER_NAME}.certificate-authority-data "${K8S_CA}"
-    - kubectl config set-credentials ${K8S_USER} --token="${K8S_TOKEN}"
-    - kubectl config set-context ${K8S_NAMESPACE} --cluster="${K8S_CLUSTER_NAME}" --user="${K8S_USER}" --namespace="${K8S_NAMESPACE}"
-    - kubectl config use-context ${K8S_NAMESPACE}
-  script:
-    - helm upgrade
-      --install
-      --namespace ${K8S_NAMESPACE}
-      --set image.tag="${CI_COMMIT_REF_SLUG}"
-      --set ingress.enabled=true
-      --set ingress.host="${DEPLOYMENT_HOST}"
-      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
-      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
-      --set imageCredentials.registry="${CI_REGISTRY}"
-      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set env.MONGODB="${MONGODB}"
-      --set env.MAIL__TRANSPORTER__HOST="${MAIL__TRANSPORTER__HOST}"
-      --set env.MAIL__TRANSPORTER__AUTH__USER="${MAIL__TRANSPORTER__AUTH__USER}"
-      --set env.MAIL__TRANSPORTER__AUTH__PASS="${MAIL__TRANSPORTER__AUTH__PASS}"
-      --set env.MAIL__DEFAULT_FROM="${MAIL__DEFAULT_FROM}"
-      --set resetJob=${RESET_JOB}
-      --wait
-      ${HELM_NAME}
-      .helm-chart
-    - kubectl logs -f job/${HELM_NAME}-node || true
-
-.node:
-  image: node:latest
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-  before_script:
-    - npm install
-
-lint:
-  stage: test
-  extends: .node
-  script:
-    - npm run lint
-
-test:
-  stage: test
-  extends: .node
+npm:test:
   services:
     - mongo:latest
   variables:
     MONGODB: "mongodb://mongo/stargate"
-  script:
-    - npm test -- --coverage
-  artifacts:
-    paths:
-      - coverage
-    expire_in: 1 week
 
-build:
-  stage: build
-  image:
-    name: gcr.io/kaniko-project/executor:debug-v0.17.1
-    entrypoint: [""]
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor
-      --context $CI_PROJECT_DIR
-      --dockerfile $CI_PROJECT_DIR/Dockerfile
-      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-
-deploy_review:
-  extends: .deploy
+deploy:staging:
   variables:
-    K8S_USER: ${K8S_DEV_USER}
-    K8S_TOKEN: ${K8S_DEV_TOKEN}
-    K8S_NAMESPACE: ${K8S_DEV_NAMESPACE}
-    DEPLOYMENT_HOST: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
-    MONGODB: "${DEVELOPMENT_MONGODB}${CI_COMMIT_REF_SLUG}"
-    HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
-    RESET_JOB: "true"
-  except:
-    refs:
-      - tags
-      - master
-      - develop
-
-deploy_staging:
-  extends: .deploy
-  variables:
-    K8S_USER: ${K8S_STAGING_USER}
-    K8S_TOKEN: ${K8S_STAGING_TOKEN}
-    K8S_NAMESPACE: ${K8S_STAGING_NAMESPACE}
-    DEPLOYMENT_HOST: ${STAGING_DOMAIN}
-    MONGODB: ${STAGING_MONGODB}
+    HOST: api.${BASE_DOMAIN}
+    HELM_INGRESS_HOST: $HOST
     HELM_NAME: backend
-    RESET_JOB: "true"
-  only:
-    refs:
-      - develop
+  after_script:
+    - kubectl logs -f job/${HELM_NAME}-nodejs || true
+  environment:
+    url: https://${BASE_DOMAIN}
+
+deploy:staging:uninstall:
+  variables:
+    HELM_NAME: backend
+
+deploy:review:
+  variables:
+    HOST: ${CI_ENVIRONMENT_SLUG}.api.${BASE_DOMAIN}
+    HELM_INGRESS_HOST: $HOST
+    HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
+    HELM_UPGRADE_EXTRA_ARGS: --set envVars.MONGODB="${HELM_ENV_VAR_MONGODB}${CI_COMMIT_REF_SLUG}"
+  after_script:
+    - kubectl logs -f job/${HELM_NAME}-nodejs || true
+  environment:
+    url: https://${CI_ENVIRONMENT_SLUG}.${BASE_DOMAIN}
+
+deploy:review:uninstall:
+  variables:
+    HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
