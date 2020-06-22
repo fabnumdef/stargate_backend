@@ -18,7 +18,7 @@ const connect = async (config) => {
     await mongoose.connect(config, deprecationOptions);
     log.info('MongoDB connected !');
   } catch (e) {
-    log.error(`MongoDB connect failed (${config}), retry in 10 seconds`);
+    log.error(`MongoDB connect failed (${config}), retry in 10 seconds`, e);
     await new Promise((accept) => {
       setTimeout(accept, 10000);
     });
