@@ -20,8 +20,8 @@ enum RequestStatus {
 }
 
 extend type CampusMutation {
-    createRequest(request: RequestInput!): Request!
-    editRequest(id: String!, request: RequestInput!): Request!
+    createRequest(request: RequestInput!, unit: RequestOwnerUnitInput!): Request!
+    editRequest(id: String!, request: RequestInput!, unit: RequestOwnerUnitInput!): Request!
     shiftRequest(id: String!, transition: RequestTransition!): Request!
     deleteRequest(id: String!): Request!
     mutateRequest(id: String!): RequestMutation!
@@ -51,6 +51,7 @@ input RequestOwnerInput {
 type RequestOwner {
     firstname: String!
     lastname: String!
+    unit: String
 }
 
 input RequestInput {
@@ -60,6 +61,10 @@ input RequestInput {
     to: DateTime
     # List of IDs of places where we request access
     places: [String]
+}
+
+input RequestOwnerUnitInput {
+    label: String!
 }
 
 type Request implements Node {

@@ -3,8 +3,8 @@ import RequestModel, { EVENT_REMOVE, STATE_REMOVED } from '../models/request';
 import { ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT } from '../models/rules';
 
 export const CampusMutation = {
-  async createRequest(campus, { request }, { user }) {
-    return campus.createRequest(Object.assign(request, { owner: user }));
+  async createRequest(campus, { request, unit }, { user }) {
+    return campus.createRequest(Object.assign(request, { owner: { ...user, unit: unit.label } }));
   },
   async editRequest(campus, { request, id }) {
     const r = await RequestModel.findById(id);

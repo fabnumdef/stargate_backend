@@ -55,6 +55,7 @@ const RequestSchema = new Schema({
     },
     firstname: String,
     lastname: String,
+    unit: String,
     email: {
       original: String,
       canonical: String,
