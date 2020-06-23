@@ -4,6 +4,8 @@ import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
 import { HYDRATION_FORCE, HYDRATION_KEY } from './helpers/graphql-projection';
+// eslint-disable-next-line import/no-cycle
+import { MODEL_NAME as REQUEST_MODEL_NAME } from './request';
 
 const { Schema, Types } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -132,7 +134,27 @@ const VisitorSchema = new Schema({
 });
 
 VisitorSchema.virtual('stateMachine').get(function stateMachineVirtual() {
-  return new StateMachine(this.workflow);
+  return new StateMachine(this.workflow, {
+    guards: {
+      hasMixed: (
+        _context,
+        _event,
+        { state },
+      ) => Object.values(state.value.validation).every((v) => ['accepted', 'rejected'].includes(v))
+            && Object.values(state.value.validation).some((v) => v === 'accepted')
+            && Object.values(state.value.validation).some((v) => v === 'rejected'),
+      hasAllAccepted: (
+        _context,
+        _event,
+        { state },
+      ) => Object.values(state.value.validation).every((v) => v === 'accepted'),
+      hasAllRejected: (
+        _context,
+        _event,
+        { state },
+      ) => Object.values(state.value.validation).every((v) => v === 'rejected'),
+    },
+  });
 });
 
 /**
@@ -160,22 +182,39 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
           [`U${unit._id}`]: (new Unit(unit)).buildWorkflow(),
         })).reduce((acc, cur) => Object.assign(acc, cur), {}),
         on: {
-          accept: 'accepted',
-          reject: 'rejected',
-          both: 'mixed',
+          '': [
+            { target: 'accepted', cond: 'hasAllAccepted' },
+            { target: 'rejected', cond: 'hasAllRejected' },
+            { target: 'mixed', cond: 'hasMixed' },
+          ],
         },
       },
       accepted: {
+        invoke: {
+          src: () => { this.shouldRequestComputation = true; },
+        },
         type: 'final',
       },
       rejected: {
+        invoke: {
+          src: () => { this.shouldRequestComputation = true; },
+        },
         type: 'final',
       },
       mixed: {
+        invoke: {
+          src: () => { this.shouldRequestComputation = true; },
+        },
         type: 'final',
       },
     },
   });
+});
+
+VisitorSchema.post('save', async (visitor) => {
+  if (visitor.shouldRequestComputation) {
+    await visitor.invokeRequestComputation();
+  }
 });
 
 VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
@@ -258,6 +297,12 @@ VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, eve
   service.send(this.predicateEvent(unitID, stepID, event), { unitID, stepID, event });
   this.state.value = service.state.value;
   return this;
+};
+
+VisitorSchema.methods.invokeRequestComputation = async function invokeRequestComputation() {
+  const Request = mongoose.model(REQUEST_MODEL_NAME);
+  const request = await Request.findById(this.request._id);
+  return request.computeStateComputation();
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');
