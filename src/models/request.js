@@ -138,6 +138,9 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         type: 'final',
       },
       [STATE_CANCELED]: {
+        invoke: {
+          src: () => { this.markedForVisitorsCancelation = true; },
+        },
         type: 'final',
       },
       [STATE_ACCEPTED]: {
@@ -151,6 +154,12 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
     },
   });
+});
+
+RequestSchema.post('save', async (request) => {
+  if (request.markedForVisitorsCancelation) {
+    await request.cancelVisitors();
+  }
 });
 
 RequestSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
@@ -232,6 +241,12 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
     this.status = STATE_MIXED;
   }
   return this.save();
+};
+
+RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  // @todo: batch this in a queue system for requests with a lot of visitors
+  return Visitor.updateMany({ 'request._id': this._id }, { 'state.value': STATE_CANCELED });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');

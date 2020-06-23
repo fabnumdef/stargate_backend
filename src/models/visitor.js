@@ -191,19 +191,19 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
       },
       accepted: {
         invoke: {
-          src: () => { this.shouldRequestComputation = true; },
+          src: () => { this.markedForRequestComputation = true; },
         },
         type: 'final',
       },
       rejected: {
         invoke: {
-          src: () => { this.shouldRequestComputation = true; },
+          src: () => { this.markedForRequestComputation = true; },
         },
         type: 'final',
       },
       mixed: {
         invoke: {
-          src: () => { this.shouldRequestComputation = true; },
+          src: () => { this.markedForRequestComputation = true; },
         },
         type: 'final',
       },
@@ -212,7 +212,7 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
 });
 
 VisitorSchema.post('save', async (visitor) => {
-  if (visitor.shouldRequestComputation) {
+  if (visitor.markedForRequestComputation) {
     await visitor.invokeRequestComputation();
   }
 });
