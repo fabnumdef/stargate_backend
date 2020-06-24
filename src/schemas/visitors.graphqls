@@ -29,12 +29,26 @@ input RequestIdentityDocumentInput {
     reference: String
 }
 
+enum VisitorEmployeeType {
+    TYPE_VISITOR
+    TYPE_SUBCONTRACTOR
+    TYPE_INTERIM
+    TYPE_TRAINEE
+    TYPE_DELIVERER
+    TYPE_ACTIVE_MILITARY
+    TYPE_RESERVIST
+    TYPE_CIVILIAN_DEFENSE
+    TYPE_FAMILY
+    TYPE_AUTHORITY
+}
+
 input RequestVisitorInput {
     nid: String
     firstname: String!
     birthLastname: String!
-    usageLastname: String!
+    usageLastname: String
     isInternal: Boolean!
+    employeeType: VisitorEmployeeType!
     rank: String
     company: String
     email: String!
@@ -70,8 +84,9 @@ type RequestVisitor {
     nid: String
     firstname: String!
     birthLastname: String!
-    usageLastname: String!
+    usageLastname: String
     isInternal: Boolean!
+    employeeType: VisitorEmployeeType
     rank: String
     company: String
     email: String!

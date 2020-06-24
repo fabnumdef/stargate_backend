@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import Visitor from '../../src/models/visitor';
+import Visitor, { TYPE_VISITOR } from '../../src/models/visitor';
 
 export const generateDummyVisitor = (...params) => ({
   firstname: nanoid(),
@@ -10,6 +10,7 @@ export const generateDummyVisitor = (...params) => ({
   birthday: new Date(),
   birthplace: nanoid(),
   isInternal: false,
+  employeeType: TYPE_VISITOR,
   ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
 });
 

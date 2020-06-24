@@ -11,6 +11,17 @@ export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
 
+export const TYPE_VISITOR = 'TYPE_VISITOR';
+export const TYPE_SUBCONTRACTOR = 'TYPE_SUBCONTRACTOR';
+export const TYPE_INTERIM = 'TYPE_INTERIM';
+export const TYPE_TRAINEE = 'TYPE_TRAINEE';
+export const TYPE_DELIVERER = 'TYPE_DELIVERER';
+export const TYPE_ACTIVE_MILITARY = 'TYPE_ACTIVE_MILITARY';
+export const TYPE_RESERVIST = 'TYPE_RESERVIST';
+export const TYPE_CIVILIAN_DEFENSE = 'TYPE_CIVILIAN_DEFENSE';
+export const TYPE_FAMILY = 'TYPE_FAMILY';
+export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
+
 const VisitorSchema = new Schema({
   nid: String,
   firstname: {
@@ -21,13 +32,25 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
-  usageLastname: {
-    type: String,
-    required: true,
-  },
+  usageLastname: String,
   isInternal: {
     type: Boolean,
     default: false,
+  },
+  employeeType: {
+    type: String,
+    enum: [
+      TYPE_VISITOR,
+      TYPE_SUBCONTRACTOR,
+      TYPE_INTERIM,
+      TYPE_TRAINEE,
+      TYPE_DELIVERER,
+      TYPE_ACTIVE_MILITARY,
+      TYPE_RESERVIST,
+      TYPE_CIVILIAN_DEFENSE,
+      TYPE_FAMILY,
+      TYPE_AUTHORITY,
+    ],
   },
   company: String,
   rank: String,
