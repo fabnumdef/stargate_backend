@@ -6,6 +6,7 @@ import {
 import {
   MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
 } from './unit';
+// eslint-disable-next-line import/no-cycle
 import {
   MODEL_NAME as VISITOR_MODEL_NAME,
 } from './visitor';
@@ -138,6 +139,9 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         type: 'final',
       },
       [STATE_CANCELED]: {
+        invoke: {
+          src: () => { this.markedForVisitorsCancelation = true; },
+        },
         type: 'final',
       },
       [STATE_ACCEPTED]: {
@@ -151,6 +155,12 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
     },
   });
+});
+
+RequestSchema.post('save', async (request) => {
+  if (request.markedForVisitorsCancelation) {
+    await request.cancelVisitors();
+  }
 });
 
 RequestSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
@@ -212,6 +222,32 @@ RequestSchema.methods.findVisitorsWithProjection = function findVisitorsWithProj
 RequestSchema.methods.countVisitors = async function countVisitors(filters) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Visitor.countDocuments({ ...filters, 'request._id': this._id });
+};
+
+RequestSchema.methods.computeStateComputation = async function computeStateComputation() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const r = await Visitor.aggregate([
+    { $match: { 'request._id': this._id } },
+    { $project: { _id: 1, 'state.value': 1 } },
+    { $group: { _id: '$state.value', count: { $sum: 1 } } },
+  ]);
+  if (r.some(({ _id }) => _id === null)) {
+    return this;
+  }
+  if (r.every(({ _id }) => _id === STATE_REJECTED)) {
+    this.status = STATE_REJECTED;
+  } else if (r.every(({ _id }) => _id === STATE_ACCEPTED)) {
+    this.status = STATE_ACCEPTED;
+  } else {
+    this.status = STATE_MIXED;
+  }
+  return this.save();
+};
+
+RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  // @todo: batch this in a queue system for requests with a lot of visitors
+  return Visitor.updateMany({ 'request._id': this._id }, { 'state.value': STATE_CANCELED });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');
