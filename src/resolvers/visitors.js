@@ -58,7 +58,7 @@ export const Request = {
 
 export const RequestVisitor = {
   async status(visitor) {
-    return Object.values(visitor.status).map(({ _id, ...steps }) => ({ unit: _id, steps }));
+    return Object.values(visitor.status).map(({ _id, label, ...steps }) => ({ unitId: _id, label, steps }));
   },
 };
 
