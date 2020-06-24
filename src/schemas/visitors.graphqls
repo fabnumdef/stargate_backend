@@ -85,7 +85,7 @@ type RequestVisitor {
     birthLastname: String!
     usageLastname: String
     isInternal: Boolean!
-    employeeType: String
+    employeeType: VisitorEmployeeType
     rank: String
     company: String
     email: String!
