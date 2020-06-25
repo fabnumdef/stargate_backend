@@ -1,5 +1,5 @@
 extend type Request {
-    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters): RequestVisitorsList!
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String): RequestVisitorsList!
     getVisitor(id: String!): RequestVisitor
 }
 

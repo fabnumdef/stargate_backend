@@ -4,14 +4,14 @@ import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 
-function queryListVisitorsRequest(campusId, requestId, user = null) {
+function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-            query ListVisitorsRequestQuery($campusId: String!, $requestId: String!) {
+            query ListVisitorsRequestQuery($campusId: String!, $requestId: String!, $search: String) {
                 getCampus(id: $campusId) {
                     getRequest(id: $requestId) {
-                        listVisitors {
+                        listVisitors(search: $search) {
                             list {
                                 id
                                 firstname
@@ -23,6 +23,7 @@ function queryListVisitorsRequest(campusId, requestId, user = null) {
         `,
     variables: {
       campusId,
+      search,
       requestId: requestId.toString ? requestId.toString() : requestId,
     },
   });
@@ -49,9 +50,10 @@ it('Test to list visitors in a request', async () => {
       const { data: { getCampus: { getRequest: { listVisitors } } } } = await queryListVisitorsRequest(
         campus._id,
         dummyRequest._id,
+        visitors[0].firstname,
         generateDummySuperAdmin(),
       );
-      expect(listVisitors.list).toHaveLength(visitors.length);
+      expect(listVisitors.list).toHaveLength(1);
     }
   } finally {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));

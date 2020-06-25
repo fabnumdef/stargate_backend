@@ -99,6 +99,12 @@ const RequestSchema = new Schema({
   ],
 }, { timestamps: true });
 
+RequestSchema.index({
+  _id: 'text',
+  object: 'text',
+  reason: 'text',
+});
+
 RequestSchema.pre('save', async function preSave() {
   if (!this._id) {
     this._id = await this.generateID();

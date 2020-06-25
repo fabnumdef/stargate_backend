@@ -6,13 +6,13 @@ import Unit, { createDummyUnit } from '../../models/unit';
 import Place, { createDummyPlace } from '../../models/place';
 import { ROLE_ACCESS_OFFICE } from '../../../src/models/rules';
 
-function queryListRequests(campusId, as, user = null) {
+function queryListRequests(campusId, as, search = null, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-        query ListRequestsQuery($campusId: String!, $as: ValidationPersonas!) {
+        query ListRequestsQuery($campusId: String!, $as: ValidationPersonas!, $search: String) {
             getCampus(id: $campusId) {
-                listRequests(as: $as) {
+                listRequests(as: $as, search: $search) {
                     list {
                         id
                     }
@@ -25,7 +25,7 @@ function queryListRequests(campusId, as, user = null) {
             }
         }
     `,
-    variables: { campusId, as },
+    variables: { campusId, as, search },
   });
 }
 
@@ -60,6 +60,7 @@ it('Test to list requests', async () => {
       const { data: { getCampus: { listRequests } } } = await queryListRequests(
         campus._id,
         { role: ROLE_ACCESS_OFFICE },
+        null,
         generateDummyAdmin(),
       );
 
@@ -67,6 +68,23 @@ it('Test to list requests', async () => {
       expect(listRequests.list).toHaveLength(list.length);
       expect(listRequests.meta).toMatchObject({
         total: list.length,
+        first: 10,
+        offset: 0,
+      });
+    }
+
+    {
+      const { data: { getCampus: { listRequests } } } = await queryListRequests(
+        campus._id,
+        { role: ROLE_ACCESS_OFFICE },
+        list[0].reason,
+        generateDummyAdmin(),
+      );
+
+      // Check default values
+      expect(listRequests.list).toHaveLength(1);
+      expect(listRequests.meta).toMatchObject({
+        total: 1,
         first: 10,
         offset: 0,
       });

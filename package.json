@@ -10,7 +10,8 @@
     "flow": "flow",
     "fixtures:clear": "babel-node fixtures/clear.js",
     "fixtures:load": "babel-node fixtures",
-    "lint": "eslint --ext .js src fixtures tests"
+    "lint": "eslint --ext .js src fixtures tests",
+    "mongoose:sync-indexes": "babel-node src/sync-indexes.js"
   },
   "repository": {
     "type": "git",

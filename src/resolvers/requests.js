@@ -56,34 +56,46 @@ export const Campus = {
     }
     return request;
   },
-  async listRequests(campus, { as, filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {} }) {
+  async listRequests(campus, {
+    as, filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {}, search,
+  }) {
     const roleFilters = { 'units.workflow.steps.role': as.role };
     const unitFilters = [ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT].includes(as.role)
       ? { 'units.label': as.unit }
       : {};
-
+    const searchFilters = {};
+    if (search) {
+      searchFilters.$text = { $search: search };
+    }
     return {
       campus,
-      filters: { ...filters, ...roleFilters, ...unitFilters },
+      filters: {
+        ...filters, ...roleFilters, ...unitFilters, ...searchFilters,
+      },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
-      countMethod: campus.countRequests.bind(campus, { ...filters, ...roleFilters, ...unitFilters }),
+      countMethod: campus.countRequests.bind(campus, {
+        ...filters, ...roleFilters, ...unitFilters, ...searchFilters,
+      }),
     };
   },
   async listMyRequests(
     campus,
-    { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {} },
+    { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {}, search },
     { user },
   ) {
     const userFilters = {
       ...filters,
       'owner._id': mongoose.Types.ObjectId(user.id),
     };
-
+    const searchFilters = {};
+    if (search) {
+      searchFilters.$text = { $search: search };
+    }
     return {
       campus,
-      filters: userFilters,
+      filters: { ...userFilters, ...searchFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
-      countMethod: campus.countRequests.bind(campus, userFilters),
+      countMethod: campus.countRequests.bind(campus, { ...userFilters, ...searchFilters }),
     };
   },
 };

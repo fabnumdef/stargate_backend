@@ -156,6 +156,17 @@ const VisitorSchema = new Schema({
   },
 });
 
+VisitorSchema.index({
+  nid: 'text',
+  firstname: 'text',
+  birthLastname: 'text',
+  usageLastname: 'text',
+  company: 'text',
+  rank: 'text',
+  nationality: 'text',
+  email: 'text',
+});
+
 VisitorSchema.virtual('stateMachine').get(function stateMachineVirtual() {
   return new StateMachine(this.workflow, {
     guards: {
