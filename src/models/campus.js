@@ -5,6 +5,7 @@ import { MODEL_NAME as RequestModelName } from './request';
 import { MODEL_NAME as ZoneModelName } from './zone';
 import { MODEL_NAME as PlaceModelName } from './place';
 import config from '../services/config';
+import { MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
@@ -115,6 +116,16 @@ CampusSchema.methods.findRequestsWithProjection = function findRequestsWithProje
 CampusSchema.methods.countRequests = async function countRequests(filters) {
   const Request = mongoose.model(RequestModelName);
   return Request.countDocuments({ ...filters, 'campus._id': this._id });
+};
+
+CampusSchema.methods.findVisitorsWithProjection = function findVisitorsWithProjection(filters, ...params) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Visitor.findWithProjection({ ...filters, 'request.campus._id': this._id }, ...params);
+};
+
+CampusSchema.methods.countVisitors = async function countVisitors(filters) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Visitor.countDocuments({ ...filters, 'request.campus._id': this._id });
 };
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');

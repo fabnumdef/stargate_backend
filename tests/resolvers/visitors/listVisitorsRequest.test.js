@@ -29,6 +29,28 @@ function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   });
 }
 
+function queryListVisitors(campusId, search, user = null) {
+  const { mutate } = queryFactory(user);
+  return mutate({
+    query: gql`
+      query ListVisitorsRequestQuery($campusId: String!, $search: String) {
+        getCampus(id: $campusId) {
+          listVisitors(search: $search) {
+            list {
+              id
+              firstname
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      campusId,
+      search,
+    },
+  });
+}
+
 it('Test to list visitors in a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
@@ -50,6 +72,38 @@ it('Test to list visitors in a request', async () => {
       const { data: { getCampus: { getRequest: { listVisitors } } } } = await queryListVisitorsRequest(
         campus._id,
         dummyRequest._id,
+        visitors[0].firstname,
+        generateDummySuperAdmin(),
+      );
+      expect(listVisitors.list).toHaveLength(1);
+    }
+  } finally {
+    await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
+    await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await campus.deleteOne();
+  }
+});
+
+it('Test to list visitors in a campus', async () => {
+  const campus = await createDummyCampus();
+  const owner = await generateDummyUser();
+  const dummyRequest = await createDummyRequest({ campus, owner });
+  const visitors = [
+    await createDummyVisitor({ request: dummyRequest }),
+    await createDummyVisitor({ request: dummyRequest }),
+  ];
+
+  try {
+    {
+      const { errors } = await queryListVisitors(campus._id);
+      // You're not authorized to create places while without rights
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Not Authorised');
+    }
+
+    {
+      const { data: { getCampus: { listVisitors } } } = await queryListVisitors(
+        campus._id,
         visitors[0].firstname,
         generateDummySuperAdmin(),
       );

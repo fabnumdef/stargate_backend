@@ -1,3 +1,7 @@
+extend type Campus {
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String): RequestVisitorsList!
+}
+
 extend type Request {
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String): RequestVisitorsList!
     getVisitor(id: String!): RequestVisitor
