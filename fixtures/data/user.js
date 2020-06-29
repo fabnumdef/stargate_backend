@@ -8,7 +8,7 @@ import {
   ROLE_SECURITY_OFFICER,
 } from '../../src/models/rules';
 import { MIDDLE_EARTH, MORDOR } from './campus';
-import { DWARFS } from './unit';
+import { DWARFS, ENTS } from './unit';
 
 export default async ({ log }) => {
   const superAdminPassword = nanoid();
@@ -53,6 +53,10 @@ export default async ({ log }) => {
       password: bilboPassword,
       roles: [
         { role: ROLE_ADMIN, campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SECURITY_OFFICER, units: [ENTS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_UNIT_CORRESPONDENT, units: [ENTS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_ACCESS_OFFICE, units: [ENTS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SCREENING, units: [ENTS], campuses: [MIDDLE_EARTH] },
       ],
     },
     {
