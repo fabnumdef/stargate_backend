@@ -88,6 +88,7 @@ const VisitorSchema = new Schema({
       date: Date,
       action: String,
     }],
+    validationDate: Date,
     value: Object,
   },
   request: {
@@ -320,6 +321,7 @@ VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, eve
   const service = this.interpretedStateMachine;
   service.send(this.predicateEvent(unitID, stepID, event), { unitID, stepID, event });
   this.state.value = service.state.value;
+  this.state.validationDate = new Date();
   return this;
 };
 

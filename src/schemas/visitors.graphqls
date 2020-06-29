@@ -70,6 +70,7 @@ type UnitStepStatus {
     role: String
     behavior: String
     status: String
+    date: DateTime
     done: Boolean
 }
 
@@ -77,6 +78,11 @@ type UnitStatus {
     unitId: String!
     label: String!
     steps: [UnitStepStatus]!
+}
+
+type VisitorState {
+    value: String!
+    validationDate: DateTime
 }
 
 type RequestVisitor {
@@ -97,4 +103,5 @@ type RequestVisitor {
     birthday: DateTime!
     birthplace: String!
     status: [UnitStatus]!
+    state: VisitorState
 }
