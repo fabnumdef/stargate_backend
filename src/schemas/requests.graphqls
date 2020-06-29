@@ -49,6 +49,7 @@ input RequestOwnerInput {
 }
 
 type RequestOwner {
+    id: String
     firstname: String!
     lastname: String!
     unit: String
