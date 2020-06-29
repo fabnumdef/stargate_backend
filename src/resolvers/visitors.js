@@ -38,6 +38,22 @@ export const RequestMutation = {
 };
 
 const MAX_REQUESTABLE_VISITS = 30;
+
+export const Campus = {
+  async listVisitors(campus, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search }) {
+    const searchFilters = {};
+    if (search) {
+      searchFilters.$text = { $search: search };
+    }
+    return {
+      campus,
+      filters: { ...filters, ...searchFilters },
+      cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
+      countMethod: campus.countVisitors.bind(campus),
+    };
+  },
+};
+
 export const Request = {
   async listVisitors(request, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search }) {
     const searchFilters = {};
@@ -75,7 +91,9 @@ export const UnitStatus = {
 };
 
 export const RequestVisitorsList = {
-  async list({ request, filters, cursor: { offset, first } }, _params, _ctx, info) {
+  async list({
+    campus, request = campus, filters, cursor: { offset, first },
+  }, _params, _ctx, info) {
     return request.findVisitorsWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,
