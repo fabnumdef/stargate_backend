@@ -5,13 +5,13 @@ import Request, { createDummyRequest } from '../../models/request';
 import Unit, { createDummyUnit } from '../../models/unit';
 import Place, { createDummyPlace } from '../../models/place';
 
-function queryListMyRequests(campusId, user = null) {
+function queryListMyRequests(campusId, search, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-        query ListMyRequestsQuery($campusId: String!) {
+        query ListMyRequestsQuery($campusId: String!, $search: String) {
             getCampus(id: $campusId) {
-                listMyRequests {
+                listMyRequests(search: $search) {
                     list {
                         id
                     }
@@ -24,7 +24,7 @@ function queryListMyRequests(campusId, user = null) {
             }
         }
     `,
-    variables: { campusId },
+    variables: { campusId, search },
   });
 }
 
@@ -56,6 +56,7 @@ it('Test to list my requests', async () => {
     {
       const { data: { getCampus: { listMyRequests } } } = await queryListMyRequests(
         campus._id,
+        null,
         owner,
       );
 
@@ -63,6 +64,22 @@ it('Test to list my requests', async () => {
       expect(listMyRequests.list).toHaveLength(list.length);
       expect(listMyRequests.meta).toMatchObject({
         total: list.length,
+        first: 10,
+        offset: 0,
+      });
+    }
+
+    {
+      const { data: { getCampus: { listMyRequests } } } = await queryListMyRequests(
+        campus._id,
+        list[0].reason,
+        owner,
+      );
+
+      // Check default values
+      expect(listMyRequests.list).toHaveLength(1);
+      expect(listMyRequests.meta).toMatchObject({
+        total: 1,
         first: 10,
         offset: 0,
       });

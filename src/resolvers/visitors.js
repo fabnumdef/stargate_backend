@@ -39,10 +39,14 @@ export const RequestMutation = {
 
 const MAX_REQUESTABLE_VISITS = 30;
 export const Request = {
-  async listVisitors(request, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {} }) {
+  async listVisitors(request, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search }) {
+    const searchFilters = {};
+    if (search) {
+      searchFilters.$text = { $search: search };
+    }
     return {
       request,
-      filters,
+      filters: { ...filters, ...searchFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
       countMethod: request.countVisitors.bind(request),
     };
