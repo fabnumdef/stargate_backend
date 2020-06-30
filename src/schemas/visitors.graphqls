@@ -80,8 +80,13 @@ type UnitStatus {
     steps: [UnitStepStatus]!
 }
 
+type VisitorRecord {
+    date: DateTime
+}
+
 type VisitorState {
     value: String!
+    records: [VisitorRecord]
 }
 
 type RequestVisitor {
