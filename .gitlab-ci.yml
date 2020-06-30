@@ -24,6 +24,8 @@ include:
     file: /helm.reviews.auto.yml
   - project: fabnum-minarm/igloo/gitlab-templates
     file: /helm.staging.auto.yml
+  - project: fabnum-minarm/igloo/gitlab-templates
+    file: /helm.production.auto.yml
 
 variables:
   HELM_CHART: igloo-stable/nodejs
@@ -34,20 +36,6 @@ npm:test:
     - mongo:latest
   variables:
     MONGODB: "mongodb://mongo/stargate"
-
-deploy:staging:
-  variables:
-    HOST: api.${BASE_DOMAIN}
-    HELM_INGRESS_HOST: $HOST
-    HELM_NAME: backend
-  after_script:
-    - kubectl logs -f job/${HELM_NAME}-nodejs || true
-  environment:
-    url: https://${BASE_DOMAIN}
-
-deploy:staging:uninstall:
-  variables:
-    HELM_NAME: backend
 
 deploy:review:
   variables:
@@ -63,3 +51,29 @@ deploy:review:
 deploy:review:uninstall:
   variables:
     HELM_NAME: backend-${CI_COMMIT_REF_SLUG}
+
+deploy:staging:
+  variables:
+    HOST: api.${BASE_DOMAIN}
+    HELM_INGRESS_HOST: $HOST
+    HELM_NAME: backend
+  after_script:
+    - kubectl logs -f job/${HELM_NAME}-nodejs || true
+  environment:
+    url: https://${BASE_DOMAIN}
+
+deploy:staging:uninstall:
+  variables:
+    HELM_NAME: backend
+
+deploy:production:
+  variables:
+    HOST: api.${BASE_DOMAIN}
+    HELM_INGRESS_HOST: $HOST
+    HELM_NAME: backend
+  environment:
+    url: https://${BASE_DOMAIN}
+
+deploy:production:uninstall:
+  variables:
+    HELM_NAME: backend
