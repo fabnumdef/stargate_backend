@@ -82,7 +82,6 @@ type UnitStatus {
 
 type VisitorState {
     value: String!
-    validationDate: DateTime
 }
 
 type RequestVisitor {
