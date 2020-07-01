@@ -35,7 +35,7 @@ type RequestsList implements OffsetPaginator {
 input RequestFilters {
     from: DateTime
     to: DateTime
-    status: RequestStatus
+    status: [RequestStatus]
     owner: RequestOwnerInput
 }
 
