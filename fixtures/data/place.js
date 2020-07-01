@@ -1,7 +1,7 @@
 import { entsId, dwarfsId } from './unit';
 
 export const MORIA = {
-  label: 'Moria',
+  label: 'Moria (Dwarfs)',
   campus: {
     _id: 'MIDDLE-EARTH',
     label: 'Middle-Earth',
@@ -13,7 +13,7 @@ export const MORIA = {
 };
 
 export const SHIRE = {
-  label: 'Shire',
+  label: 'Shire (Ents)',
   campus: {
     _id: 'MIDDLE-EARTH',
     label: 'Middle-Earth',
@@ -25,7 +25,7 @@ export const SHIRE = {
 };
 
 export const ROHAN = {
-  label: 'Rohan',
+  label: 'Rohan (Dwarfs)',
   campus: {
     _id: 'MIDDLE-EARTH',
     label: 'Middle-Earth',
@@ -37,7 +37,7 @@ export const ROHAN = {
 };
 
 export const GONDOR = {
-  label: 'Gondor',
+  label: 'Gondor (Ents)',
   campus: {
     _id: 'MIDDLE-EARTH',
     label: 'Middle-Earth',
