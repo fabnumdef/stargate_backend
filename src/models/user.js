@@ -153,7 +153,6 @@ UserSchema.virtual('activeTokens')
     return firsts;
   });
 
-
 UserSchema.methods.hasPasswordExpired = function hasPasswordExpired() {
   return this.passwordExpiration && this.passwordExpiration < new Date();
 };
@@ -203,7 +202,6 @@ UserSchema.methods.compareResetToken = async function compareResetToken(token, e
 
   return true;
 };
-
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles

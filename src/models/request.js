@@ -13,7 +13,6 @@ import {
 import RequestCounter from './request-counters';
 import config from '../services/config';
 
-
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
 const { Schema } = mongoose;

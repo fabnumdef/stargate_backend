@@ -12,7 +12,6 @@ const pino = require('koa-pino-logger')();
 
 const exporterPort = config.get('prometheus_exporter');
 
-
 const app = new Koa();
 app.silent = true;
 if (exporterPort) {

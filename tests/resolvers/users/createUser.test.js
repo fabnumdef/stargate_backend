@@ -33,7 +33,6 @@ it('Can\'t create an user if user with this email already exists', async () => {
   }
 });
 
-
 it('Test to create a user', async () => {
   const dummyUser = generateDummyUser();
 
