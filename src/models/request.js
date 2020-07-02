@@ -236,7 +236,7 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
     { $project: { _id: 1, 'state.value': 1 } },
     { $group: { _id: '$state.value', count: { $sum: 1 } } },
   ]);
-  if (r.some(({ _id }) => _id === null)) {
+  if (r.some(({ _id }) => typeof _id !== 'string')) {
     return this;
   }
   if (r.every(({ _id }) => _id === STATE_REJECTED)) {
