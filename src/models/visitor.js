@@ -174,19 +174,19 @@ VisitorSchema.virtual('stateMachine').get(function stateMachineVirtual() {
         _context,
         _event,
         { state },
-      ) => Object.values(state.value.validation).every((v) => ['accepted', 'rejected'].includes(v))
-            && Object.values(state.value.validation).some((v) => v === 'accepted')
-            && Object.values(state.value.validation).some((v) => v === 'rejected'),
+      ) => Object.values(state.value.created).every((v) => ['accepted', 'rejected'].includes(v))
+            && Object.values(state.value.created).some((v) => v === 'accepted')
+            && Object.values(state.value.created).some((v) => v === 'rejected'),
       hasAllAccepted: (
         _context,
         _event,
         { state },
-      ) => Object.values(state.value.validation).every((v) => v === 'accepted'),
+      ) => Object.values(state.value.created).every((v) => v === 'accepted'),
       hasAllRejected: (
         _context,
         _event,
         { state },
-      ) => Object.values(state.value.validation).every((v) => v === 'rejected'),
+      ) => Object.values(state.value.created).every((v) => v === 'rejected'),
     },
   });
 });
@@ -207,21 +207,40 @@ VisitorSchema.virtual('workflow').get(function workflowVirtual() {
   }
   return ({
     id: this._id,
-    initial: 'validation',
+    initial: 'drafted',
     context: {},
     states: {
-      validation: {
+      drafted: {
+        on: {
+          CREATE: 'created',
+          REMOVE: 'removed',
+        },
+      },
+      created: {
         type: 'parallel',
         states: this.request.units.map((unit) => ({
           [`U${unit._id}`]: (new Unit(unit)).buildWorkflow(),
         })).reduce((acc, cur) => Object.assign(acc, cur), {}),
         on: {
+          CANCEL: 'canceled',
           '': [
             { target: 'accepted', cond: 'hasAllAccepted' },
             { target: 'rejected', cond: 'hasAllRejected' },
             { target: 'mixed', cond: 'hasMixed' },
           ],
         },
+      },
+      removed: {
+        invoke: {
+          src: async () => {
+            const Visitor = mongoose.model(MODEL_NAME);
+            return Visitor.deleteOne({ _id: this._id, __v: this.__v });
+          },
+        },
+        type: 'final',
+      },
+      canceled: {
+        type: 'final',
       },
       accepted: {
         invoke: {
@@ -330,6 +349,13 @@ VisitorSchema.methods.listPossibleEvents = function listPossibleEvents() {
 VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, event) {
   const service = this.interpretedStateMachine;
   service.send(this.predicateEvent(unitID, stepID, event), { unitID, stepID, event });
+  this.state.value = service.state.value;
+  return this;
+};
+
+VisitorSchema.methods.stateSend = function stateMutation(event) {
+  const service = this.interpretedStateMachine;
+  service.send(event);
   this.state.value = service.state.value;
   return this;
 };

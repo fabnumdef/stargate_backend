@@ -12,6 +12,7 @@ import {
   WORKFLOW_BEHAVIOR_VALIDATION,
 } from '../../../src/models/unit';
 import Place, { generateDummyPlace } from '../../models/place';
+import { EVENT_CREATE } from '../../../src/models/request';
 
 function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, transition, user = null) {
   const { mutate } = queryFactory(user);
@@ -104,6 +105,8 @@ it('Test to shift a visitor', async () => {
     birthday: new Date('1970-01-01'),
     birthdayPlace: 'Paris',
   });
+  request.stateMutation(EVENT_CREATE);
+  await request.save();
 
   try {
     {
@@ -162,7 +165,7 @@ it('Test to shift a visitor', async () => {
       );
       const dbVersion = await Visitor.findById(shiftVisitor.id);
       expect(dbVersion.interpretedStateMachine.state.value).toMatchObject({
-        validation: {
+        created: {
           [`U${unit1.id}`]: `U${unit1.id}S${unit1.workflow.steps[1]._id}`,
           [`U${unit2.id}`]: `U${unit2.id}S${unit2.workflow.steps[0]._id}`,
         },

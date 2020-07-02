@@ -199,6 +199,7 @@ describe('Ensure that workflow is working', () => {
       birthday: new Date('1970-01-01'),
       birthdayPlace: 'Paris',
     }));
+    visitor.stateSend('CREATE');
     visitor.stateMutation(unit1._id, unit1.workflow.steps[0]._id, 'accept');
     expect(visitor.state.value).toEqual('accepted');
   });
@@ -233,6 +234,7 @@ describe('Ensure that workflow is working', () => {
       birthday: new Date('1970-01-01'),
       birthdayPlace: 'Paris',
     }));
+    visitor.stateSend('CREATE');
     await visitor.stateMutation(unit1._id, unit1.workflow.steps[0]._id, 'accept');
     await visitor.save();
     expect(visitor.state.value).toEqual('accepted');

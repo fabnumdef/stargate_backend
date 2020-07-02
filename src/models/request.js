@@ -127,6 +127,9 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         },
       },
       [STATE_CREATED]: {
+        invoke: {
+          src: () => { this.markedForVisitorsCreation = true; },
+        },
         on: {
           [EVENT_CANCEL]: STATE_CANCELED,
           [EVENT_ACCEPT]: STATE_ACCEPTED,
@@ -138,7 +141,11 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         invoke: {
           src: async () => {
             const Request = mongoose.model(MODEL_NAME);
-            return Request.deleteOne({ _id: this._id, __v: this.__v });
+            const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+            const removed = await Request.deleteOne({ _id: this._id, __v: this.__v });
+            if (removed.ok === 1 && removed.deletedCount === 1) {
+              await Visitor.deleteMany({ 'request._id': this._id });
+            }
           },
         },
         type: 'final',
@@ -163,6 +170,9 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
 });
 
 RequestSchema.post('save', async (request) => {
+  if (request.markedForVisitorsCreation) {
+    await request.createVisitors();
+  }
   if (request.markedForVisitorsCancelation) {
     await request.cancelVisitors();
   }
@@ -247,6 +257,12 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
     this.status = STATE_MIXED;
   }
   return this.save();
+};
+
+RequestSchema.methods.createVisitors = async function createVisitors() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  // @todo: batch this in a queue system for requests with a lot of visitors
+  return Visitor.updateMany({ 'request._id': this._id }, { 'state.value': STATE_CREATED });
 };
 
 RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
