@@ -26,7 +26,6 @@ it('Test to delete a request', async () => {
   const dummyRequest = await createDummyRequest({ campus: { _id: dummyCampus._id }, owner });
   const fakeId = new mongoose.Types.ObjectId();
 
-
   try {
     {
       const { errors } = await mutateDeleteRequest(dummyCampus._id, dummyRequest._id);

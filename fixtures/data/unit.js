@@ -87,7 +87,6 @@ export const DWARFS = {
   },
 };
 
-
 export default async () => [
   ORCS,
   TROLLS,

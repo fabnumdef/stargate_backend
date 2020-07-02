@@ -6,7 +6,6 @@ import typeDefs from './schemas';
 import resolvers from './resolvers';
 import permissions from './models/permissions';
 
-
 export const schema = applyMiddleware(
   makeExecutableSchema({
     typeDefs,

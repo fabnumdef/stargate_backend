@@ -39,7 +39,6 @@ it('Test to shift a request', async () => {
     owner,
   });
 
-
   try {
     {
       const { errors } = await mutateShiftRequest(

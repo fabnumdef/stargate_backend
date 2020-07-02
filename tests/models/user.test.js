@@ -5,7 +5,6 @@ import config from '../../src/services/config';
 import { createDummyCampus } from './campus';
 import { ROLE_ADMIN } from '../../src/models/rules';
 
-
 describe('Ensure that original email is valid', () => {
   it('It should fail when domain not exists', async () => {
     const user = new User({
