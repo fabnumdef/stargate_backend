@@ -12,7 +12,7 @@ import { ROLE_ADMIN } from '../../src/models/rules';
 import { generateDummyUser } from './user';
 import config from '../../src/services/config';
 import {
-  EVENT_CANCEL, EVENT_CREATE, EVENT_REMOVE, STATE_CANCELED,
+  EVENT_CANCEL, EVENT_CREATE, EVENT_REMOVE, STATE_CANCELED, STATE_CREATED,
 } from '../../src/models/request';
 import Visitor, { generateDummyVisitor } from './visitor';
 
@@ -96,6 +96,43 @@ describe('Ensure that workflow is working', () => {
     const request = await createDummyRequest({ campus, owner });
     await request.stateMutation(EVENT_REMOVE);
     expect(await Request.findById(request._id)).toBeNull();
+  });
+
+  it('When a request is started, every visitor request should be started too', async () => {
+    const campus = new Campus(generateDummyCampus());
+    const unit1 = await createDummyUnit({
+      campus,
+      workflow: {
+        steps: [
+          {
+            role: ROLE_ADMIN,
+            behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+          },
+        ],
+      },
+    });
+    const place1 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
+    const request = new Request(generateDummyRequest({
+      campus,
+      places: [place1],
+      owner: generateDummyUser(),
+    }));
+    await request.cacheUnitsFromPlaces(true);
+    await request.save();
+    const visitor = new Visitor(generateDummyVisitor({
+      request,
+      firstname: 'Foo',
+      birthLastname: 'Bar',
+      usageLastname: 'Bar',
+      birthday: new Date('1970-01-01'),
+      birthdayPlace: 'Paris',
+    }));
+    await visitor.save();
+    request.stateMutation(EVENT_CREATE);
+    await request.save();
+    expect(request.status).toEqual(STATE_CREATED);
+    const refreshedVisitor = await Visitor.findById(visitor._id);
+    expect(refreshedVisitor.state.value).toEqual(STATE_CREATED);
   });
 
   it('When a request is canceled, every visitor request should be canceled too', async () => {

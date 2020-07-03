@@ -105,6 +105,7 @@ it('Test to get a status of visitor', async () => {
     birthdayPlace: 'Paris',
   });
   const step = visitor.getStep(unit1._id, ROLE_ADMIN);
+  await visitor.stateSend('CREATE');
   await visitor.stateMutation(unit1._id.toString(), step._id, 'positive');
   await visitor.save();
   try {

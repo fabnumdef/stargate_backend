@@ -3,6 +3,7 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
+import Visitor, { createDummyVisitor } from '../../models/visitor';
 
 function mutateDeleteRequest(campusId, requestId, user = null) {
   const { mutate } = queryFactory(user);
@@ -25,6 +26,15 @@ it('Test to delete a request', async () => {
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus: { _id: dummyCampus._id }, owner });
   const fakeId = new mongoose.Types.ObjectId();
+  await createDummyVisitor({
+    request: dummyRequest,
+    firstname: 'Foo',
+    birthLastname: 'Bar',
+    usageLastname: 'Bar',
+    birthday: new Date('1970-01-01'),
+    birthdayPlace: 'Paris',
+  });
+  expect(await Visitor.countDocuments({ 'request._id': dummyRequest._id })).toEqual(1);
 
   try {
     {
@@ -53,6 +63,7 @@ it('Test to delete a request', async () => {
       expect(data.mutateCampus.deleteRequest).toHaveProperty('id', dummyRequest.id);
       const dbVersion = await Request.findOne({ _id: dummyRequest._id });
       expect(dbVersion).toBeNull();
+      expect(await Visitor.countDocuments({ 'request._id': dummyRequest._id })).toEqual(0);
     }
   } finally {
     await Campus.findOneAndDelete({ _id: dummyCampus._id });
