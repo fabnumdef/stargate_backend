@@ -112,4 +112,5 @@ type RequestVisitor {
     birthplace: String!
     status: [UnitStatus]!
     state: VisitorState
+    request: Request
 }
