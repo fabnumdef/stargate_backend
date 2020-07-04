@@ -43,11 +43,15 @@ export const ENTS = {
   workflow: {
     steps: [
       {
+        role: ROLE_UNIT_CORRESPONDENT,
+        behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+      },
+      {
         role: ROLE_SCREENING,
         behavior: WORKFLOW_BEHAVIOR_ADVISEMENT,
       },
       {
-        role: ROLE_UNIT_CORRESPONDENT,
+        role: ROLE_SECURITY_OFFICER,
         behavior: WORKFLOW_BEHAVIOR_VALIDATION,
       },
       {
@@ -68,7 +72,7 @@ export const DWARFS = {
   workflow: {
     steps: [
       {
-        role: ROLE_SECURITY_OFFICER,
+        role: ROLE_UNIT_CORRESPONDENT,
         behavior: WORKFLOW_BEHAVIOR_VALIDATION,
       },
       {
@@ -76,7 +80,7 @@ export const DWARFS = {
         behavior: WORKFLOW_BEHAVIOR_ADVISEMENT,
       },
       {
-        role: ROLE_UNIT_CORRESPONDENT,
+        role: ROLE_SECURITY_OFFICER,
         behavior: WORKFLOW_BEHAVIOR_VALIDATION,
       },
       {
