@@ -33,3 +33,13 @@ export const canHandleRequest = rule()(
     ROLE_HOST,
   ].includes(role)),
 );
+
+export const canHandleVisitor = rule()(
+  async (parent, args, ctx) => !!ctx.user.roles.find(({ role }) => [
+    ROLE_UNIT_CORRESPONDENT,
+    ROLE_SECURITY_OFFICER,
+    ROLE_ACCESS_OFFICE,
+    ROLE_SCREENING,
+    ROLE_OBSERVER,
+  ].includes(role)),
+);

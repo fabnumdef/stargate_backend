@@ -5,6 +5,7 @@ import {
   isAdmin,
   allow,
   canHandleRequest,
+  canHandleVisitor,
   isUnitCorrespondent,
 } from './rules';
 
@@ -23,7 +24,7 @@ export default shield({
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     deleteUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
-    mutateCampus: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
+    mutateCampus: or(isAdmin, isSuperAdmin, canHandleRequest, canHandleVisitor),
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },
@@ -31,7 +32,7 @@ export default shield({
     createRequest: or(canHandleRequest, isAdmin),
     editRequest: or(canHandleRequest, isAdmin),
     deleteRequest: or(canHandleRequest, isAdmin),
-    mutateRequest: or(canHandleRequest, isAdmin),
+    mutateRequest: or(canHandleRequest, canHandleVisitor, isAdmin),
     shiftRequest: or(canHandleRequest, isAdmin),
     '*': isSuperAdmin,
   },
