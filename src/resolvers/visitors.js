@@ -21,7 +21,9 @@ export const RequestMutation = {
     return removedVisitor;
   },
 
-  async shiftVisitor(request, { id, as: { unit, role } = {}, transition }) {
+  async shiftVisitor(request, {
+    id, as: { unit, role } = {}, transition, tags = [],
+  }) {
     const v = await Visitor.findById(id);
     if (!v) {
       throw new Error('Visitor not found');
@@ -32,7 +34,7 @@ export const RequestMutation = {
     if (possibleEvents.indexOf(predicatedEvent) === -1) {
       throw new Error('You cannot shift to this state');
     }
-    await v.stateMutation(unit, step._id, transition);
+    await v.stateMutation(unit, step._id, transition, tags);
     return v.save();
   },
 };

@@ -85,6 +85,7 @@ const VisitorSchema = new Schema({
         unit: Schema.ObjectId,
         step: Schema.ObjectId,
       },
+      tags: [String],
       date: Date,
       action: String,
     }],
@@ -280,7 +281,7 @@ VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMach
     service.start();
   }
   service.onTransition(({ changed }, {
-    unitID, stepID, event,
+    unitID, stepID, event, tags = [],
   } = {}) => {
     if (!changed || !unitID || !stepID || !event) {
       return;
@@ -290,6 +291,7 @@ VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMach
         unit: unitID,
         step: stepID,
       },
+      tags,
       action: event,
       date: new Date(),
     });
@@ -346,9 +348,15 @@ VisitorSchema.methods.listPossibleEvents = function listPossibleEvents() {
   return this.interpretedStateMachine.state.nextEvents;
 };
 
-VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, event) {
+VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, event, tags = []) {
   const service = this.interpretedStateMachine;
-  service.send(this.predicateEvent(unitID, stepID, event), { unitID, stepID, event });
+  service.send({
+    type: this.predicateEvent(unitID, stepID, event),
+    unitID,
+    stepID,
+    event,
+    tags,
+  });
   this.state.value = service.state.value;
   return this;
 };

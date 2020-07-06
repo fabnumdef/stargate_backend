@@ -14,7 +14,7 @@ import {
 import Place, { generateDummyPlace } from '../../models/place';
 import { EVENT_CREATE } from '../../../src/models/request';
 
-function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, transition, user = null) {
+function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, transition, tags = [], user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
@@ -24,12 +24,19 @@ function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, tra
         $visitorId: String!,
         $personas: ValidationPersonas!,
         $transition: String!
+        $tags: [String]
       ) {
         mutateCampus(id: $campusId) {
           mutateRequest(id: $requestId) {
-            shiftVisitor(id: $visitorId, as: $personas, transition: $transition) {
+            shiftVisitor(id: $visitorId, as: $personas, transition: $transition, tags: $tags) {
               id
               firstname
+              state {
+                records {
+                  date
+                  tags
+                }
+              }
             }
           }
         }
@@ -41,6 +48,7 @@ function mutateShiftVisitorRequest(campusId, requestId, visitorId, personas, tra
       visitorId: visitorId.toString ? visitorId.toString() : visitorId,
       personas,
       transition,
+      tags,
     },
   });
 }
@@ -129,6 +137,7 @@ it('Test to shift a visitor', async () => {
         new mongoose.Types.ObjectId(),
         {},
         '',
+        [],
         generateDummyAdmin(),
       );
       // You're should not mutate a visitor that not exists.
@@ -145,6 +154,7 @@ it('Test to shift a visitor', async () => {
           role: ROLE_ADMIN,
         },
         'foo',
+        [],
         generateDummyAdmin(),
       );
 
@@ -152,6 +162,7 @@ it('Test to shift a visitor', async () => {
       expect(errors[0].message).toContain('You cannot shift to this state');
     }
     {
+      const TAG = 'TAG';
       const { data: { mutateCampus: { mutateRequest: { shiftVisitor } } } } = await mutateShiftVisitorRequest(
         campus._id,
         request._id,
@@ -161,6 +172,7 @@ it('Test to shift a visitor', async () => {
           role: ROLE_ADMIN,
         },
         'positive',
+        [TAG],
         generateDummyAdmin(),
       );
       const dbVersion = await Visitor.findById(shiftVisitor.id);
@@ -170,6 +182,7 @@ it('Test to shift a visitor', async () => {
           [`U${unit2.id}`]: `U${unit2.id}S${unit2.workflow.steps[0]._id}`,
         },
       });
+      expect(dbVersion.state.records[0].tags).toEqual(expect.arrayContaining([TAG]));
       expect(dbVersion).toHaveProperty('__v', 1);
     }
   } finally {
