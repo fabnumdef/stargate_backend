@@ -25,7 +25,6 @@ export default async ({ log }) => {
   // eslint-disable-next-line max-len
   log.info(`Dwarf CorresU, Dwarf OffiS, Dwarf Demandeur, Ent CorresU, Ent Offis, Crib Lage, Bureau Acc password will be ${userTestPassword}`);
 
-
   return [
     {
       firstname: 'Super',
