@@ -16,7 +16,7 @@ type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
-    shiftVisitor(id: String!, as: ValidationPersonas!, transition: String!): RequestVisitor!
+    shiftVisitor(id: String!, as: ValidationPersonas!, transition: String!, tags: [String]): RequestVisitor!
 }
 
 type RequestVisitorsList implements OffsetPaginator {
@@ -85,6 +85,7 @@ type UnitStatus {
 }
 
 type VisitorRecord {
+    tags: [String]
     date: DateTime
 }
 
