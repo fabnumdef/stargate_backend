@@ -4,6 +4,7 @@ import { MODEL_NAME as UnitModelName } from './unit';
 import { MODEL_NAME as RequestModelName } from './request';
 import { MODEL_NAME as ZoneModelName } from './zone';
 import { MODEL_NAME as PlaceModelName } from './place';
+import ExportToken from './export-token';
 import config from '../services/config';
 import { MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 
@@ -126,6 +127,30 @@ CampusSchema.methods.findVisitorsWithProjection = function findVisitorsWithProje
 CampusSchema.methods.countVisitors = async function countVisitors(filters) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Visitor.countDocuments({ ...filters, 'request.campus._id': this._id });
+};
+
+CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenForVisitors(filters, options) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const projection = {
+    _id: true,
+    'state.value': true,
+    'request.from': true,
+    'request.to': true,
+    'request.reason': true,
+    'request.object': true,
+    'request._id': true,
+    isInternal: true,
+    firstname: true,
+    usageLastname: true,
+    birthLastname: true,
+    nationality: true,
+    birthday: true,
+    birthplace: true,
+    employeeType: true,
+    createdAt: true,
+    updatedAt: true,
+  };
+  return ExportToken.createCSVToken(Visitor, { ...filters, 'request.campus._id': this._id }, projection, options);
 };
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');

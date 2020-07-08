@@ -6,5 +6,5 @@ export { gql } from 'apollo-server-koa';
 
 export default (user) => createTestClient(new ApolloServer({
   schema,
-  context: ({ ctx }) => ({ ...ctx, user }),
+  context: ({ ctx }) => ({ ...ctx, user, host: 'localhost' }),
 }));
