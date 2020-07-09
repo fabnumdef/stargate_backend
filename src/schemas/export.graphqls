@@ -1,0 +1,10 @@
+type ExportLink {
+    token: UUIDV4!
+    link: ProtocolLessURL!
+}
+
+input CSVExportOptions {
+    encoding: String
+    separator: String
+    quote: String
+}

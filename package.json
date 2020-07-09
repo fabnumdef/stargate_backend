@@ -32,6 +32,7 @@
     "graphql-scalars": "^1.1.5",
     "graphql-shield": "^7.2.2",
     "handlebars": "^4.7.6",
+    "json2csv": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
@@ -51,6 +52,7 @@
     "prom-client": "^12.0.0",
     "readdir": "^1.0.1",
     "timezone-validator": "^1.0.3",
+    "uuid": "^8.2.0",
     "validator": "^13.0.0",
     "xstate": "^4.8.0"
   },
@@ -76,7 +78,8 @@
     "jest": "^25.2.7",
     "nock": "^12.0.1",
     "nodemon": "^2.0.2",
-    "pino-pretty": "^4.0.0"
+    "pino-pretty": "^4.0.0",
+    "supertest": "^4.0.2"
   },
   "peerDependencies": {
     "graphql-tools": "4.x.x"

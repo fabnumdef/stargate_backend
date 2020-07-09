@@ -21,6 +21,7 @@ const server = new ApolloServer({
     /* istanbul ignore next */
     const context = {
       ...req.ctx,
+      host: req.ctx.headers.host || 'localhost',
     };
     /* istanbul ignore next */
     if (req.ctx && req.ctx.state) {

@@ -20,6 +20,7 @@ type RequestMutation {
 }
 
 type RequestVisitorsList implements OffsetPaginator {
+    generateCSVExportLink(options: CSVExportOptions): ExportLink!
     meta: OffsetPaginatorMeta!
     list: [RequestVisitor]!
 }

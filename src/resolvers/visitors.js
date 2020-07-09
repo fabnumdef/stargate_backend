@@ -99,4 +99,9 @@ export const RequestVisitorsList = {
     return request.findVisitorsWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,
+  generateCSVExportLink({
+    campus, filters, request = campus,
+  }, { options }) {
+    return request.createCSVTokenForVisitors(filters, options);
+  },
 };

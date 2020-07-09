@@ -7,6 +7,7 @@ import apolloServer from './apollo-server';
 import config from './services/config';
 import routes from './routes';
 import metricsMiddleware from './middlewares/metrics';
+import errorHandler from './middlewares/errors';
 
 const pino = require('koa-pino-logger')();
 
@@ -17,6 +18,7 @@ app.silent = true;
 if (exporterPort) {
   app.use(metricsMiddleware);
 }
+app.use(errorHandler);
 app.use(pino);
 app.use(compression());
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
