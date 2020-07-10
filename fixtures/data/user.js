@@ -8,22 +8,30 @@ import {
   ROLE_SECURITY_OFFICER,
   ROLE_HOST,
 } from '../../src/models/rules';
-import { MIDDLE_EARTH, MORDOR } from './campus';
-import { DWARFS, ENTS } from './unit';
+import { NAVAL_BASE } from './campus';
+import { UNIT_CIRI, UNIT_FUS } from './unit';
 
 export default async ({ log }) => {
   const superAdminPassword = nanoid();
-  const sauronPassword = nanoid();
-  const bilboPassword = nanoid();
-  const gimliPassword = nanoid();
-  const userTestPassword = nanoid();
+  const accessOfficePassword = nanoid();
+  const screeningPassword = nanoid();
+  const hostCiriPassword = nanoid();
+  const cuCiriPassword = nanoid();
+  const osCiriPassword = nanoid();
+  const hostFusPassword = nanoid();
+  const cuFusPassword = nanoid();
+  const osFusPassword = nanoid();
 
   log.info(`Super admin password will be ${superAdminPassword}`);
-  log.info(`Sauron password will be ${sauronPassword}`);
-  log.info(`Bilbo password will be ${bilboPassword}`);
-  log.info(`Gimli password will be ${gimliPassword}`);
+  log.info(`ba.basenavale@localhost password will be ${accessOfficePassword}`);
+  log.info(`gmd.basenavale@localhost will be ${screeningPassword}`);
+  log.info(`demandeur.ciri@localhost password will be ${hostCiriPassword}`);
+  log.info(`cu.ciri@localhost will be ${cuCiriPassword}`);
+  log.info(`os.ciri@localhost password will be ${osCiriPassword}`);
+  log.info(`demandeur.fus@localhost password will be ${hostFusPassword}`);
+  log.info(`cu.fuq@localhost password will be ${cuFusPassword}`);
+  log.info(`os.fus@localhost password will be ${osFusPassword}`);
   // eslint-disable-next-line max-len
-  log.info(`Dwarf CorresU, Dwarf OffiS, Dwarf Demandeur, Ent CorresU, Ent Offis, Crib Lage, Bureau Acc password will be ${userTestPassword}`);
 
   return [
     {
@@ -35,124 +43,95 @@ export default async ({ log }) => {
       password: superAdminPassword,
       roles: [
         { role: ROLE_SUPERADMIN },
+        { role: ROLE_ADMIN, campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Sauron',
-      lastname: 'Mordor',
+      firstname: 'BA',
+      lastname: 'BaseNavale',
       email: {
-        original: 'sauron.mordor@localhost',
+        original: 'ba.basenavale@localhost',
       },
-      password: sauronPassword,
+      password: accessOfficePassword,
       roles: [
-        { role: ROLE_ADMIN, campuses: [MORDOR] },
+        { role: ROLE_ACCESS_OFFICE, campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Bilbo',
-      lastname: 'Hobbit',
+      firstname: 'Gendarme',
+      lastname: 'BaseNavale',
       email: {
-        original: 'bilbo.hobbit@localhost',
+        original: 'gmd.basenavale@localhost',
       },
-      password: bilboPassword,
+      password: screeningPassword,
       roles: [
-        { role: ROLE_ADMIN, campuses: [MIDDLE_EARTH] },
-        { role: ROLE_SECURITY_OFFICER, units: [ENTS], campuses: [MIDDLE_EARTH] },
-        { role: ROLE_UNIT_CORRESPONDENT, units: [ENTS], campuses: [MIDDLE_EARTH] },
-        { role: ROLE_ACCESS_OFFICE, campuses: [MIDDLE_EARTH] },
-        { role: ROLE_SCREENING, campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Gimli',
-      lastname: 'Beard',
+      firstname: 'Demandeur',
+      lastname: 'CIRI',
       email: {
-        original: 'gimli@localhost',
+        original: 'demandeur.ciri@localhost',
       },
-      password: gimliPassword,
+      password: hostCiriPassword,
       roles: [
-        { role: ROLE_ADMIN, units: [DWARFS], campuses: [MIDDLE_EARTH] },
-        { role: ROLE_SECURITY_OFFICER, units: [DWARFS], campuses: [MIDDLE_EARTH] },
-        { role: ROLE_UNIT_CORRESPONDENT, units: [DWARFS], campuses: [MIDDLE_EARTH] },
-        { role: ROLE_ACCESS_OFFICE, campuses: [MIDDLE_EARTH] },
-        { role: ROLE_SCREENING, campuses: [MIDDLE_EARTH] },
+        { role: ROLE_HOST, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Dwarf',
-      lastname: 'CorresU',
+      firstname: 'CU',
+      lastname: 'CIRI',
       email: {
-        original: 'dwarf.corresu@localhost',
+        original: 'cu.ciri@localhost',
       },
-      password: userTestPassword,
+      password: cuCiriPassword,
       roles: [
-        { role: ROLE_UNIT_CORRESPONDENT, units: [DWARFS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Dwarf',
-      lastname: 'OffiS',
+      firstname: 'OS',
+      lastname: 'CIRI',
       email: {
-        original: 'dwarf.offis@localhost',
+        original: 'os.ciri@localhost',
       },
-      password: userTestPassword,
+      password: osCiriPassword,
       roles: [
-        { role: ROLE_SECURITY_OFFICER, units: [DWARFS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SECURITY_OFFICER, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Dwarf',
-      lastname: 'Demandeur',
+      firstname: 'Demandeur',
+      lastname: 'FUS',
       email: {
-        original: 'dwarf.demandeur@localhost',
+        original: 'demandeur.fus@localhost',
       },
-      password: userTestPassword,
+      password: hostFusPassword,
       roles: [
-        { role: ROLE_HOST, units: [DWARFS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_HOST, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Ent',
-      lastname: 'CorresU',
+      firstname: 'CU',
+      lastname: 'FUS',
       email: {
-        original: 'ent.corresu@localhost',
+        original: 'cu.fus@localhost',
       },
-      password: userTestPassword,
+      password: cuFusPassword,
       roles: [
-        { role: ROLE_UNIT_CORRESPONDENT, units: [ENTS], campuses: [MIDDLE_EARTH] },
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
     },
     {
-      firstname: 'Ent',
-      lastname: 'OffiS',
+      firstname: 'OS',
+      lastname: 'FUS',
       email: {
-        original: 'ent.offis@localhost',
+        original: 'os.fus@localhost',
       },
-      password: userTestPassword,
+      password: osFusPassword,
       roles: [
-        { role: ROLE_SECURITY_OFFICER, units: [ENTS], campuses: [MIDDLE_EARTH] },
-      ],
-    },
-    {
-      firstname: 'Crib',
-      lastname: 'Lage',
-      email: {
-        original: 'criblage@localhost',
-      },
-      password: userTestPassword,
-      roles: [
-        { role: ROLE_SCREENING, campuses: [MIDDLE_EARTH] },
-      ],
-    },
-    {
-      firstname: 'Bureau',
-      lastname: 'Acc',
-      email: {
-        original: 'bureau.acc@localhost',
-      },
-      password: userTestPassword,
-      roles: [
-        { role: ROLE_ACCESS_OFFICE, campuses: [MIDDLE_EARTH] },
+        { role: ROLE_SECURITY_OFFICER, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
     },
   ];

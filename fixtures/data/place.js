@@ -1,56 +1,30 @@
-import { entsId, dwarfsId } from './unit';
+import { ciriId, fusId } from './unit';
 
-export const MORIA = {
-  label: 'Moria (Dwarfs)',
+export const PLACE_CIRI = {
+  label: 'Lieu CIRI',
   campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
+    _id: 'NAVAL-BASE',
+    label: 'Base Navale',
   },
   unitInCharge: {
-    _id: dwarfsId,
-    label: 'Dwarfs',
+    _id: ciriId,
+    label: 'CIRI',
   },
 };
 
-export const SHIRE = {
-  label: 'Shire (Ents)',
+export const PLACE_FUS = {
+  label: 'Lieu FUS',
   campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
+    _id: 'NAVAL-BASE',
+    label: 'Base Navale',
   },
   unitInCharge: {
-    _id: entsId,
-    label: 'Ents',
-  },
-};
-
-export const ROHAN = {
-  label: 'Rohan (Dwarfs)',
-  campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
-  },
-  unitInCharge: {
-    _id: dwarfsId,
-    label: 'Dwarfs',
-  },
-};
-
-export const GONDOR = {
-  label: 'Gondor (Ents)',
-  campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
-  },
-  unitInCharge: {
-    _id: entsId,
-    label: 'Ents',
+    _id: fusId,
+    label: 'FUS',
   },
 };
 
 export default async () => [
-  MORIA,
-  SHIRE,
-  ROHAN,
-  GONDOR,
+  PLACE_CIRI,
+  PLACE_FUS,
 ];

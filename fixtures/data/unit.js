@@ -10,35 +10,15 @@ import {
   ROLE_ACCESS_OFFICE,
 } from '../../src/models/rules';
 
-export const orcsId = new mongoose.Types.ObjectId();
-export const trollsId = new mongoose.Types.ObjectId();
-export const entsId = new mongoose.Types.ObjectId();
-export const dwarfsId = new mongoose.Types.ObjectId();
+export const ciriId = new mongoose.Types.ObjectId();
+export const fusId = new mongoose.Types.ObjectId();
 
-export const ORCS = {
-  _id: orcsId,
-  label: 'Orcs',
+export const UNIT_CIRI = {
+  _id: ciriId,
+  label: 'CIRI',
   campus: {
-    _id: 'MORDOR',
-    label: 'Mordor',
-  },
-};
-
-export const TROLLS = {
-  _id: trollsId,
-  label: 'Trolls',
-  campus: {
-    _id: 'MORDOR',
-    label: 'Mordor',
-  },
-};
-
-export const ENTS = {
-  _id: entsId,
-  label: 'Ents',
-  campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
+    _id: 'NAVAL-BASE',
+    label: 'Base Navale',
   },
   workflow: {
     steps: [
@@ -62,12 +42,12 @@ export const ENTS = {
   },
 };
 
-export const DWARFS = {
-  _id: dwarfsId,
-  label: 'Dwarfs',
+export const UNIT_FUS = {
+  _id: fusId,
+  label: 'FUS',
   campus: {
-    _id: 'MIDDLE-EARTH',
-    label: 'Middle-Earth',
+    _id: 'NAVAL-BASE',
+    label: 'Base Navale',
   },
   workflow: {
     steps: [
@@ -92,8 +72,6 @@ export const DWARFS = {
 };
 
 export default async () => [
-  ORCS,
-  TROLLS,
-  ENTS,
-  DWARFS,
+  UNIT_CIRI,
+  UNIT_FUS,
 ];
