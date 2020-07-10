@@ -1,14 +1,8 @@
-export const MORDOR = {
-  _id: 'MORDOR',
-  label: 'Mordor',
-};
-
-export const MIDDLE_EARTH = {
-  _id: 'MIDDLE-EARTH',
-  label: 'Middle-Earth',
+export const NAVAL_BASE = {
+  _id: 'NAVAL-BASE',
+  label: 'Base Navale',
 };
 
 export default async () => [
-  MORDOR,
-  MIDDLE_EARTH,
+  NAVAL_BASE,
 ];
