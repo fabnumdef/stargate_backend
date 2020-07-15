@@ -1,7 +1,7 @@
 extend type Campus {
     getRequest(id: String!): Request
-    listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters, search: String): RequestsList!
-    listMyRequests(cursor: OffsetCursor, filters: RequestFilters, search: String): RequestsList!
+    listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
+    listMyRequests(cursor: OffsetCursor, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
 }
 
 enum RequestTransition {
@@ -37,6 +37,10 @@ input RequestFilters {
     to: DateTime
     status: [RequestStatus]
     owner: RequestOwnerInput
+}
+
+input RequestSort {
+    from: DateTime
 }
 
 enum RequestObject {
