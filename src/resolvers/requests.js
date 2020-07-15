@@ -57,7 +57,11 @@ export const Campus = {
     return request;
   },
   async listRequests(campus, {
-    as, filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {}, search,
+    as,
+    filters = {},
+    cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {},
+    search,
+    sort = { from: 'ascending' },
   }) {
     const roleFilters = { 'units.workflow.steps.role': as.role };
     const unitFilters = [ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT].includes(as.role)
@@ -76,11 +80,17 @@ export const Campus = {
       countMethod: campus.countRequests.bind(campus, {
         ...filters, ...roleFilters, ...unitFilters, ...searchFilters,
       }),
+      sort,
     };
   },
   async listMyRequests(
     campus,
-    { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {}, search },
+    {
+      filters = {},
+      cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {},
+      search,
+      sort = { from: 'ascending' },
+    },
     { user },
   ) {
     const userFilters = {
@@ -96,6 +106,7 @@ export const Campus = {
       filters: { ...userFilters, ...searchFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_REQUESTS) },
       countMethod: campus.countRequests.bind(campus, { ...userFilters, ...searchFilters }),
+      sort,
     };
   },
 };
@@ -103,13 +114,13 @@ export const Campus = {
 export const RequestsList = {
   async list(
     {
-      campus, filters, cursor: { offset, first },
+      campus, filters, cursor: { offset, first }, sort,
     },
     _params,
     _ctx,
     info,
   ) {
-    return campus.findRequestsWithProjection(filters, info).skip(offset).limit(first);
+    return campus.findRequestsWithProjection(filters, info).skip(offset).limit(first).sort(sort);
   },
   meta: (parent) => parent,
 };
