@@ -75,6 +75,7 @@ type UnitStepStatus {
     role: String
     behavior: String
     status: String
+    tags: [String]
     date: DateTime
     done: Boolean
 }
