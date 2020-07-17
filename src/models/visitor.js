@@ -310,6 +310,7 @@ VisitorSchema.virtual('status').get(function getSteps() {
         [step._id.toString()]: {
           ...step.toObject(),
           status: stepRecord.action || null,
+          tags: stepRecord.tags || null,
           date: stepRecord.date || null,
           done: !!stepRecord.action,
         },
