@@ -13,6 +13,7 @@ export default shield({
   Query: {
     listCampuses: isAuthenticated,
     getCampus: isAuthenticated,
+    getUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     me: isAuthenticated,
     listUsers: or(isUnitCorrespondent, isAdmin, isSuperAdmin),
     '*': isSuperAdmin,
