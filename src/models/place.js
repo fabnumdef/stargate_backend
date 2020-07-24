@@ -16,7 +16,7 @@ const PlaceSchema = new Schema({
     label: { type: String },
   },
   unitInCharge: {
-    _id: { type: Schema.ObjectId, required: true },
+    _id: { type: Schema.ObjectId },
     label: { type: String },
   },
 }, { timestamps: true });

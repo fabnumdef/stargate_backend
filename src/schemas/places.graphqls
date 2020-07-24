@@ -15,11 +15,16 @@ type PlacesList implements OffsetPaginator {
 
 input PlaceFilters {
     label: String
+    unitInCharge: UnitInChargeInput
 }
 
 input PlaceInput {
     label: String
     unitInCharge: String
+}
+
+input UnitInChargeInput {
+    label: String
 }
 
 type UnitInCharge {
@@ -36,5 +41,5 @@ type Place implements Node {
     # Label of the place
     label: String
     # Label of unit in charge of this place
-    unitInCharge: UnitInCharge!
+    unitInCharge: UnitInCharge
 }

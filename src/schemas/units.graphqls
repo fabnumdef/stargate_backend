@@ -28,12 +28,14 @@ input UnitWorkflowInput {
 
 input UnitInput {
     label: String!
+    trigram: String!
     workflow: UnitWorkflowInput
 }
 
 enum UnitWorkflowBehavior {
     Information
     Validation
+    Advisement
 }
 
 type UnitWorkflowStep {
@@ -54,5 +56,8 @@ type Unit implements Node {
     updatedAt: DateTime!
     # Label of the unit
     label: String
+    # Trigram of the unit
+    trigram: String
+    # Array of steps for the unit workflow
     workflow: UnitWorkflow
 }

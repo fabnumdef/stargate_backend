@@ -16,6 +16,7 @@ export const fusId = new mongoose.Types.ObjectId();
 export const UNIT_CIRI = {
   _id: ciriId,
   label: 'CIRI',
+  trigram: 'CIR',
   campus: {
     _id: 'NAVAL-BASE',
     label: 'Base Navale',
@@ -45,6 +46,7 @@ export const UNIT_CIRI = {
 export const UNIT_FUS = {
   _id: fusId,
   label: 'FUS',
+  trigram: 'FUS',
   campus: {
     _id: 'NAVAL-BASE',
     label: 'Base Navale',
