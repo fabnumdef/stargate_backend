@@ -15,6 +15,7 @@ export const WORKFLOW_ENUM = [
 ];
 const UnitSchema = new Schema({
   label: { type: String, required: true },
+  trigram: { type: String, required: true },
   campus: {
     _id: String,
     label: String,

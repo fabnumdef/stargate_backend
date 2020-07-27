@@ -27,7 +27,11 @@ it('Test to edit a unit', async () => {
   const newLabel = nanoid();
   try {
     {
-      const { errors } = await mutateEditionUnit(campus._id, dummyUnit._id, { label: newLabel });
+      const { errors } = await mutateEditionUnit(
+        campus._id,
+        dummyUnit._id,
+        { label: newLabel, trigram: dummyUnit.trigram },
+      );
 
       // You're not authorized to create unit while without rights
       expect(errors).toHaveLength(1);
@@ -38,7 +42,7 @@ it('Test to edit a unit', async () => {
       const { data: { mutateCampus: { editUnit: editedUnit } } } = await mutateEditionUnit(
         campus._id,
         dummyUnit._id,
-        { label: newLabel },
+        { label: newLabel, trigram: dummyUnit.trigram },
         generateDummySuperAdmin(),
       );
       expect(editedUnit).toHaveProperty('id', dummyUnit.id);

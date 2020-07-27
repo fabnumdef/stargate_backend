@@ -3,6 +3,7 @@ import Unit from '../../src/models/unit';
 
 export const generateDummyUnit = (...params) => ({
   label: nanoid(),
+  trigram: nanoid(3),
   ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
 });
 

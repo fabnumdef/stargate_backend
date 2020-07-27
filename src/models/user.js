@@ -241,6 +241,10 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
     filteredData.password = data.password;
   }
 
+  if (data.roles) {
+    filteredData.roles = [...this.roles, ...data.roles];
+  }
+
   this.set(filteredData);
 };
 
