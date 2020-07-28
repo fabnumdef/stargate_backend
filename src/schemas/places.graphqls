@@ -6,6 +6,7 @@ extend type Campus {
 extend type CampusMutation {
     createPlace(place: PlaceInput!): Place!
     editPlace(id: String!, place: PlaceInput!): Place!
+    deletePlace(id: String!): Place!
 }
 
 type PlacesList implements OffsetPaginator {

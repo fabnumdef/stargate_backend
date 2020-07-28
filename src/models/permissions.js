@@ -35,6 +35,9 @@ export default shield({
     deleteRequest: or(canHandleRequest, isAdmin),
     mutateRequest: or(canHandleRequest, canHandleVisitor, isAdmin),
     shiftRequest: or(canHandleRequest, isAdmin),
+    createPlace: isAdmin,
+    editPlace: isAdmin,
+    deletePlace: isAdmin,
     '*': isSuperAdmin,
   },
   RequestMutation: {

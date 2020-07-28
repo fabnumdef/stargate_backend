@@ -21,6 +21,7 @@ input UserFilters {
     firstname: String
     lastname: String
     email: EmailAddress
+    roles: UserRoleInput
 }
 
 input UserInput {
