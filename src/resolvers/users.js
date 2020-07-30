@@ -19,7 +19,13 @@ export const Mutation = {
   },
   async editUser(_, { user: data, id }) {
     const user = await User.findById(id);
-    user.setFromGraphQLSchema(data);
+    await user.setFromGraphQLSchema(data);
+    return user.save();
+  },
+  async deleteUserRole(_, { user: data, id }) {
+    const user = await User.findById(id);
+    const roles = user.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
+    user.set({ roles });
     return user.save();
   },
   async editMe(_, { user: data }, ctx) {

@@ -24,6 +24,7 @@ export default shield({
     jwtRefresh: isAuthenticated,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
+    deleteUserRole: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     deleteUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     mutateCampus: or(isAdmin, isSuperAdmin, canHandleRequest, canHandleVisitor),
     editMe: isAuthenticated,

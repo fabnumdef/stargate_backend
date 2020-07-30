@@ -82,6 +82,7 @@ const UserSchema = new Schema({
   roles: [{
     _id: false,
     role: { type: String, required: true },
+    userInCharge: Schema.ObjectId,
     campuses: [{
       _id: { type: String, required: true, alias: 'id' },
       label: { type: String, required: true },
@@ -229,7 +230,7 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   };
 };
 
-UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
+UserSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(data) {
   const filteredData = data;
   if (data.email) {
     filteredData.email = {
@@ -242,7 +243,18 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   }
 
   if (data.roles) {
-    filteredData.roles = [...this.roles, ...data.roles];
+    // const User = mongoose.model(MODEL_NAME);
+    // const userInCharge = data.roles[0].unitInCharge ? await User.findById(data.roles[0].userInCharge.id) : null;
+    const haveRole = this.roles.find((role) => data.roles.find((r) => r.role === role.role));
+
+    filteredData.roles = haveRole
+      ? this.roles.toObject().map((role) => {
+        if (data.roles.find((r) => r.role === role.role)) {
+          return { ...role, userInCharge: data.roles[0].userInCharge };
+        }
+        return role;
+      })
+      : [...this.roles, { ...data.roles[0] }];
   }
 
   this.set(filteredData);

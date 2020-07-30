@@ -7,6 +7,7 @@ extend type Query {
 extend type Mutation {
     createUser(user: UserInput): User!
     editUser(id: String!, user: UserInput): User!
+    deleteUserRole(id: String!, user: UserInput): User!
     editMe(user: OwnUserInput): User!
     deleteUser(id: String!): User!
     resetPassword(email: EmailAddress!): Boolean!
@@ -45,12 +46,14 @@ type UserEmail {
 
 type UserRole {
     role: String!
+    userInCharge: String
     campuses: [Campus]
     units: [Unit]
 }
 
 input UserRoleInput {
     role: String
+    userInCharge: String
     campuses: [UserCampusInput]
     units: [UserUnitInput]
 }
