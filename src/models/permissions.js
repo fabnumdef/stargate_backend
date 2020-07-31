@@ -27,6 +27,7 @@ export default shield({
     deleteUserRole: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     deleteUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     mutateCampus: or(isAdmin, isSuperAdmin, canHandleRequest, canHandleVisitor),
+    editCampus: or(isAdmin, isSuperAdmin),
     editMe: isAuthenticated,
     '*': isSuperAdmin,
   },

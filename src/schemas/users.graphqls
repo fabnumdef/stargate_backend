@@ -1,5 +1,5 @@
 extend type Query {
-    listUsers(cursor: OffsetCursor, filters: UserFilters): UsersList!
+    listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: String): UsersList!
     getUser(id: String!): User
     me: User
 }
