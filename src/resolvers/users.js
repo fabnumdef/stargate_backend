@@ -59,7 +59,7 @@ export const Query = {
   async listUsers(_parent, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole }) {
     let roleFilter = {};
     if (hasRole) {
-      roleFilter = { 'roles.role': hasRole }
+      roleFilter = { 'roles.role': hasRole };
     }
     return {
       filters: { ...filters, ...roleFilter },

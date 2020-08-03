@@ -243,14 +243,12 @@ UserSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(da
   }
 
   if (data.roles) {
-    // const User = mongoose.model(MODEL_NAME);
-    // const userInCharge = data.roles[0].unitInCharge ? await User.findById(data.roles[0].userInCharge.id) : null;
     const haveRole = this.roles.find((role) => data.roles.find((r) => r.role === role.role));
 
     filteredData.roles = haveRole
       ? this.roles.toObject().map((role) => {
         if (data.roles.find((r) => r.role === role.role)) {
-          return { ...role, userInCharge: data.roles[0].userInCharge };
+          return { ...data.roles[0] };
         }
         return role;
       })
