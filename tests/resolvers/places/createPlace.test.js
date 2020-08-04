@@ -1,5 +1,5 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../../models/user';
+import { generateDummyAdmin } from '../../models/user';
 import Place, { generateDummyPlace } from '../../models/place';
 import { createDummyCampus } from '../../models/campus';
 import { createDummyUnit } from '../../models/unit';
@@ -41,7 +41,7 @@ it('Test to create a place', async () => {
       const { data: { mutateCampus: { createPlace: createdPlace } } } = await mutateCreatePlace(
         campus._id,
         { unitInCharge: unit._id.toString(), ...dummyPlace },
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(createdPlace).toHaveProperty('id');
       expect(createdPlace).toHaveProperty('label', dummyPlace.label);

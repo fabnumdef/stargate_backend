@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin } from '../../models/user';
+import { generateDummyAdmin } from '../../models/user';
 import Place, { createDummyPlace } from '../../models/place';
 import { createDummyCampus } from '../../models/campus';
 import { createDummyUnit } from '../../models/unit';
@@ -41,7 +41,7 @@ it('Test to edit a place', async () => {
         campus._id,
         dummyPlace._id,
         { label: newLabel },
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(editedPlace).toHaveProperty('id', dummyPlace.id);
       expect(editedPlace).toHaveProperty('label', newLabel);
