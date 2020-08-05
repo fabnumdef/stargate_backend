@@ -18,9 +18,13 @@ beforeAll(async () => {
     .filter((fileName) => fileName.endsWith('.js'))
     .filter((fileName) => !['permissions.js', 'rules.js'].includes(fileName))
     .map(async (fileName) => {
-      // eslint-disable-next-line import/no-dynamic-require,global-require
-      const { default: Model } = require(path.join(__dirname, '../src/models', fileName));
-      await Model.syncIndexes();
+      try {
+        // eslint-disable-next-line import/no-dynamic-require,global-require
+        const { default: Model } = require(path.join(__dirname, '../src/models', fileName));
+        await Model.syncIndexes();
+      } catch (e) {
+        // Silent
+      }
     }));
 });
 
