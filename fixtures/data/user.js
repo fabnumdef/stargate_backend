@@ -9,38 +9,23 @@ import {
   ROLE_HOST,
 } from '../../src/models/rules';
 import { NAVAL_BASE } from './campus';
-import { UNIT_CIRI, UNIT_FUS } from './unit';
+import {
+  UNIT_CIRI,
+  UNIT_FUS,
+  UNIT_SAILOR,
+  UNIT_BBPD,
+  UNIT_LASEM,
+} from './unit';
 
 export default async ({ log }) => {
-  const superAdminPassword = nanoid();
-  const accessOfficePassword = nanoid();
-  const screeningPassword = nanoid();
-  const hostCiriPassword = nanoid();
-  const cuCiriPassword = nanoid();
-  const osCiriPassword = nanoid();
-  const hostFusPassword = nanoid();
-  const cuFusPassword = nanoid();
-  const osFusPassword = nanoid();
-
-  log.info(`Super admin password will be ${superAdminPassword}`);
-  log.info(`ba.basenavale@localhost password will be ${accessOfficePassword}`);
-  log.info(`gmd.basenavale@localhost will be ${screeningPassword}`);
-  log.info(`demandeur.ciri@localhost password will be ${hostCiriPassword}`);
-  log.info(`cu.ciri@localhost will be ${cuCiriPassword}`);
-  log.info(`os.ciri@localhost password will be ${osCiriPassword}`);
-  log.info(`demandeur.fus@localhost password will be ${hostFusPassword}`);
-  log.info(`cu.fuq@localhost password will be ${cuFusPassword}`);
-  log.info(`os.fus@localhost password will be ${osFusPassword}`);
-  // eslint-disable-next-line max-len
-
-  return [
+  const users = [
     {
       firstname: 'Super',
       lastname: 'Admin',
       email: {
         original: 'super.admin@localhost',
       },
-      password: superAdminPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_SUPERADMIN },
         { role: ROLE_ADMIN, campuses: [NAVAL_BASE] },
@@ -52,7 +37,7 @@ export default async ({ log }) => {
       email: {
         original: 'ba.basenavale@localhost',
       },
-      password: accessOfficePassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_ACCESS_OFFICE, campuses: [NAVAL_BASE] },
       ],
@@ -63,7 +48,7 @@ export default async ({ log }) => {
       email: {
         original: 'gmd.basenavale@localhost',
       },
-      password: screeningPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
       ],
@@ -74,7 +59,7 @@ export default async ({ log }) => {
       email: {
         original: 'demandeur.ciri@localhost',
       },
-      password: hostCiriPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_HOST, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -85,7 +70,7 @@ export default async ({ log }) => {
       email: {
         original: 'cu.ciri@localhost',
       },
-      password: cuCiriPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -96,7 +81,7 @@ export default async ({ log }) => {
       email: {
         original: 'os.ciri@localhost',
       },
-      password: osCiriPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -107,7 +92,7 @@ export default async ({ log }) => {
       email: {
         original: 'demandeur.fus@localhost',
       },
-      password: hostFusPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_HOST, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
@@ -118,7 +103,7 @@ export default async ({ log }) => {
       email: {
         original: 'cu.fus@localhost',
       },
-      password: cuFusPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
@@ -129,10 +114,147 @@ export default async ({ log }) => {
       email: {
         original: 'os.fus@localhost',
       },
-      password: osFusPassword,
+      password: nanoid(),
       roles: [
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
     },
+    {
+      firstname: 'Eddy',
+      lastname: 'Moitout',
+      email: {
+        original: 'eddy.moitout@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Michaël',
+      lastname: 'Mcaradech',
+      email: {
+        original: 'michael.mcaradech@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_ACCESS_OFFICE, campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Oscar',
+      lastname: 'Amel',
+      email: {
+        original: 'oscar.amel@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Denis',
+      lastname: 'Doiseau',
+      email: {
+        original: 'denis.doiseau@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Anne',
+      lastname: 'Onyme',
+      email: {
+        original: 'anne.onyme@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Alain',
+      lastname: 'Terieur',
+      email: {
+        original: 'alain.terieur@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Anna',
+      lastname: 'Lyz',
+      email: {
+        original: 'anna.lyz@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Pat',
+      lastname: 'Atatrak',
+      email: {
+        original: 'pat.atatrak@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_SECURITY_OFFICER, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Alain',
+      lastname: 'Die',
+      email: {
+        original: 'alain.die@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_HOST, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Sam',
+      lastname: 'Soule',
+      email: {
+        original: 'sam.soule@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
+        { role: ROLE_SECURITY_OFFICER, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Jean',
+      lastname: 'Tourloupe',
+      email: {
+        original: 'jean.tourloupe@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_HOST, units: [UNIT_LASEM], campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Jean',
+      lastname: 'Sérien',
+      email: {
+        original: 'jean.serien@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_LASEM], campuses: [NAVAL_BASE] },
+      ],
+    },
   ];
+
+  users.forEach((user) => log.info(`${user.email.original} password will be ${user.password}`));
+
+  return users;
 };
