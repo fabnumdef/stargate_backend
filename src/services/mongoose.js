@@ -15,12 +15,13 @@ const connect = async (config) => {
       useUnifiedTopology: true,
       useFindAndModify: false,
     };
+    log.info(`Try to connect to ${config}...`);
     await mongoose.connect(config, deprecationOptions);
     log.info('MongoDB connected !');
   } catch (e) {
-    log.error(`MongoDB connect failed (${config}), retry in 10 seconds`, e);
+    log.error(`MongoDB connect failed (${config}), retry in 3 seconds`, e);
     await new Promise((accept) => {
-      setTimeout(accept, 10000);
+      setTimeout(accept, 3000);
     });
     await connect(config);
   }
