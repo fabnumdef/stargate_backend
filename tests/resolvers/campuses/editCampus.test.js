@@ -31,6 +31,14 @@ it('Test to edit a campus', async () => {
     }
 
     {
+      const { errors } = await mutateEditionCampus(nanoid(), { label: newLabel }, generateDummySuperAdmin());
+
+      // You're not authorized to create campus while without rights
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Campus not found');
+    }
+
+    {
       const { data } = await mutateEditionCampus(
         dummyCampus._id,
         { label: newLabel },
