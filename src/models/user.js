@@ -230,7 +230,7 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   };
 };
 
-UserSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(data) {
+UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   const filteredData = data;
   if (data.email) {
     filteredData.email = {
@@ -256,6 +256,18 @@ UserSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(da
   }
 
   this.set(filteredData);
+};
+
+UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
+  let roles = [];
+  if (data.roles) {
+    roles = this.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
+  }
+  if (data.unitId) {
+    roles = this.roles.filter((r) => !r.units.find((u) => u._id.equals(data.unitId)));
+  }
+  this.set({ roles });
+  return this.save();
 };
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {

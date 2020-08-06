@@ -27,9 +27,8 @@ export const Mutation = {
     if (!user) {
       throw new Error('User not found');
     }
-    const roles = user.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
-    user.set({ roles });
-    return user.save();
+    await user.deleteUserRole(data);
+    return user;
   },
   async editMe(_, { user: data }, ctx) {
     const { id } = ctx.user;

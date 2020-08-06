@@ -1,6 +1,4 @@
 import Unit from '../models/unit';
-import Place from '../models/place';
-import User from '../models/user';
 
 export const CampusMutation = {
   async createUnit(campus, { unit }) {
@@ -16,21 +14,7 @@ export const CampusMutation = {
     if (!removedUnit) {
       throw new Error('Unit not found');
     }
-
-    const unitPlace = await Place.findOne({ 'unitInCharge._id': id });
-    const unitUsers = await User.find({ 'roles.units._id': id });
-    if (unitPlace) {
-      unitPlace.unitInCharge = null;
-      await unitPlace.save();
-    }
-    if (unitUsers) {
-      await Promise.all(unitUsers.map(async (unitUser) => {
-        const roles = unitUser.roles.filter((r) => !r.units.find((u) => u.id.toString() === id));
-        unitUser.set({ roles });
-        await unitUser.save();
-      }));
-    }
-
+    await removedUnit.deleteUnitDependencies();
     return removedUnit;
   },
 };

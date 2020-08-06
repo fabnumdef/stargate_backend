@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+// disable eslint rule for import constant
+// eslint-disable-next-line import/no-cycle
+import { MODEL_NAME as PlaceModelName } from './place';
+import { MODEL_NAME as UserModelName } from './user';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Unit';
@@ -87,6 +91,28 @@ UnitSchema.methods.buildWorkflow = function buildWorkflow(prefix = '') {
       },
     },
   };
+};
+
+UnitSchema.methods.deleteUnitDependencies = async function deleteUnitDependencies() {
+  const Place = mongoose.model(PlaceModelName);
+  const User = mongoose.model(UserModelName);
+  const unitPlaces = await Place.find({ 'unitInCharge._id': this._id });
+  const unitUsers = await User.find({ 'roles.units._id': this._id });
+
+  if (unitPlaces) {
+    await Promise.all(unitPlaces.map(async (place) => {
+      place.set({ unitInCharge: null });
+      return place.save();
+    }));
+  }
+  if (unitUsers) {
+    await Promise.all(unitUsers.map(async (user) => {
+      await user.deleteUserRole({ unitId: this._id });
+      return user;
+    }));
+  }
+
+  return this;
 };
 
 export default mongoose.model(MODEL_NAME, UnitSchema, 'units');

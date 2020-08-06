@@ -86,7 +86,7 @@ it('Test to shift a request', async () => {
       expect(dbVersion).toHaveProperty('__v', 1);
     }
   } finally {
-    await Request.deleteOne();
-    await Campus.deleteOne();
+    await Request.findOneAndDelete({ _id: request._id });
+    await Campus.findOneAndDelete({ _id: campus._id });
   }
 });
