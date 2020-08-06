@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin } from '../../models/user';
 import Place, { createDummyPlace } from '../../models/place';
