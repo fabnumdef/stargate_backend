@@ -19,8 +19,16 @@ export const Mutation = {
   },
   async editUser(_, { user: data, id }) {
     const user = await User.findById(id);
-    user.setFromGraphQLSchema(data);
+    await user.setFromGraphQLSchema(data);
     return user.save();
+  },
+  async deleteUserRole(_, { user: data, id }) {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    await user.deleteUserRole(data);
+    return user;
   },
   async editMe(_, { user: data }, ctx) {
     const { id } = ctx.user;
@@ -50,9 +58,13 @@ export const Mutation = {
 
 const MAX_REQUESTABLE_USERS = 30;
 export const Query = {
-  async listUsers(_parent, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {} }) {
+  async listUsers(_parent, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole }) {
+    let roleFilter = {};
+    if (hasRole) {
+      roleFilter = { 'roles.role': hasRole };
+    }
     return {
-      filters,
+      filters: { ...filters, ...roleFilter },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_USERS) },
       countMethod: User.countDocuments.bind(User),
     };

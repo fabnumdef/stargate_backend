@@ -15,11 +15,24 @@ function queryJwt(email, password, token) {
   return query({ query: JWT_LOGIN_QUERY, variables: { email, password, token } });
 }
 
-it('Test to login unexisting user', async () => {
+it('Test to login errors', async () => {
   const user = generateDummyUser();
-  const { errors } = await queryJwt(user.email.original, user.password);
-
-  expect(errors).toHaveLength(1);
+  const password = nanoid();
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  const userPassExpired = await createDummyUser({ password, passwordExpiration: date });
+  {
+    const { errors } = await queryJwt(user.email.original, user.password);
+    expect(errors).toHaveLength(1);
+  }
+  {
+    const { errors } = await queryJwt(user.email.original);
+    expect(errors[0].message).toBe('To generate a JWT, password or token are required.');
+  }
+  {
+    const { errors } = await queryJwt(userPassExpired.email.original, password);
+    expect(errors[0].message).toBe('Password expired');
+  }
 });
 
 it('Test to login existing user', async () => {

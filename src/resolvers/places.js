@@ -1,3 +1,5 @@
+import Place from '../models/place';
+
 export const CampusMutation = {
   async createPlace(campus, { place }) {
     return campus.createPlaceFromGraphQLSchema(place);
@@ -6,6 +8,10 @@ export const CampusMutation = {
     const c = await campus.findPlacebyId(id);
     await c.setFromGraphQLSchema(place);
     return c.save();
+  },
+  async deletePlace(campus, { id }) {
+    const removedPlace = await Place.findByIdAndRemove(id);
+    return removedPlace;
   },
 };
 

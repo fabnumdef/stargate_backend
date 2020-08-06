@@ -6,6 +6,9 @@ export const Mutation = {
   },
   async editCampus(_, { campus, id }) {
     const c = await Campus.findById(id);
+    if (!c) {
+      throw new Error('Campus not found');
+    }
     c.set(campus);
     return c.save();
   },

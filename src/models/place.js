@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+// disable eslint rule for import constant
+// eslint-disable-next-line import/no-cycle
 import { MODEL_NAME as UnitModelName } from './unit';
 
 const { Schema } = mongoose;

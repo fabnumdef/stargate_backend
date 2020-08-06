@@ -82,6 +82,7 @@ const UserSchema = new Schema({
   roles: [{
     _id: false,
     role: { type: String, required: true },
+    userInCharge: Schema.ObjectId,
     campuses: [{
       _id: { type: String, required: true, alias: 'id' },
       label: { type: String, required: true },
@@ -242,10 +243,31 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   }
 
   if (data.roles) {
-    filteredData.roles = [...this.roles, ...data.roles];
+    const haveRole = this.roles.find((role) => data.roles.find((r) => r.role === role.role));
+
+    filteredData.roles = haveRole
+      ? this.roles.toObject().map((role) => {
+        if (data.roles.find((r) => r.role === role.role)) {
+          return { ...data.roles[0] };
+        }
+        return role;
+      })
+      : [...this.roles, { ...data.roles[0] }];
   }
 
   this.set(filteredData);
+};
+
+UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
+  let roles = [];
+  if (data.roles) {
+    roles = this.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
+  }
+  if (data.unitId) {
+    roles = this.roles.filter((r) => !r.units.find((u) => u._id.equals(data.unitId)));
+  }
+  this.set({ roles });
+  return this.save();
 };
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {

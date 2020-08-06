@@ -14,6 +14,7 @@ export const CampusMutation = {
     if (!removedUnit) {
       throw new Error('Unit not found');
     }
+    await removedUnit.deleteUnitDependencies();
     return removedUnit;
   },
 };

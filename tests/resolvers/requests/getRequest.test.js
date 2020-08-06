@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
@@ -33,6 +34,14 @@ it('Test to get a request', async () => {
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
+    }
+
+    {
+      const { errors } = await queryGetRequest(campus._id, nanoid(), generateDummySuperAdmin());
+
+      // You're not authorized to create request while without rights
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Request not found');
     }
 
     {

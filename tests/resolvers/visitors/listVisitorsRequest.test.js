@@ -16,6 +16,9 @@ function queryListVisitorsRequest(campusId, requestId, search, user = null) {
                                 id
                                 firstname
                             }
+                            meta {
+                                total
+                            }
                         }
                     }
                 }

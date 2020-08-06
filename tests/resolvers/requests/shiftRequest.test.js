@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
-import { createDummyCampus } from '../../models/campus';
+import Campus, { createDummyCampus } from '../../models/campus';
 import { EVENT_CANCEL, EVENT_CREATE, STATE_CREATED } from '../../../src/models/request';
 
 function mutateShiftRequest(campusId, requestId, transition, user = null) {
@@ -86,7 +86,7 @@ it('Test to shift a request', async () => {
       expect(dbVersion).toHaveProperty('__v', 1);
     }
   } finally {
-    await request.deleteOne();
-    await campus.deleteOne();
+    await Request.findOneAndDelete({ _id: request._id });
+    await Campus.findOneAndDelete({ _id: campus._id });
   }
 });
