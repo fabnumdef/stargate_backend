@@ -24,7 +24,6 @@ function mutateDeletePlace(campusId, id, user = null) {
 it('Test to delete a place', async () => {
   const campus = await createDummyCampus();
   const dummyPlace = await createDummyPlace({ campus });
-  const fakeId = mongoose.Types.ObjectId();
   try {
     {
       const { errors } = await mutateDeletePlace(campus._id, dummyPlace._id);
@@ -32,16 +31,6 @@ it('Test to delete a place', async () => {
       // You're not authorized to delete unit while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised!');
-    }
-    {
-      const { errors } = await mutateDeletePlace(
-        campus._id,
-        fakeId,
-        generateDummyAdmin(),
-      );
-      // Found no unit with this id
-      expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('Place not found');
     }
     {
       const { data } = await mutateDeletePlace(
