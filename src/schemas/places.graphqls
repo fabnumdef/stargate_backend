@@ -29,7 +29,8 @@ input UnitInChargeInput {
 }
 
 type UnitInCharge {
-    label: String!
+    id: String
+    label: String
 }
 
 type Place implements Node {
