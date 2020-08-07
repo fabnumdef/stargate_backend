@@ -1,5 +1,5 @@
 extend type Campus {
-    listPlaces(cursor: OffsetCursor, filters: PlaceFilters): PlacesList!
+    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter): PlacesList!
     getPlace(id: String!): Place
 }
 
@@ -17,6 +17,10 @@ type PlacesList implements OffsetPaginator {
 input PlaceFilters {
     label: String
     unitInCharge: UnitInChargeInput
+}
+
+input HasUnitFilter {
+    id: String!
 }
 
 input PlaceInput {
