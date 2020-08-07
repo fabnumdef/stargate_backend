@@ -58,10 +58,18 @@ export const Mutation = {
 
 const MAX_REQUESTABLE_USERS = 30;
 export const Query = {
-  async listUsers(_parent, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole }) {
+  async listUsers(_parent, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole = {} }) {
     let roleFilter = {};
-    if (hasRole) {
-      roleFilter = { 'roles.role': hasRole };
+    if (hasRole.role) {
+      roleFilter = {
+        'roles.role': hasRole.role,
+      };
+    }
+    if (hasRole.unit) {
+      roleFilter = {
+        ...roleFilter,
+        'roles.units._id': hasRole.unit,
+      };
     }
     return {
       filters: { ...filters, ...roleFilter },

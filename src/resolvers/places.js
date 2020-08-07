@@ -18,9 +18,13 @@ export const CampusMutation = {
 const MAX_REQUESTABLE_PLACES = 30;
 export const Campus = {
   async listPlaces(campus, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_PLACES } = {} }) {
+    let unitInChargeFilter = {};
+    if (filters.unitInCharge) {
+      unitInChargeFilter = { 'unitInCharge._id': filters.unitInCharge.id };
+    }
     return {
       campus,
-      filters,
+      filters: { ...filters, ...unitInChargeFilter },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_PLACES) },
       countMethod: campus.countPlaces.bind(campus),
     };

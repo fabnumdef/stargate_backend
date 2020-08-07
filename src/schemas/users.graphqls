@@ -1,5 +1,5 @@
 extend type Query {
-    listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: String): UsersList!
+    listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: HasRoleInput): UsersList!
     getUser(id: String!): User
     me: User
 }
@@ -16,6 +16,11 @@ extend type Mutation {
 type UsersList implements OffsetPaginator {
     meta: OffsetPaginatorMeta!
     list: [User]!
+}
+
+input HasRoleInput {
+    role: String!
+    unit: String
 }
 
 input UserFilters {

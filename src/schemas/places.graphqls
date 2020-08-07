@@ -25,11 +25,13 @@ input PlaceInput {
 }
 
 input UnitInChargeInput {
+    id: String
     label: String
 }
 
 type UnitInCharge {
-    label: String!
+    id: String
+    label: String
 }
 
 type Place implements Node {
