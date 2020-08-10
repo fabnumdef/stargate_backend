@@ -14,6 +14,10 @@ export const schema = applyMiddleware(
   permissions,
 );
 
+/**
+ * Test
+ * @type {ApolloServer}
+ */
 const server = new ApolloServer({
   schema,
   playground: process.env.NODE_ENV === 'development',

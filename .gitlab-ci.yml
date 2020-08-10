@@ -77,3 +77,6 @@ deploy:production:
 deploy:production:uninstall:
   variables:
     HELM_NAME: backend
+
+pages:
+  extends: .igloo:npm:pages-docs
