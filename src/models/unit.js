@@ -101,7 +101,7 @@ UnitSchema.methods.deleteUnitDependencies = async function deleteUnitDependencie
 
   if (unitPlaces) {
     await Promise.all(unitPlaces.map(async (place) => {
-      place.set({ unitInCharge: null });
+      place.set('unitInCharge', null, { strict: false });
       return place.save();
     }));
   }

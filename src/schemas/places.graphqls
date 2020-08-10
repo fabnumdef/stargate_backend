@@ -25,7 +25,7 @@ input HasUnitFilter {
 
 input PlaceInput {
     label: String
-    unitInCharge: String
+    unitInCharge: UnitInChargeInput
 }
 
 input UnitInChargeInput {

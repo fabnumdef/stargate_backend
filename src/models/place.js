@@ -27,9 +27,11 @@ PlaceSchema.methods.setFromGraphQLSchema = async function setFromGraphQLSchema(d
   const Unit = mongoose.model(UnitModelName);
   const filteredData = data;
   if (data.unitInCharge) {
-    filteredData.unitInCharge = await Unit.findById(data.unitInCharge);
+    filteredData.unitInCharge = await Unit.findById(data.unitInCharge.id);
   }
-
+  if (data.unitInCharge === null) {
+    this.set('unitInCharge', null, { strict: false });
+  }
   this.set(filteredData);
 };
 
