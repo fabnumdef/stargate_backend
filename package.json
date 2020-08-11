@@ -11,7 +11,8 @@
     "fixtures:clear": "babel-node fixtures/clear.js",
     "fixtures:load": "babel-node fixtures",
     "lint": "eslint --ext .js src fixtures tests",
-    "mongoose:sync-indexes": "babel-node src/sync-indexes.js"
+    "mongoose:sync-indexes": "babel-node src/sync-indexes.js",
+    "docs:build": "jsdoc --configure .jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -76,6 +77,8 @@
     "eslint-plugin-import": "^2.20.1",
     "flow-bin": "^0.122.0",
     "jest": "^25.2.7",
+    "jsdoc": "^3.6.5",
+    "minami": "^1.2.3",
     "nock": "^12.0.1",
     "nodemon": "^2.0.2",
     "pino-pretty": "^4.1.0",
