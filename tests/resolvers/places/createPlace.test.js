@@ -29,7 +29,7 @@ it('Test to create a place', async () => {
     {
       const { errors } = await mutateCreatePlace(
         campus._id,
-        { unitInCharge: unit._id.toString(), ...dummyPlace },
+        dummyPlace,
       );
 
       // You're not authorized to create place while without rights
@@ -40,7 +40,7 @@ it('Test to create a place', async () => {
     {
       const { data: { mutateCampus: { createPlace: createdPlace } } } = await mutateCreatePlace(
         campus._id,
-        { unitInCharge: unit._id.toString(), ...dummyPlace },
+        dummyPlace,
         generateDummyAdmin(),
       );
       expect(createdPlace).toHaveProperty('id');
