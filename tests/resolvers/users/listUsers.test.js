@@ -2,11 +2,11 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import User, { createDummyUser, generateDummySuperAdmin } from '../../models/user';
 import { ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
 
-function queryListUser(userRole = null, hasRole) {
+function queryListUserWithRole(userRole = null, hasRole = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     query: gql`
-      query ListUserQuery($hasRole: String) {
+      query ListUserQuery($hasRole: HasRoleInput) {
         listUsers(hasRole: $hasRole) {
           list {
             id
@@ -22,6 +22,28 @@ function queryListUser(userRole = null, hasRole) {
       }
     `,
     variables: { hasRole },
+  });
+}
+
+function queryListUser(userRole = null) {
+  const { mutate } = queryFactory(userRole);
+  return mutate({
+    query: gql`
+        query ListUserQuery {
+            listUsers {
+                list {
+                    id
+                    firstname
+                    lastname
+                }
+                meta {
+                    offset
+                    first
+                    total
+                }
+            }
+        }
+    `,
   });
 }
 
@@ -59,9 +81,9 @@ it('Test to list users', async () => {
       });
     }
     {
-      const { data: { listUsers } } = await queryListUser(
+      const { data: { listUsers } } = await queryListUserWithRole(
         generateDummySuperAdmin(),
-        ROLE_UNIT_CORRESPONDENT,
+        { role: ROLE_UNIT_CORRESPONDENT },
       );
       // Check default values
       expect(listUsers.list).toHaveLength(1);

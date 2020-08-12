@@ -1,5 +1,5 @@
 extend type Campus {
-    listPlaces(cursor: OffsetCursor, filters: PlaceFilters): PlacesList!
+    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter): PlacesList!
     getPlace(id: String!): Place
 }
 
@@ -19,12 +19,17 @@ input PlaceFilters {
     unitInCharge: UnitInChargeInput
 }
 
+input HasUnitFilter {
+    id: String!
+}
+
 input PlaceInput {
     label: String
-    unitInCharge: String
+    unitInCharge: UnitInChargeInput
 }
 
 input UnitInChargeInput {
+    id: String
     label: String
 }
 
