@@ -8,6 +8,7 @@ export const CampusMutation = {
   },
   async editRequest(campus, { request, id }) {
     const r = await RequestModel.findById(id);
+    request.places = await campus.findPlacesbyId(request.places);
     r.set(request);
     return r.save();
   },
