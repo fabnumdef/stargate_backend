@@ -52,7 +52,7 @@ it('Test to list places', async () => {
     {
       const { data: { getCampus: { listPlaces } } } = await queryListPlaces(
         campus._id,
-        { id: unit._id.toString()},
+        { id: unit._id.toString() },
         generateDummySuperAdmin(),
       );
       // Check default values
