@@ -54,7 +54,7 @@ it('Test to edit a request', async () => {
       expect(dbVersion).toHaveProperty('__v', 1);
     }
   } finally {
-    // await Request.findOneAndDelete({ _id: dummyRequest._id });
-    // await campus.deleteOne();
+    await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await campus.deleteOne();
   }
 });
