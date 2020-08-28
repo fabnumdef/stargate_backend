@@ -1,9 +1,10 @@
 extend type Campus {
-    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String): RequestVisitorsList!
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone): RequestVisitorsList!
+    listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
 }
 
 extend type Request {
-    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String): RequestVisitorsList!
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone): RequestVisitorsList!
     getVisitor(id: String!): RequestVisitor
 }
 
@@ -12,17 +13,33 @@ input ValidationPersonas {
     unit: String,
 }
 
+input RequestVisitorIsDone {
+    role: String
+    value: Boolean!
+}
+
 type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
-    shiftVisitor(id: String!, as: ValidationPersonas!, transition: String!, tags: [String]): RequestVisitor!
+    validateVisitorStep(id: String!, as: ValidationPersonas!, decision: String!, tags: [String]): RequestVisitor!
 }
 
 type RequestVisitorsList implements OffsetPaginator {
     generateCSVExportLink(options: CSVExportOptions): ExportLink!
     meta: OffsetPaginatorMeta!
     list: [RequestVisitor]!
+}
+
+type RequestsListGroupByVisitors {
+    list: [RequestGroupByVisitor]
+    meta: OffsetPaginatorMeta!
+}
+
+type RequestGroupByVisitor {
+    id: String
+    requestData: [Request]
+    visitors: [RequestVisitor]
 }
 
 input RequestVisitorFilters {
@@ -80,20 +97,23 @@ type UnitStepStatus {
     done: Boolean
 }
 
-type UnitStatus {
-    unitId: String!
-    label: String!
-    steps: [UnitStepStatus]!
+type RequestVisitorUnitsStepsState {
+    value: String,
+    isOK: Boolean,
+    date: DateTime,
+    tags: [String],
 }
 
-type VisitorRecord {
-    tags: [String]
-    date: DateTime
+type RequestVisitorUnitsSteps {
+    role: String
+    behavior: String
+    state: RequestVisitorUnitsStepsState
 }
 
-type VisitorState {
-    value: String!
-    records: [VisitorRecord]
+type RequestVisitorUnits {
+    id: String!
+    label: String
+    steps: [RequestVisitorUnitsSteps]
 }
 
 type RequestVisitor {
@@ -113,7 +133,7 @@ type RequestVisitor {
     identityDocuments: [RequestIdentityDocument]
     birthday: DateTime!
     birthplace: String!
-    status: [UnitStatus]!
-    state: VisitorState
+    status: String!
+    units: [RequestVisitorUnits]
     request: Request
 }

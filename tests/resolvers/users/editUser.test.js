@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import User, { createDummyUser, generateDummySuperAdmin } from '../../models/user';
+import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from '../../../src/models/rules';
 
 function mutateEditionUser(id, user, userRole = null) {
   const { mutate } = queryFactory(userRole);
@@ -19,11 +20,14 @@ function mutateEditionUser(id, user, userRole = null) {
 }
 
 it('Test to edit a user', async () => {
-  const dummyUser = await createDummyUser();
+  const dummyUser = await createDummyUser({ roles: [{ role: ROLE_SCREENING }] });
   const newFirstname = nanoid();
   try {
     {
-      const { errors } = await mutateEditionUser(dummyUser._id, { firstname: newFirstname });
+      const { errors } = await mutateEditionUser(dummyUser._id, {
+        firstname: newFirstname,
+        roles: [{ role: ROLE_ACCESS_OFFICE }],
+      });
 
       // You're not authorized to edit user while without rights
       expect(errors).toHaveLength(1);

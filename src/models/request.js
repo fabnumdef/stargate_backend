@@ -18,13 +18,13 @@ export const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Request';
 
-export const STATE_DRAFTED = 'drafted';
-export const STATE_CREATED = 'created';
-export const STATE_CANCELED = 'canceled';
-export const STATE_REMOVED = 'removed';
-export const STATE_ACCEPTED = 'accepted';
-export const STATE_REJECTED = 'rejected';
-export const STATE_MIXED = 'mixed';
+export const STATE_DRAFTED = 'DRAFTED';
+export const STATE_CREATED = 'CREATED';
+export const STATE_CANCELED = 'CANCELED';
+export const STATE_REMOVED = 'REMOVED';
+export const STATE_ACCEPTED = 'ACCEPTED';
+export const STATE_REJECTED = 'REJECTED';
+export const STATE_MIXED = 'MIXED';
 
 export const EVENT_CREATE = 'CREATE';
 export const EVENT_CANCEL = 'CANCEL';
@@ -243,8 +243,8 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   const r = await Visitor.aggregate([
     { $match: { 'request._id': this._id } },
-    { $project: { _id: 1, 'state.value': 1 } },
-    { $group: { _id: '$state.value', count: { $sum: 1 } } },
+    { $project: { _id: 1, status: 1 } },
+    { $group: { _id: '$status', count: { $sum: 1 } } },
   ]);
   if (r.some(({ _id }) => typeof _id !== 'string')) {
     return this;
@@ -262,13 +262,13 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
 RequestSchema.methods.createVisitors = async function createVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
-  return Visitor.updateMany({ 'request._id': this._id }, { 'state.value': STATE_CREATED });
+  return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CREATED });
 };
 
 RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
-  return Visitor.updateMany({ 'request._id': this._id }, { 'state.value': STATE_CANCELED });
+  return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CANCELED });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');

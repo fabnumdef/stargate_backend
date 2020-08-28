@@ -1,4 +1,4 @@
-import Visitor from '../models/visitor';
+import Visitor, { GLOBAL_VALIDATION_ROLES } from '../models/visitor';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor }) {
@@ -21,20 +21,26 @@ export const RequestMutation = {
     return removedVisitor;
   },
 
-  async shiftVisitor(request, {
-    id, as: { unit, role } = {}, transition, tags = [],
+  async validateVisitorStep(request, {
+    id, as: { unit, role } = {}, decision, tags = [],
   }) {
     const v = await Visitor.findById(id);
     if (!v) {
       throw new Error('Visitor not found');
     }
-    const step = v.getStep(unit, role);
-    const predicatedEvent = v.predicateEvent(unit, step._id, transition);
-    const possibleEvents = v.listPossibleEvents();
-    if (possibleEvents.indexOf(predicatedEvent) === -1) {
-      throw new Error('You cannot shift to this state');
+    // @todo: refactor this as a cache system + auto validation, to put time guards
+    if (GLOBAL_VALIDATION_ROLES.includes(role)) {
+      await Promise.all(v.request.units.map(
+        (u) => {
+          if (u.workflow.steps.find((s) => s.role === role)) {
+            v.validateStep(u._id.toString(), role, decision, tags);
+          }
+          return u;
+        },
+      ));
+    } else {
+      await v.validateStep(unit, role, decision, tags);
     }
-    await v.stateMutation(unit, step._id, transition, tags);
     return v.save();
   },
 };
@@ -42,29 +48,73 @@ export const RequestMutation = {
 const MAX_REQUESTABLE_VISITS = 30;
 
 export const Campus = {
-  async listVisitors(campus, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search }) {
+  async listVisitors(campus, {
+    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search, isDone = null,
+  }) {
+    let isDoneFilters = {};
+    if (isDone) {
+      isDoneFilters = {
+        'request.units.workflow.steps': {
+          $elemMatch: {
+            role: isDone.role,
+            'state.value': { $exists: isDone.value },
+          },
+        },
+      };
+    }
     const searchFilters = {};
     if (search) {
       searchFilters.$text = { $search: search };
     }
     return {
       campus,
-      filters: { ...filters, ...searchFilters },
+      filters: { ...filters, ...searchFilters, ...isDoneFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
       countMethod: campus.countVisitors.bind(campus),
+    };
+  },
+  async listRequestByVisitorStatus(
+    campus,
+    {
+      filters = {}, as, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, isDone,
+    },
+  ) {
+    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first);
+
+    return {
+      list: requests.list,
+      meta: {
+        cursor: { offset, first },
+        countMethod: () => requests.total,
+      },
     };
   },
 };
 
 export const Request = {
-  async listVisitors(request, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search }) {
+  async listVisitors(request, {
+    filters = {},
+    cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
+    search, isDone = null,
+  }) {
     const searchFilters = {};
     if (search) {
       searchFilters.$text = { $search: search };
     }
+    let isDoneFilters = {};
+    if (isDone) {
+      isDoneFilters = {
+        'request.units.workflow.steps': {
+          $elemMatch: {
+            role: isDone.role,
+            'state.value': { $exists: isDone.value },
+          },
+        },
+      };
+    }
     return {
       request,
-      filters: { ...filters, ...searchFilters },
+      filters: { ...filters, ...searchFilters, ...isDoneFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
       countMethod: request.countVisitors.bind(request),
     };
@@ -79,16 +129,14 @@ export const Request = {
 };
 
 export const RequestVisitor = {
-  async status(visitor) {
-    return Object.values(visitor.status).map(({ _id, label, ...steps }) => ({ unitId: _id, label, steps }));
+  units(visitor) {
+    return visitor.request.units;
   },
 };
 
-export const UnitStatus = {
-  async steps({ steps }) {
-    return Object.values(steps)
-      .map((s) => (s.toObject ? s.toObject() : s))
-      .map(({ _id, ...other }) => ({ step: _id, ...other }));
+export const RequestVisitorUnits = {
+  steps(unit) {
+    return unit.workflow.steps;
   },
 };
 
@@ -103,5 +151,11 @@ export const RequestVisitorsList = {
     campus, filters, request = campus,
   }, { options }) {
     return request.createCSVTokenForVisitors(filters, options);
+  },
+};
+
+export const RequestVisitorUnitsStepsState = {
+  tags(state) {
+    return state.payload.tags;
   },
 };

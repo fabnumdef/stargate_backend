@@ -33,9 +33,9 @@ input UnitInput {
 }
 
 enum UnitWorkflowBehavior {
-    Information
-    Validation
-    Advisement
+    INFORMATION
+    VALIDATION
+    ADVISEMENT
 }
 
 type UnitWorkflowStep {
