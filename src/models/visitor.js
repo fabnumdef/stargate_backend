@@ -1,13 +1,29 @@
 import mongoose from 'mongoose';
-import { Machine as StateMachine, interpret, State } from 'xstate';
 import {
-  MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
+  WORKFLOW_BEHAVIOR_ACK,
+  WORKFLOW_BEHAVIOR_ADVISEMENT,
+  WORKFLOW_BEHAVIOR_ADVISEMENT_DECISIONS,
+  WORKFLOW_BEHAVIOR_INFORMATION,
+  WORKFLOW_BEHAVIOR_INFORMATION_DECISIONS,
+  WORKFLOW_BEHAVIOR_VALIDATION,
+  WORKFLOW_BEHAVIOR_VALIDATION_DECISIONS,
+  WORKFLOW_DECISION_ACCEPTED,
+  WORKFLOW_DECISION_POSITIVE,
+  WORKFLOW_ENUM,
 } from './unit';
 import { HYDRATION_FORCE, HYDRATION_KEY } from './helpers/graphql-projection';
 // eslint-disable-next-line import/no-cycle
-import { MODEL_NAME as REQUEST_MODEL_NAME } from './request';
+import {
+  MODEL_NAME as REQUEST_MODEL_NAME,
+  STATE_ACCEPTED,
+  STATE_CREATED,
+  STATE_DRAFTED,
+  STATE_MIXED,
+  STATE_REJECTED,
+} from './request';
+import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from './rules';
 
-const { Schema, Types } = mongoose;
+const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
@@ -23,6 +39,8 @@ export const TYPE_RESERVIST = 'TYPE_RESERVIST';
 export const TYPE_CIVILIAN_DEFENSE = 'TYPE_CIVILIAN_DEFENSE';
 export const TYPE_FAMILY = 'TYPE_FAMILY';
 export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
+
+export const GLOBAL_VALIDATION_ROLES = [ROLE_SCREENING, ROLE_ACCESS_OFFICE];
 
 const VisitorSchema = new Schema({
   nid: String,
@@ -79,17 +97,9 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
-  state: {
-    records: [{
-      _id: {
-        unit: Schema.ObjectId,
-        step: Schema.ObjectId,
-      },
-      tags: [String],
-      date: Date,
-      action: String,
-    }],
-    value: Object,
+  status: {
+    type: String,
+    default: STATE_DRAFTED,
   },
   request: {
     _id: {
@@ -144,6 +154,14 @@ const VisitorSchema = new Schema({
                 type: String,
                 enum: WORKFLOW_ENUM,
               },
+              state: {
+                value: String,
+                isOK: Boolean,
+                date: Date,
+                payload: {
+                  tags: [String],
+                },
+              },
             },
           ],
         },
@@ -168,205 +186,96 @@ VisitorSchema.index({
   email: 'text',
 });
 
-VisitorSchema.virtual('stateMachine').get(function stateMachineVirtual() {
-  return new StateMachine(this.workflow, {
-    guards: {
-      hasMixed: (
-        _context,
-        _event,
-        { state },
-      ) => Object.values(state.value.created).every((v) => ['accepted', 'rejected'].includes(v))
-            && Object.values(state.value.created).some((v) => v === 'accepted')
-            && Object.values(state.value.created).some((v) => v === 'rejected'),
-      hasAllAccepted: (
-        _context,
-        _event,
-        { state },
-      ) => Object.values(state.value.created).every((v) => v === 'accepted'),
-      hasAllRejected: (
-        _context,
-        _event,
-        { state },
-      ) => Object.values(state.value.created).every((v) => v === 'rejected'),
-    },
-  });
-});
-
-/**
- * Identifiers syntax in the state machine, design to be readable, functional & uniq :
- * {LETTER}{mongo id, hexadecimal}, chained, from the most global to the most specific, left to right
- * letters :
- * - R for request
- * - V for visitor
- * - U for unit
- * - S for step
- */
-VisitorSchema.virtual('workflow').get(function workflowVirtual() {
-  const Unit = mongoose.model(UNIT_MODEL_NAME);
-  if (this.request.units.length < 1) {
-    throw new Error('To build workflow, a visitor should visit at least one unit.');
-  }
-  return ({
-    id: this._id,
-    initial: 'drafted',
-    context: {},
-    states: {
-      drafted: {
-        on: {
-          CREATE: 'created',
-          REMOVE: 'removed',
-        },
-      },
-      created: {
-        type: 'parallel',
-        states: this.request.units.map((unit) => ({
-          [`U${unit._id}`]: (new Unit(unit)).buildWorkflow(),
-        })).reduce((acc, cur) => Object.assign(acc, cur), {}),
-        on: {
-          CANCEL: 'canceled',
-          '': [
-            { target: 'accepted', cond: 'hasAllAccepted' },
-            { target: 'rejected', cond: 'hasAllRejected' },
-            { target: 'mixed', cond: 'hasMixed' },
-          ],
-        },
-      },
-      removed: {
-        invoke: {
-          src: async () => {
-            const Visitor = mongoose.model(MODEL_NAME);
-            return Visitor.deleteOne({ _id: this._id, __v: this.__v });
-          },
-        },
-        type: 'final',
-      },
-      canceled: {
-        type: 'final',
-      },
-      accepted: {
-        invoke: {
-          src: () => { this.markedForRequestComputation = true; },
-        },
-        type: 'final',
-      },
-      rejected: {
-        invoke: {
-          src: () => { this.markedForRequestComputation = true; },
-        },
-        type: 'final',
-      },
-      mixed: {
-        invoke: {
-          src: () => { this.markedForRequestComputation = true; },
-        },
-        type: 'final',
-      },
-    },
-  });
-});
-
 VisitorSchema.post('save', async (visitor) => {
   if (visitor.markedForRequestComputation) {
     await visitor.invokeRequestComputation();
   }
 });
 
-VisitorSchema.virtual('interpretedStateMachine').get(function getInterpretedMachine() {
-  const service = interpret(this.stateMachine);
-  if (this.state.value) {
-    const previousState = State.from(this.state.value);
-    const resolvedState = this.stateMachine.resolveState(previousState);
-    service.start(resolvedState);
-  } else {
-    service.start();
-  }
-  service.onTransition(({ changed }, {
-    unitID, stepID, event, tags = [],
-  } = {}) => {
-    if (!changed || !unitID || !stepID || !event) {
-      return;
+VisitorSchema.methods.validateStep = function recordStepResult(
+  unitID,
+  role,
+  decision,
+  tags = [],
+) {
+  if (GLOBAL_VALIDATION_ROLES.includes(role)) {
+    const isOneUnitPreviousRoleOk = this.request.units.find((u) => u.workflow.steps.find(
+      (s, index) => s.role === role && u.workflow.steps[index - 1].state.isOK,
+    ));
+    if (!isOneUnitPreviousRoleOk) {
+      throw new Error(`Previous step for role ${role} not yet validated`);
     }
-    this.state.records.push({
-      _id: {
-        unit: unitID,
-        step: stepID,
-      },
-      tags,
-      action: event,
-      date: new Date(),
-    });
-  });
-  return service;
-});
-
-VisitorSchema.virtual('status').get(function getSteps() {
-  return this.request.units.reduce((unitAcc, unit) => Object.assign(unitAcc, {
-    [unit._id.toString()]: unit.workflow.steps.reduce((stepAcc, step) => {
-      const stepRecord = this.state.records
-        .find(({ _id }) => _id.unit.equals(unit._id) && _id.step.equals(step._id)) || {};
-      return Object.assign(stepAcc, {
-        _id: unit._id,
-        label: unit.label,
-        [step._id.toString()]: {
-          ...step.toObject(),
-          status: stepRecord.action || null,
-          tags: stepRecord.tags || null,
-          date: stepRecord.date || null,
-          done: !!stepRecord.action,
-        },
-      });
-    }, {}),
-  }), {});
-});
-
-VisitorSchema.methods.getStep = function getStep(unitID, role) {
-  const unitObjectID = new Types.ObjectId(unitID);
-  try {
-    return this.request.units
-      .find((u) => u._id.equals(unitObjectID))
-      .workflow.steps
-      .find((s) => s.role === role) || null;
-  } catch (_) {
-    return null;
   }
-};
 
-VisitorSchema.methods.predicateEvent = function predicateEvent(unitID, stepID, event) {
-  let predicatedEvent = '';
-  if (unitID) {
-    predicatedEvent += `U${unitID.toString ? unitID.toString() : unitID}`;
-    if (stepID) {
-      predicatedEvent += `S${stepID.toString ? stepID.toString() : stepID}`;
-      if (event) {
-        predicatedEvent += `_${event}`;
+  const unit = this.request.units.find((u) => u._id.toString() === unitID);
+  const step = unit.workflow.steps.find((s) => s.role === role);
+
+  if (this.status !== STATE_CREATED) {
+    throw new Error(`Visitor cannot be validated while in status "${this.status}"`);
+  }
+
+  if (step.state.value) {
+    throw new Error(`Step "${step._id.toString()}" already validated`);
+  }
+
+  if (!GLOBAL_VALIDATION_ROLES.includes(role)
+    && Array.from({ length: unit.workflow.steps.indexOf(step) }).reduce((acc, row, index) => {
+      if (!acc) {
+        return typeof unit.workflow.steps[index].state.value === 'undefined';
       }
-    }
+      return acc;
+    }, false)) {
+    throw new Error(`Previous step of "${step._id.toString()}" not yet validated`);
   }
-  return predicatedEvent;
-};
 
-VisitorSchema.methods.listPossibleEvents = function listPossibleEvents() {
-  return this.interpretedStateMachine.state.nextEvents;
-};
+  switch (step.behavior) {
+    case WORKFLOW_BEHAVIOR_VALIDATION:
+      if (!WORKFLOW_BEHAVIOR_VALIDATION_DECISIONS.includes(decision)) {
+        throw new Error(`Validation behavior cannot accept "${decision}" decision.`);
+      }
+      step.state.isOK = decision === WORKFLOW_DECISION_ACCEPTED;
+      break;
+    case WORKFLOW_BEHAVIOR_ADVISEMENT:
+      if (!WORKFLOW_BEHAVIOR_ADVISEMENT_DECISIONS.includes(decision)) {
+        throw new Error(`Advisement behavior cannot accept "${decision}" decision.`);
+      }
+      step.state.isOK = decision === WORKFLOW_DECISION_POSITIVE;
+      break;
+    case WORKFLOW_BEHAVIOR_INFORMATION:
+      if (!WORKFLOW_BEHAVIOR_INFORMATION_DECISIONS.includes(decision)) {
+        throw new Error(`Information behavior cannot accept "${decision}" decision.`);
+      }
+      step.state.isOK = decision === WORKFLOW_BEHAVIOR_ACK;
+      break;
+    default:
+      throw new Error('Unexpected behavior');
+  }
+  step.state.payload.tags = tags;
+  step.state.value = decision;
+  step.state.date = new Date();
 
-VisitorSchema.methods.stateMutation = function stateMutation(unitID, stepID, event, tags = []) {
-  const service = this.interpretedStateMachine;
-  service.send({
-    type: this.predicateEvent(unitID, stepID, event),
-    unitID,
-    stepID,
-    event,
-    tags,
-  });
-  this.state.value = service.state.value;
+  this.guessStatus();
   return this;
 };
 
-VisitorSchema.methods.stateSend = function stateMutation(event) {
-  const service = this.interpretedStateMachine;
-  service.send(event);
-  this.state.value = service.state.value;
-  return this;
+VisitorSchema.methods.guessStatus = async function invokeRequestComputation() {
+  const allOK = this.request.units.reduce(
+    (acc, unit) => acc.concat(...unit.workflow.steps.map((s) => s.state.isOK)),
+    [],
+  );
+  const allRejected = this.request.units.every(
+    (u) => u.workflow.steps.find((s) => s.behavior === WORKFLOW_BEHAVIOR_VALIDATION && s.state.isOK === false),
+  );
+  if (allOK.every((e) => e === true)) {
+    this.status = STATE_ACCEPTED;
+  } else if (allOK.every((e) => e === false) || allRejected) {
+    this.status = STATE_REJECTED;
+  } else if (allOK.every((e) => [false, true].includes(e))) {
+    this.status = STATE_MIXED;
+  }
+  if (this.isModified('status')) {
+    this.markedForRequestComputation = true;
+  }
 };
 
 VisitorSchema.methods.invokeRequestComputation = async function invokeRequestComputation() {

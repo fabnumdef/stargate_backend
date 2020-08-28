@@ -11,12 +11,12 @@ enum RequestTransition {
 }
 
 enum RequestStatus {
-    drafted
-    created
-    canceled
-    accepted
-    mixed
-    rejected
+    DRAFTED
+    CREATED
+    CANCELED
+    ACCEPTED
+    MIXED
+    REJECTED
 }
 
 extend type CampusMutation {

@@ -132,7 +132,7 @@ describe('Ensure that workflow is working', () => {
     await request.save();
     expect(request.status).toEqual(STATE_CREATED);
     const refreshedVisitor = await Visitor.findById(visitor._id);
-    expect(refreshedVisitor.state.value).toEqual(STATE_CREATED);
+    expect(refreshedVisitor.status).toEqual(STATE_CREATED);
   });
 
   it('When a request is canceled, every visitor request should be canceled too', async () => {
@@ -170,6 +170,6 @@ describe('Ensure that workflow is working', () => {
     await request.save();
     expect(request.status).toEqual(STATE_CANCELED);
     const refreshedVisitor = await Visitor.findById(visitor._id);
-    expect(refreshedVisitor.state.value).toEqual(STATE_CANCELED);
+    expect(refreshedVisitor.status).toEqual(STATE_CANCELED);
   });
 });
