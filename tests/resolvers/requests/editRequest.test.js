@@ -55,6 +55,8 @@ it('Test to edit a request', async () => {
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await unit.deleteOne();
+    await newPlace.deleteOne();
     await campus.deleteOne();
   }
 });
