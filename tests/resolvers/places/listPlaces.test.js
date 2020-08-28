@@ -4,13 +4,13 @@ import { createDummyCampus } from '../../models/campus';
 import Place, { createDummyPlace } from '../../models/place';
 import { createDummyUnit } from '../../models/unit';
 
-function queryListPlaces(placesId, user = null) {
+function queryListPlaces(campusId, hasUnit, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query ListPlacesQuery($placesId: String!) {
-        getCampus(id: $placesId) {
-          listPlaces {
+      query ListPlacesQuery($campusId: String!, $hasUnit: HasUnitFilter) {
+        getCampus(id: $campusId) {
+          listPlaces(hasUnit: $hasUnit) {
             list {
               id
               label
@@ -24,7 +24,7 @@ function queryListPlaces(placesId, user = null) {
         }
       }
     `,
-    variables: { placesId },
+    variables: { campusId, hasUnit },
   });
 }
 
@@ -52,6 +52,7 @@ it('Test to list places', async () => {
     {
       const { data: { getCampus: { listPlaces } } } = await queryListPlaces(
         campus._id,
+        { id: unit._id.toString()},
         generateDummySuperAdmin(),
       );
       // Check default values
