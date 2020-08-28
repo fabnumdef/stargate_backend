@@ -95,6 +95,11 @@ CampusSchema.methods.findPlacebyId = async function findPlacebyId(id) {
   return Place.findOne({ _id: id, 'campus._id': this._id });
 };
 
+CampusSchema.methods.findPlacesbyId = async function findPlacesbyId(placesId) {
+  const places = await Promise.all(placesId.map((placeId) => this.findPlacebyId(placeId)));
+  return places;
+};
+
 CampusSchema.methods.findZoneByIdAndRemove = async function findZoneByIdAndRemove(id) {
   const Zone = mongoose.model(ZoneModelName);
   return Zone.findOneAndRemove({ _id: id, 'campus._id': this._id });
@@ -105,7 +110,7 @@ CampusSchema.methods.createRequest = async function createRequest(data) {
   const request = new Request(data);
   request.campus = this;
   // @todo : find a way to separate concerns here
-  request.places = await Promise.all(data.places.map((placeId) => this.findPlacebyId(placeId)));
+  request.places = await this.findPlacesbyId(data.places);
   return request.save();
 };
 

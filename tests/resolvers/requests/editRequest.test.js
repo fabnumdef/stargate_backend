@@ -2,6 +2,8 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import { createDummyPlace } from '../../models/place';
+import { createDummyUnit } from '../../models/unit';
 
 function mutateEditionRequest(campusId, id, request, user = null) {
   const { mutate } = queryFactory(user);
@@ -23,6 +25,11 @@ it('Test to edit a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus, owner });
+  const unit = await createDummyUnit();
+  const newPlace = await createDummyPlace({
+    campus: { _id: campus._id },
+    unitInCharge: { _id: unit._id, label: unit.label },
+  });
   const newFrom = new Date();
   try {
     {
@@ -37,7 +44,7 @@ it('Test to edit a request', async () => {
       const { data: { mutateCampus: { editRequest: editedRequest } } } = await mutateEditionRequest(
         campus._id,
         dummyRequest._id,
-        { from: newFrom.toISOString() },
+        { from: newFrom.toISOString(), places: [newPlace._id.toString()] },
         generateDummyAdmin(),
       );
       expect(editedRequest).toHaveProperty('id', dummyRequest.id);
@@ -48,6 +55,8 @@ it('Test to edit a request', async () => {
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await unit.deleteOne();
+    await newPlace.deleteOne();
     await campus.deleteOne();
   }
 });
