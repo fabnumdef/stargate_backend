@@ -32,13 +32,13 @@ function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   });
 }
 
-function queryListVisitors(campusId, search, user = null) {
+function queryListVisitors(campusId, search, requestsId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query ListVisitorsRequestQuery($campusId: String!, $search: String) {
+      query ListVisitorsRequestQuery($campusId: String!, $search: String, $requestsId: [String]) {
         getCampus(id: $campusId) {
-          listVisitors(search: $search) {
+          listVisitors(search: $search, requestsId: $requestsId) {
             list {
               id
               firstname
@@ -50,6 +50,7 @@ function queryListVisitors(campusId, search, user = null) {
     variables: {
       campusId,
       search,
+      requestsId,
     },
   });
 }
@@ -91,9 +92,12 @@ it('Test to list visitors in a campus', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus, owner });
+  const dummyRequest2 = await createDummyRequest({ campus, owner });
   const visitors = [
     await createDummyVisitor({ request: dummyRequest }),
     await createDummyVisitor({ request: dummyRequest }),
+    await createDummyVisitor({ request: dummyRequest2 }),
+    await createDummyVisitor({ request: dummyRequest2 }),
   ];
 
   try {
@@ -108,13 +112,24 @@ it('Test to list visitors in a campus', async () => {
       const { data: { getCampus: { listVisitors } } } = await queryListVisitors(
         campus._id,
         visitors[0].firstname,
+        null,
         generateDummySuperAdmin(),
       );
       expect(listVisitors.list).toHaveLength(1);
     }
+    {
+      const { data: { getCampus: { listVisitors } } } = await queryListVisitors(
+        campus._id,
+        null,
+        [dummyRequest._id.toString()],
+        generateDummySuperAdmin(),
+      );
+      expect(listVisitors.list).toHaveLength(2);
+    }
   } finally {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await Request.findOneAndDelete({ _id: dummyRequest2._id });
     await campus.deleteOne();
   }
 });

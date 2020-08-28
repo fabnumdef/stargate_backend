@@ -49,7 +49,7 @@ const MAX_REQUESTABLE_VISITS = 30;
 
 export const Campus = {
   async listVisitors(campus, {
-    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search, isDone = null,
+    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search, isDone = null, requestsId,
   }) {
     let isDoneFilters = {};
     if (isDone) {
@@ -62,13 +62,22 @@ export const Campus = {
         },
       };
     }
+    let requestsFilters = {};
+    if (requestsId) {
+      requestsFilters = { 'request._id': requestsId };
+    }
     const searchFilters = {};
     if (search) {
       searchFilters.$text = { $search: search };
     }
     return {
       campus,
-      filters: { ...filters, ...searchFilters, ...isDoneFilters },
+      filters: {
+        ...filters,
+        ...searchFilters,
+        ...isDoneFilters,
+        ...requestsFilters,
+      },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
       countMethod: campus.countVisitors.bind(campus),
     };
