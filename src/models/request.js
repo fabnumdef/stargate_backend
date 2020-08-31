@@ -253,6 +253,8 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
     this.status = STATE_REJECTED;
   } else if (r.every(({ _id }) => _id === STATE_ACCEPTED)) {
     this.status = STATE_ACCEPTED;
+  } else if (r.every(({ _id }) => _id === STATE_CANCELED)) {
+    this.status = STATE_CANCELED;
   } else {
     this.status = STATE_MIXED;
   }

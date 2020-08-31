@@ -1,4 +1,5 @@
 import Visitor, { GLOBAL_VALIDATION_ROLES } from '../models/visitor';
+import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor }) {
@@ -21,6 +22,16 @@ export const RequestMutation = {
     return removedVisitor;
   },
 
+  async cancelVisitor(request, { id }, ctx) {
+    const { id: userId } = ctx.user;
+    if (userId !== request.owner._id.toString()) {
+      throw new Error('Only the owner can cancel a visitor');
+    }
+    const v = await Visitor.findById(id);
+    await v.cancelVisitor();
+    return v.save();
+  },
+
   async validateVisitorStep(request, {
     id, as: { unit, role } = {}, decision, tags = [],
   }) {
@@ -32,6 +43,9 @@ export const RequestMutation = {
     if (GLOBAL_VALIDATION_ROLES.includes(role)) {
       await Promise.all(v.request.units.map(
         (u) => {
+          if (u.workflow.steps.find((s) => s.behavior === WORKFLOW_BEHAVIOR_VALIDATION && s.state.isOK === false)) {
+            return u;
+          }
           if (u.workflow.steps.find((s) => s.role === role)) {
             v.validateStep(u._id.toString(), role, decision, tags);
           }
