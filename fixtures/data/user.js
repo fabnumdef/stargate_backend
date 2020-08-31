@@ -25,7 +25,7 @@ export default async ({ log }) => {
       email: {
         original: 'super.admin@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SUPERADMIN },
         { role: ROLE_ADMIN, campuses: [NAVAL_BASE] },
@@ -37,7 +37,7 @@ export default async ({ log }) => {
       email: {
         original: 'ba.basenavale@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_ACCESS_OFFICE, campuses: [NAVAL_BASE] },
       ],
@@ -48,7 +48,7 @@ export default async ({ log }) => {
       email: {
         original: 'gmd.basenavale@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
       ],
@@ -59,7 +59,7 @@ export default async ({ log }) => {
       email: {
         original: 'demandeur.ciri@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -70,7 +70,7 @@ export default async ({ log }) => {
       email: {
         original: 'cu.ciri@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -81,7 +81,7 @@ export default async ({ log }) => {
       email: {
         original: 'os.ciri@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_CIRI], campuses: [NAVAL_BASE] },
       ],
@@ -92,7 +92,7 @@ export default async ({ log }) => {
       email: {
         original: 'demandeur.fus@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
@@ -103,7 +103,7 @@ export default async ({ log }) => {
       email: {
         original: 'cu.fus@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
@@ -114,7 +114,7 @@ export default async ({ log }) => {
       email: {
         original: 'os.fus@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_FUS], campuses: [NAVAL_BASE] },
       ],
@@ -125,7 +125,7 @@ export default async ({ log }) => {
       email: {
         original: 'eddy.moitout@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
       ],
@@ -136,7 +136,7 @@ export default async ({ log }) => {
       email: {
         original: 'michael.mcaradech@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_ACCESS_OFFICE, campuses: [NAVAL_BASE] },
       ],
@@ -147,7 +147,7 @@ export default async ({ log }) => {
       email: {
         original: 'oscar.amel@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -158,7 +158,7 @@ export default async ({ log }) => {
       email: {
         original: 'denis.doiseau@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -169,7 +169,7 @@ export default async ({ log }) => {
       email: {
         original: 'anne.onyme@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -180,7 +180,7 @@ export default async ({ log }) => {
       email: {
         original: 'alain.terieur@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -191,7 +191,7 @@ export default async ({ log }) => {
       email: {
         original: 'anna.lyz@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -202,7 +202,7 @@ export default async ({ log }) => {
       email: {
         original: 'pat.atatrak@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_SAILOR], campuses: [NAVAL_BASE] },
       ],
@@ -213,7 +213,7 @@ export default async ({ log }) => {
       email: {
         original: 'alain.die@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
       ],
@@ -224,7 +224,7 @@ export default async ({ log }) => {
       email: {
         original: 'sam.soule@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
         { role: ROLE_SECURITY_OFFICER, units: [UNIT_BBPD], campuses: [NAVAL_BASE] },
@@ -236,7 +236,7 @@ export default async ({ log }) => {
       email: {
         original: 'jean.tourloupe@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_HOST, units: [UNIT_LASEM], campuses: [NAVAL_BASE] },
       ],
@@ -247,7 +247,7 @@ export default async ({ log }) => {
       email: {
         original: 'jean.serien@localhost',
       },
-      password: nanoid(),
+      password: 'testtest',
       roles: [
         { role: ROLE_UNIT_CORRESPONDENT, units: [UNIT_LASEM], campuses: [NAVAL_BASE] },
       ],

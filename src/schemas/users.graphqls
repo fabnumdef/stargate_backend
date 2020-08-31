@@ -19,7 +19,7 @@ type UsersList implements OffsetPaginator {
 }
 
 input HasRoleInput {
-    role: String!
+    role: String
     unit: String
 }
 

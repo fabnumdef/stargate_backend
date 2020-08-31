@@ -21,6 +21,16 @@ export const RequestMutation = {
     return removedVisitor;
   },
 
+  async cancelVisitor(request, { id }, ctx) {
+    const { id: userId } = ctx.user;
+    if (userId !== request.owner._id.toString()) {
+      throw new Error('Only the owner can cancel a visitor');
+    }
+    const v = await Visitor.findById(id);
+    await v.cancelVisitor();
+    return v.save();
+  },
+
   async validateVisitorStep(request, {
     id, as: { unit, role } = {}, decision, tags = [],
   }) {
