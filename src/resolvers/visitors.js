@@ -28,6 +28,9 @@ export const RequestMutation = {
       throw new Error('Only the owner can cancel a visitor');
     }
     const v = await Visitor.findById(id);
+    if (!v) {
+      throw new Error('Visitor not found');
+    }
     await v.cancelVisitor();
     return v.save();
   },
