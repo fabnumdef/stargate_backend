@@ -102,7 +102,7 @@ it('Test to validate a step for a visitor', async () => {
         visitor._id,
       );
 
-      // You're not authorized to create request while without rights
+      // You're not authorized to cancel a visitor while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
     }
@@ -114,7 +114,7 @@ it('Test to validate a step for a visitor', async () => {
         generateDummyAdmin(),
       );
 
-      // You're not authorized to create request while without rights
+      // You're not authorized to cancel a visitor if you're not owner
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Only the owner can cancel a visitor');
     }
@@ -136,7 +136,6 @@ it('Test to validate a step for a visitor', async () => {
         visitor._id,
         owner,
       );
-      // You're should not mutate a visitor that not exists.
       expect(cancelVisitor.status).toBe(STATE_CANCELED);
     }
   } finally {
