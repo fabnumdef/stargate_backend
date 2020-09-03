@@ -5,6 +5,7 @@ import {
   STATE_MIXED,
   STATE_REJECTED,
 } from '../models/request';
+import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor }) {
