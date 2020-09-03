@@ -22,6 +22,7 @@ type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
+    cancelVisitor(id: String!): RequestVisitor!
     validateVisitorStep(id: String!, as: ValidationPersonas!, decision: String!, tags: [String]): RequestVisitor!
 }
 
@@ -44,6 +45,7 @@ type RequestGroupByVisitor {
 
 input RequestVisitorFilters {
     firstname: String
+    status: String
 }
 
 input RequestIdentityDocumentInput {

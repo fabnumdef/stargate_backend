@@ -16,6 +16,7 @@ import { HYDRATION_FORCE, HYDRATION_KEY } from './helpers/graphql-projection';
 import {
   MODEL_NAME as REQUEST_MODEL_NAME,
   STATE_ACCEPTED,
+  STATE_CANCELED,
   STATE_CREATED,
   STATE_DRAFTED,
   STATE_MIXED,
@@ -209,7 +210,6 @@ VisitorSchema.methods.validateStep = function recordStepResult(
 
   const unit = this.request.units.find((u) => u._id.toString() === unitID);
   const step = unit.workflow.steps.find((s) => s.role === role);
-
   if (this.status !== STATE_CREATED) {
     throw new Error(`Visitor cannot be validated while in status "${this.status}"`);
   }
@@ -258,17 +258,25 @@ VisitorSchema.methods.validateStep = function recordStepResult(
   return this;
 };
 
+VisitorSchema.methods.cancelVisitor = async function cancelVisitor() {
+  this.status = STATE_CANCELED;
+  this.markedForRequestComputation = true;
+  return this;
+};
+
 VisitorSchema.methods.guessStatus = async function invokeRequestComputation() {
   const allOK = this.request.units.reduce(
-    (acc, unit) => acc.concat(...unit.workflow.steps.map((s) => s.state.isOK)),
+    (acc, unit) => {
+      if (unit.workflow.steps.find((s) => s.behavior === WORKFLOW_BEHAVIOR_VALIDATION && s.state.isOK === false)) {
+        return acc.concat(false);
+      }
+      return acc.concat(...unit.workflow.steps.map((s) => s.state.isOK));
+    },
     [],
-  );
-  const allRejected = this.request.units.every(
-    (u) => u.workflow.steps.find((s) => s.behavior === WORKFLOW_BEHAVIOR_VALIDATION && s.state.isOK === false),
   );
   if (allOK.every((e) => e === true)) {
     this.status = STATE_ACCEPTED;
-  } else if (allOK.every((e) => e === false) || allRejected) {
+  } else if (allOK.every((e) => e === false)) {
     this.status = STATE_REJECTED;
   } else if (allOK.every((e) => [false, true].includes(e))) {
     this.status = STATE_MIXED;
