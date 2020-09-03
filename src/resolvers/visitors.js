@@ -1,4 +1,10 @@
 import Visitor, { GLOBAL_VALIDATION_ROLES } from '../models/visitor';
+import {
+  STATE_ACCEPTED,
+  STATE_CREATED,
+  STATE_MIXED,
+  STATE_REJECTED,
+} from '../models/request';
 import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 
 export const RequestMutation = {
@@ -71,12 +77,8 @@ export const Campus = {
     let isDoneFilters = {};
     if (isDone) {
       isDoneFilters = {
-        'request.units.workflow.steps': {
-          $elemMatch: {
-            role: isDone.role,
-            'state.value': { $exists: isDone.value },
-          },
-        },
+        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED] : STATE_CREATED,
+        'request.units.workflow.steps': { $elemMatch: { role: isDone.role, 'state.value': { $exists: isDone.value } } },
       };
     }
     let requestsFilters = {};
@@ -104,8 +106,10 @@ export const Campus = {
     {
       filters = {}, as, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, isDone,
     },
+    ctx,
   ) {
-    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first);
+    const ownerId = ctx.user.id;
+    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first, ownerId);
 
     return {
       list: requests.list,
@@ -130,12 +134,8 @@ export const Request = {
     let isDoneFilters = {};
     if (isDone) {
       isDoneFilters = {
-        'request.units.workflow.steps': {
-          $elemMatch: {
-            role: isDone.role,
-            'state.value': { $exists: isDone.value },
-          },
-        },
+        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED] : STATE_CREATED,
+        'request.units.workflow.steps': { $elemMatch: { role: isDone.role, 'state.value': { $exists: isDone.value } } },
       };
     }
     return {

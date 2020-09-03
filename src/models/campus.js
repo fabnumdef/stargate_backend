@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
 import { MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_BEHAVIOR_VALIDATION } from './unit';
-import { MODEL_NAME as REQUEST_MODEL_NAME } from './request';
+import {
+  MODEL_NAME as REQUEST_MODEL_NAME,
+  STATE_ACCEPTED,
+  STATE_MIXED,
+  STATE_REJECTED,
+} from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
 import { MODEL_NAME as PLACE_MODEL_NAME } from './place';
 import { MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
@@ -159,7 +164,7 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
-  { role, unit }, isDone, filters, offset, first,
+  { role, unit }, isDone, filters, offset, first, ownerId,
 ) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
 
@@ -187,18 +192,24 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
     return filter;
   }
 
-  const aggregateFilter = {
-    'visitors.request.units': isDone.value ? doneFilter() : notDoneFilter(),
+  const aggregateFilter = isDone.value ? {
+    $or: [
+      { 'visitors.request.units': doneFilter() },
+      { 'requestData.status': STATE_REJECTED },
+      { requestData: { $elemMatch: { status: [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED], 'owner._id': ownerId } } },
+    ],
+  } : {
+    'visitors.request.units': notDoneFilter(),
   };
 
   const requests = await Visitor.aggregate()
     .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
     .addFields({ id: { $toString: '$_id' } })
     .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
-    .match({ ...filters, ...aggregateFilter })
     .lookup({
       from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
     })
+    .match({ ...filters, ...aggregateFilter })
     .addFields({ id: '$_id' })
     .project({ _id: 0, 'visitors._id': 0, 'requestData._id': 0 })
     .skip(offset)
@@ -207,6 +218,9 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
   const countResult = await Visitor.aggregate()
     .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
     .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
+    .lookup({
+      from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
+    })
     .match({ ...filters, ...aggregateFilter });
 
   return {
