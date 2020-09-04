@@ -9,7 +9,7 @@ import { ROLE_ADMIN, ROLE_OBSERVER, ROLE_SCREENING } from '../../../src/models/r
 import {
   WORKFLOW_BEHAVIOR_ACK,
   WORKFLOW_BEHAVIOR_ADVISEMENT, WORKFLOW_BEHAVIOR_INFORMATION,
-  WORKFLOW_BEHAVIOR_VALIDATION, WORKFLOW_DECISION_POSITIVE,
+  WORKFLOW_BEHAVIOR_VALIDATION, WORKFLOW_DECISION_POSITIVE, WORKFLOW_DECISION_REJECTED,
 } from '../../../src/models/unit';
 import Place, { generateDummyPlace } from '../../models/place';
 import { EVENT_CREATE } from '../../../src/models/request';
@@ -92,6 +92,10 @@ it('Test to validate a step for a visitor', async () => {
         {
           role: ROLE_ADMIN,
           behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+        },
+        {
+          role: ROLE_SCREENING,
+          behavior: WORKFLOW_BEHAVIOR_ADVISEMENT,
         },
       ],
     },
@@ -205,6 +209,18 @@ it('Test to validate a step for a visitor', async () => {
       expect(dbVersion).toHaveProperty('__v', 1);
     }
     {
+      await mutatevalidateStepRequest(
+        campus._id,
+        request._id,
+        visitor._id,
+        {
+          unit: unit2._id.toString(),
+          role: ROLE_ADMIN,
+        },
+        WORKFLOW_DECISION_REJECTED,
+        [],
+        generateDummyAdmin(),
+      );
       const { data: { mutateCampus: { mutateRequest: { validateVisitorStep } } } } = await mutatevalidateStepRequest(
         campus._id,
         request._id,
@@ -220,7 +236,7 @@ it('Test to validate a step for a visitor', async () => {
       const dbUnit = dbVersion.request.units.find((u) => u._id.equals(unit1._id));
       const dbStep = dbUnit.workflow.steps.find((s) => s._id.equals(unit1.workflow.steps[1]._id));
       expect(dbStep.state.value).toEqual(WORKFLOW_DECISION_POSITIVE);
-      expect(dbVersion).toHaveProperty('__v', 2);
+      expect(dbVersion).toHaveProperty('__v', 3);
     }
     {
       const { data: { mutateCampus: { mutateRequest: { validateVisitorStep } } } } = await mutatevalidateStepRequest(
@@ -239,7 +255,7 @@ it('Test to validate a step for a visitor', async () => {
       const dbUnit = dbVersion.request.units.find((u) => u._id.equals(unit1._id));
       const dbStep = dbUnit.workflow.steps.find((s) => s._id.equals(unit1.workflow.steps[2]._id));
       expect(dbStep.state.value).toEqual(WORKFLOW_BEHAVIOR_ACK);
-      expect(dbVersion).toHaveProperty('__v', 3);
+      expect(dbVersion).toHaveProperty('__v', 4);
     }
   } finally {
     await visitor.deleteOne();
