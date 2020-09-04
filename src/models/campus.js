@@ -168,22 +168,15 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
 ) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
 
-  const stateValue = { role, 'state.value': { $exists: false } };
-  const findRejected = { behavior: WORKFLOW_BEHAVIOR_VALIDATION, 'state.isOK': false };
+  const stateValue = { 'workflow.steps': { $elemMatch: { role, 'state.value': { $exists: false } } } };
   const avoidRejected = {
     'workflow.steps': { $not: { $elemMatch: { behavior: WORKFLOW_BEHAVIOR_VALIDATION, 'state.isOK': false } } },
   };
-  function doneFilter() {
-    const filter = { $elemMatch: { 'workflow.steps': { $not: { $elemMatch: { $or: [stateValue, findRejected] } } } } };
-    if (unit) {
-      filter.$elemMatch = { ...filter.$elemMatch, _id: mongoose.Types.ObjectId(unit) };
-    }
-    return filter;
-  }
+
   function notDoneFilter() {
     const filter = {
       $elemMatch: {
-        $and: [{ 'workflow.steps': { $elemMatch: stateValue } }, avoidRejected],
+        $and: [stateValue, avoidRejected],
       },
     };
     if (unit) {
@@ -192,12 +185,23 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
     return filter;
   }
 
+  const ownerFilter = {
+    requestData: {
+      $elemMatch: {
+        status: [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED],
+        'owner._id': ownerId,
+      },
+    },
+  };
+
   const aggregateFilter = isDone.value ? {
-    $or: [
-      { 'visitors.request.units': doneFilter() },
-      { 'requestData.status': STATE_REJECTED },
-      { requestData: { $elemMatch: { status: [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED], 'owner._id': ownerId } } },
-    ],
+    $or: role
+      ? [
+        { 'visitors.request.units': { $not: notDoneFilter() } },
+        { 'requestData.status': STATE_REJECTED },
+        ownerFilter,
+      ]
+      : ownerFilter,
   } : {
     'visitors.request.units': notDoneFilter(),
   };
