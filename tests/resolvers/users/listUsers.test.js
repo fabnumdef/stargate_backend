@@ -25,12 +25,12 @@ function queryListUserWithRole(userRole = null, hasRole = null) {
   });
 }
 
-function queryListUser(userRole = null) {
+function queryListUser(userRole = null, search = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     query: gql`
-        query ListUserQuery {
-            listUsers {
+        query ListUserQuery($search: String) {
+            listUsers(search: $search) {
                 list {
                     id
                     firstname
@@ -44,6 +44,7 @@ function queryListUser(userRole = null) {
             }
         }
     `,
+    variables: { search },
   });
 }
 
@@ -92,6 +93,15 @@ it('Test to list users', async () => {
         first: 30,
         offset: 0,
       });
+    }
+    {
+      const { data: { listUsers } } = await queryListUser(
+        generateDummySuperAdmin(),
+        `${list[0].lastname}`,
+      );
+      // Check default values
+      expect(listUsers.list).toHaveLength(1);
+      expect(listUsers.list[0].lastname).toMatch(list[0].lastname);
     }
   } finally {
     await User.deleteMany({ _id: list.map((c) => c._id) });

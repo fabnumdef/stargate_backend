@@ -110,10 +110,6 @@ const UserSchema = new Schema({
   ],
 }, { timestamps: true });
 
-UserSchema.index({
-  lastname: 'text',
-});
-
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email.original')) {
     this.email.canonical = normalizeEmail(this.email.original);

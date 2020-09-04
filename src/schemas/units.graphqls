@@ -1,5 +1,5 @@
 extend type Campus {
-    listUnits(cursor: OffsetCursor, filters: UnitFilters): UnitsList!
+    listUnits(cursor: OffsetCursor, filters: UnitFilters, search: String): UnitsList!
     getUnit(id: String!): Unit
 }
 

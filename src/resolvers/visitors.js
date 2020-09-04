@@ -1,4 +1,4 @@
-import Visitor, { GLOBAL_VALIDATION_ROLES } from '../models/visitor';
+import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH } from '../models/visitor';
 import {
   STATE_ACCEPTED,
   STATE_CREATED,
@@ -85,9 +85,9 @@ export const Campus = {
     if (requestsId) {
       requestsFilters = { 'request._id': requestsId };
     }
-    const searchFilters = {};
+    let searchFilters = {};
     if (search) {
-      searchFilters.$text = { $search: search };
+      searchFilters = { $or: FIELDS_TO_SEARCH.map((field) => ({ [field]: { $regex: search, $options: 'i' } })) };
     }
     return {
       campus,
@@ -127,9 +127,9 @@ export const Request = {
     cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
     search, isDone = null,
   }) {
-    const searchFilters = {};
+    let searchFilters = {};
     if (search) {
-      searchFilters.$text = { $search: search };
+      searchFilters = { $or: FIELDS_TO_SEARCH.map((field) => ({ [field]: { $regex: search, $options: 'i' } })) };
     }
     let isDoneFilters = {};
     if (isDone) {

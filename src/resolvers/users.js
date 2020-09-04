@@ -73,9 +73,9 @@ export const Query = {
         'roles.units._id': hasRole.unit,
       };
     }
-    const searchFilters = {};
+    let searchFilters = {};
     if (search) {
-      searchFilters.$text = { $search: search };
+      searchFilters = { $or: [{ lastname: { $regex: search, $options: 'i' } }] };
     }
     return {
       filters: { ...filters, ...roleFilter, ...searchFilters },
