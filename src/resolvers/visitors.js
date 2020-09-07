@@ -106,10 +106,8 @@ export const Campus = {
     {
       filters = {}, as, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, isDone,
     },
-    ctx,
   ) {
-    const ownerId = ctx.user.id;
-    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first, ownerId);
+    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first);
 
     return {
       list: requests.list,

@@ -2,9 +2,7 @@ import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
 import { MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_BEHAVIOR_VALIDATION } from './unit';
 import {
-  MODEL_NAME as REQUEST_MODEL_NAME,
-  STATE_ACCEPTED,
-  STATE_MIXED,
+  MODEL_NAME as REQUEST_MODEL_NAME, STATE_CANCELED, STATE_CREATED,
   STATE_REJECTED,
 } from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
@@ -164,7 +162,7 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
-  { role, unit }, isDone, filters, offset, first, ownerId,
+  { role, unit }, isDone, filters, offset, first,
 ) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
 
@@ -185,26 +183,17 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
     return filter;
   }
 
-  const ownerFilter = {
-    requestData: {
-      $elemMatch: {
-        status: [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED],
-        'owner._id': ownerId,
-      },
-    },
-  };
-
-  const aggregateFilter = isDone.value ? {
-    $or: role
-      ? [
+  const aggregateFilter = isDone.value
+    ? {
+      $or: [
         { 'visitors.request.units': { $not: notDoneFilter() } },
         { 'requestData.status': STATE_REJECTED },
-        ownerFilter,
-      ]
-      : ownerFilter,
-  } : {
-    'visitors.request.units': notDoneFilter(),
-  };
+        { 'requestData.status': STATE_CANCELED },
+      ],
+    }
+    : {
+      $and: [{ 'visitors.request.units': notDoneFilter() }, { 'requestData.status': STATE_CREATED }],
+    };
 
   const requests = await Visitor.aggregate()
     .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
