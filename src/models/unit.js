@@ -54,6 +54,38 @@ const UnitSchema = new Schema({
   },
 }, { timestamps: true });
 
+UnitSchema.post('save', async (unit) => {
+  await unit.editUnitDependencies();
+});
+
+UnitSchema.methods.editUnitDependencies = async function deleteUnitDependencies() {
+  const Place = mongoose.model(PlaceModelName);
+  const User = mongoose.model(UserModelName);
+  const unitPlaces = await Place.find({ 'unitInCharge._id': this._id });
+  const unitUsers = await User.find({ 'roles.units._id': this._id });
+  if (unitPlaces) {
+    await Promise.all(unitPlaces.map(async (place) => {
+      place.set('unitInCharge', { _id: this._id, label: this.label }, { strict: false });
+      return place.save();
+    }));
+  }
+  if (unitUsers) {
+    await Promise.all(unitUsers.map(async (user) => {
+      user.roles.map((r) => {
+        r.units.map((unit) => {
+          if (unit._id.toString() === this._id.toString()) {
+            unit.set({ _id: this._id, label: this.label });
+          }
+          return unit;
+        });
+        return r;
+      });
+      user.save();
+    }));
+  }
+  return this;
+};
+
 UnitSchema.methods.deleteUnitDependencies = async function deleteUnitDependencies() {
   const Place = mongoose.model(PlaceModelName);
   const User = mongoose.model(UserModelName);
