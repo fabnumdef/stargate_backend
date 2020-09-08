@@ -4,6 +4,7 @@ import {
   STATE_CREATED,
   STATE_MIXED,
   STATE_REJECTED,
+  STATE_CANCELED,
 } from '../models/request';
 import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 
@@ -77,7 +78,7 @@ export const Campus = {
     let isDoneFilters = {};
     if (isDone) {
       isDoneFilters = {
-        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED] : STATE_CREATED,
+        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED, STATE_CANCELED] : STATE_CREATED,
         'request.units.workflow.steps': { $elemMatch: { role: isDone.role, 'state.value': { $exists: isDone.value } } },
       };
     }
@@ -132,7 +133,7 @@ export const Request = {
     let isDoneFilters = {};
     if (isDone) {
       isDoneFilters = {
-        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED] : STATE_CREATED,
+        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED, STATE_CANCELED] : STATE_CREATED,
         'request.units.workflow.steps': { $elemMatch: { role: isDone.role, 'state.value': { $exists: isDone.value } } },
       };
     }

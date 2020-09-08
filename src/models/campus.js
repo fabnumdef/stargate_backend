@@ -174,25 +174,37 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
   function notDoneFilter() {
     const filter = {
       $elemMatch: {
-        $and: [stateValue, avoidRejected],
+        'request.units': unit
+          ? {
+            $elemMatch: {
+              $and: [{ _id: mongoose.Types.ObjectId(unit) }, stateValue, avoidRejected],
+            },
+          }
+          : {
+            $elemMatch: {
+              $and: [stateValue, avoidRejected],
+            },
+          },
+        status: { $nin: [STATE_CANCELED] },
       },
     };
-    if (unit) {
-      filter.$elemMatch.$and = filter.$elemMatch.$and.map((f) => ({ ...f, _id: mongoose.Types.ObjectId(unit) }));
-    }
     return filter;
   }
 
   const aggregateFilter = isDone.value
     ? {
       $or: [
-        { 'visitors.request.units': { $not: notDoneFilter() } },
-        { 'requestData.status': STATE_REJECTED },
-        { 'requestData.status': STATE_CANCELED },
+        {
+          visitors: { $not: notDoneFilter() },
+        },
+        { 'requestData.status': { $in: [STATE_CANCELED, STATE_REJECTED] } },
       ],
     }
     : {
-      $and: [{ 'visitors.request.units': notDoneFilter() }, { 'requestData.status': STATE_CREATED }],
+      $and: [
+        { visitors: notDoneFilter() },
+        { 'requestData.status': STATE_CREATED },
+      ],
     };
 
   const requests = await Visitor.aggregate()

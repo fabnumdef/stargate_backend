@@ -6,6 +6,7 @@ import { createDummyVisitor } from '../../models/visitor';
 import { createDummyUnit } from '../../models/unit';
 import { ROLE_ACCESS_OFFICE, ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
 import { WORKFLOW_BEHAVIOR_VALIDATION, WORKFLOW_DECISION_ACCEPTED } from '../../../src/models/unit';
+import { STATE_CREATED } from '../../../src/models/request';
 
 function queryListRequestByVisitorStatus(campusId, as, isDone, user = null) {
   const { mutate } = queryFactory(user);
@@ -41,8 +42,8 @@ it('Test to list requests by visitor status', async () => {
   const unit = await createDummyUnit();
   const owner = await generateDummyUser();
 
-  const request1 = await createDummyRequest({ campus, owner });
-  const request2 = await createDummyRequest({ campus, owner });
+  const request1 = await createDummyRequest({ campus, owner, status: STATE_CREATED });
+  const request2 = await createDummyRequest({ campus, owner, status: STATE_CREATED });
   const visitor1 = await createDummyVisitor({
     request: {
       ...request1.toObject(),
