@@ -3,8 +3,8 @@ import timezoneValidator from 'timezone-validator';
 import { MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_BEHAVIOR_VALIDATION } from './unit';
 import {
   MODEL_NAME as REQUEST_MODEL_NAME,
-  STATE_ACCEPTED,
-  STATE_MIXED,
+  STATE_CANCELED,
+  STATE_CREATED,
   STATE_REJECTED,
 } from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
@@ -164,7 +164,7 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
-  { role, unit }, isDone, filters, offset, first, ownerId,
+  { role, unit }, isDone, filters, offset, first,
 ) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
 
@@ -176,35 +176,38 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
   function notDoneFilter() {
     const filter = {
       $elemMatch: {
-        $and: [stateValue, avoidRejected],
+        'request.units': unit
+          ? {
+            $elemMatch: {
+              $and: [{ _id: mongoose.Types.ObjectId(unit) }, stateValue, avoidRejected],
+            },
+          }
+          : {
+            $elemMatch: {
+              $and: [stateValue, avoidRejected],
+            },
+          },
+        status: { $nin: [STATE_CANCELED] },
       },
     };
-    if (unit) {
-      filter.$elemMatch.$and = filter.$elemMatch.$and.map((f) => ({ ...f, _id: mongoose.Types.ObjectId(unit) }));
-    }
     return filter;
   }
 
-  const ownerFilter = {
-    requestData: {
-      $elemMatch: {
-        status: [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED],
-        'owner._id': ownerId,
-      },
-    },
-  };
-
-  const aggregateFilter = isDone.value ? {
-    $or: role
-      ? [
-        { 'visitors.request.units': { $not: notDoneFilter() } },
-        { 'requestData.status': STATE_REJECTED },
-        ownerFilter,
-      ]
-      : ownerFilter,
-  } : {
-    'visitors.request.units': notDoneFilter(),
-  };
+  const aggregateFilter = isDone.value
+    ? {
+      $or: [
+        {
+          visitors: { $not: notDoneFilter() },
+        },
+        { 'requestData.status': { $in: [STATE_CANCELED, STATE_REJECTED] } },
+      ],
+    }
+    : {
+      $and: [
+        { visitors: notDoneFilter() },
+        { 'requestData.status': STATE_CREATED },
+      ],
+    };
 
   const requests = await Visitor.aggregate()
     .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
