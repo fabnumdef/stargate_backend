@@ -59,6 +59,7 @@ UnitSchema.post('save', async (unit) => {
 });
 
 UnitSchema.methods.editUnitDependencies = async function deleteUnitDependencies() {
+  // @todo : optimize in a mongoDB query
   const Place = mongoose.model(PlaceModelName);
   const User = mongoose.model(UserModelName);
   const unitPlaces = await Place.find({ 'unitInCharge._id': this._id });
