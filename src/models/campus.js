@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import timezoneValidator from 'timezone-validator';
-import { MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_BEHAVIOR_VALIDATION } from './unit';
+import {
+  MODEL_NAME as UNIT_MODEL_NAME,
+  WORKFLOW_BEHAVIOR_VALIDATION,
+  WORKFLOW_DECISION_ACCEPTED, WORKFLOW_DECISION_NEGATIVE,
+  WORKFLOW_DECISION_POSITIVE,
+} from './unit';
 import {
   MODEL_NAME as REQUEST_MODEL_NAME,
   STATE_CANCELED,
@@ -173,66 +178,73 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
     'workflow.steps': { $not: { $elemMatch: { behavior: WORKFLOW_BEHAVIOR_VALIDATION, 'state.isOK': false } } },
   };
 
-  function notDoneFilter() {
-    const filter = {
-      $elemMatch: {
-        'request.units': unit
-          ? {
-            $elemMatch: {
-              $and: [{ _id: mongoose.Types.ObjectId(unit) }, stateValue, avoidRejected],
-            },
-          }
-          : {
-            $elemMatch: {
-              $and: [stateValue, avoidRejected],
-            },
-          },
-        status: { $nin: [STATE_CANCELED] },
+  const notDoneFilter = {
+    'request.units': unit
+      ? { $elemMatch: { $and: [{ _id: mongoose.Types.ObjectId(unit) }, stateValue, avoidRejected] } }
+      : { $elemMatch: { $and: [stateValue, avoidRejected] } },
+    status: { $nin: [STATE_CANCELED] },
+  };
+
+  const doneFilter = {
+    $or: [
+      { visitors: { $not: { $elemMatch: notDoneFilter } } },
+      { 'requestData.status': { $in: [STATE_CANCELED, STATE_REJECTED] } },
+    ],
+  };
+
+  const nextStepsFilter = {
+    $filter: {
+      input: '$request.units.workflow.steps',
+      as: 'step',
+      cond: {
+        $and: [
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_ACCEPTED] },
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_POSITIVE] },
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_NEGATIVE] },
+        ],
       },
-    };
-    return filter;
-  }
+    },
+  };
 
-  const aggregateFilter = isDone.value
-    ? {
-      $or: [
-        {
-          visitors: { $not: notDoneFilter() },
-        },
-        { 'requestData.status': { $in: [STATE_CANCELED, STATE_REJECTED] } },
-      ],
-    }
-    : {
-      $and: [
-        { visitors: notDoneFilter() },
-        { 'requestData.status': STATE_CREATED },
-      ],
-    };
+  let visitorAggregate = Visitor.aggregate()
+    .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {});
 
-  const requests = await Visitor.aggregate()
-    .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
-    .addFields({ id: { $toString: '$_id' } })
-    .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
-    .lookup({
-      from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
-    })
-    .match({ ...filters, ...aggregateFilter })
-    .addFields({ id: '$_id' })
-    .project({ _id: 0, 'visitors._id': 0, 'requestData._id': 0 })
-    .skip(offset)
-    .limit(first);
+  const execVisitorAggregate = async () => {
+    const result = await visitorAggregate
+      .addFields({ id: '$_id' })
+      .project({ _id: 0, 'visitors._id': 0, 'requestData._id': 0 })
+      .skip(offset)
+      .limit(first);
+    return result;
+  };
 
-  const countResult = await Visitor.aggregate()
-    .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
-    .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
-    .lookup({
-      from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
-    })
-    .match({ ...filters, ...aggregateFilter });
+  visitorAggregate = isDone.value
+    ? visitorAggregate
+      .addFields({ id: { $toString: '$_id' } })
+      .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
+      .lookup({
+        from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
+      })
+      .match({ ...filters, ...doneFilter })
+    : visitorAggregate
+      .match(notDoneFilter)
+      .unwind('$request.units')
+      .match(unit ? { 'request.units._id': mongoose.Types.ObjectId(unit) } : {})
+      .addFields({ nextSteps: nextStepsFilter })
+      .addFields({ nextStep: { $arrayElemAt: ['$nextSteps', 0] } })
+      .match({ 'nextStep.role': role })
+      .group({ _id: '$request._id', visitors: { $push: '$$ROOT' } })
+      .lookup({
+        from: 'requests', localField: '_id', foreignField: '_id', as: 'requestData',
+      })
+      .match({ 'requestData.status': STATE_CREATED });
+
+  const requests = await execVisitorAggregate();
+  const countRequests = await visitorAggregate.exec();
 
   return {
     list: requests,
-    total: countResult.length,
+    total: countRequests.length,
   };
 };
 

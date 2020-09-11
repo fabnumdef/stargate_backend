@@ -110,8 +110,7 @@ it('Test to list requests by visitor status', async () => {
         { value: false },
         generateDummySuperAdmin(),
       );
-      expect(list).toHaveLength(1);
-      expect(list[0].id).toEqual(request1._id);
+      expect(list).toHaveLength(0);
     }
     {
       const { data: { getCampus: { listRequestByVisitorStatus: { list } } } } = await queryListRequestByVisitorStatus(
