@@ -3,13 +3,13 @@ import { generateDummySuperAdmin } from '../../models/user';
 import { createDummyCampus } from '../../models/campus';
 import Unit, { createDummyUnit } from '../../models/unit';
 
-function queryListUnits(unitsId, user = null) {
+function queryListUnits(unitsId, user = null, search = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query ListUnitsQuery($unitsId: String!) {
+      query ListUnitsQuery($unitsId: String!, $search: String) {
         getCampus(id: $unitsId) {
-          listUnits {
+          listUnits(search: $search) {
             list {
               id
               label
@@ -23,7 +23,7 @@ function queryListUnits(unitsId, user = null) {
         }
       }
     `,
-    variables: { unitsId },
+    variables: { unitsId, search },
   });
 }
 
@@ -56,6 +56,16 @@ it('Test to list units', async () => {
         first: 30,
         offset: 0,
       });
+    }
+    {
+      const { data: { getCampus: { listUnits } } } = await queryListUnits(
+        campus._id,
+        generateDummySuperAdmin(),
+        list[0].label,
+      );
+      // Check default values
+      expect(listUnits.list).toHaveLength(1);
+      expect(listUnits.list[0].label).toMatch(list[0].label);
     }
   } finally {
     await Unit.deleteMany({ _id: list.map((c) => c._id) });

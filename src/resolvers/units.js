@@ -21,10 +21,14 @@ export const CampusMutation = {
 
 const MAX_REQUESTABLE_UNITS = 30;
 export const Campus = {
-  async listUnits(campus, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_UNITS } = {} }) {
+  async listUnits(campus, { filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_UNITS } = {}, search }) {
+    let searchFilters = {};
+    if (search) {
+      searchFilters = { $or: [{ label: { $regex: search, $options: 'i' } }] };
+    }
     return {
       campus,
-      filters,
+      filters: { ...filters, ...searchFilters },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_UNITS) },
       countMethod: campus.countUnits.bind(campus),
     };

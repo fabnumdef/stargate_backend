@@ -43,6 +43,17 @@ export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
 
 export const GLOBAL_VALIDATION_ROLES = [ROLE_SCREENING, ROLE_ACCESS_OFFICE];
 
+export const FIELDS_TO_SEARCH = [
+  'nid',
+  'firstname',
+  'birthLastname',
+  'usageLastname',
+  'company',
+  'rank',
+  'nationality',
+  'email',
+];
+
 const VisitorSchema = new Schema({
   nid: String,
   firstname: {
@@ -174,17 +185,6 @@ const VisitorSchema = new Schema({
   [HYDRATION_KEY]: {
     [HYDRATION_FORCE]: ['request', 'state'],
   },
-});
-
-VisitorSchema.index({
-  nid: 'text',
-  firstname: 'text',
-  birthLastname: 'text',
-  usageLastname: 'text',
-  company: 'text',
-  rank: 'text',
-  nationality: 'text',
-  email: 'text',
 });
 
 VisitorSchema.post('save', async (visitor) => {
