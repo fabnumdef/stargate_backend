@@ -1,8 +1,8 @@
-import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { generateDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import { createDummyUnit } from '../../models/unit';
 
 function mutateCreateRequest(campusId, request, unit, user = null) {
   const { mutate } = queryFactory(user);
@@ -23,13 +23,17 @@ function mutateCreateRequest(campusId, request, unit, user = null) {
 it('Test to create a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
-  const unit = { label: nanoid() };
+  const unit = await createDummyUnit();
 
   const dummyRequest = generateDummyRequest();
 
   try {
     {
-      const { errors } = await mutateCreateRequest(campus._id, dummyRequest, unit);
+      const { errors } = await mutateCreateRequest(
+        campus._id,
+        dummyRequest,
+        { id: unit._id.toString(), label: unit.label },
+      );
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -44,7 +48,7 @@ it('Test to create a request', async () => {
           from: dummyRequest.from.toISOString(),
           to: dummyRequest.to.toISOString(),
         },
-        unit,
+        { id: unit._id.toString(), label: unit.label },
         generateDummyAdmin(owner),
       );
       expect(createdRequest).toHaveProperty('id');
@@ -59,5 +63,6 @@ it('Test to create a request', async () => {
   } finally {
     await Request.findOneAndDelete(dummyRequest);
     await campus.deleteOne();
+    await unit.deleteOne();
   }
 });

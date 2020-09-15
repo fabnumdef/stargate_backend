@@ -55,7 +55,10 @@ const RequestSchema = new Schema({
     },
     firstname: String,
     lastname: String,
-    unit: String,
+    unit: {
+      _id: Schema.ObjectId,
+      label: String,
+    },
     email: {
       original: String,
       canonical: String,
@@ -75,7 +78,7 @@ const RequestSchema = new Schema({
       },
       unitInCharge: {
         _id: { type: Schema.ObjectId },
-        label: { type: String, required: true },
+        label: { type: String },
       },
     },
   ],
@@ -209,7 +212,12 @@ RequestSchema.methods.generateID = async function generateID() {
 
 RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDatabase = false) {
   const Unit = mongoose.model(UNIT_MODEL_NAME);
-  this.units = this.places.map((p) => p.unitInCharge)
+  this.units = this.places.map((p) => {
+    if (p.unitInCharge && p.unitInCharge._id) {
+      return p.unitInCharge;
+    }
+    return this.owner.unit;
+  })
     .filter((unit, index, units) => units.findIndex((u) => u._id.equals(unit._id)) === index);
   if (fetchInDatabase) {
     this.units = await Unit.find({ _id: { $in: this.units.map((unit) => unit._id) } });

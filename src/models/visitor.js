@@ -149,8 +149,8 @@ const VisitorSchema = new Schema({
           label: { type: String },
         },
         unitInCharge: {
-          _id: { type: Schema.ObjectId, required: true },
-          label: { type: String, required: true },
+          _id: { type: Schema.ObjectId },
+          label: { type: String },
         },
       },
     ],
