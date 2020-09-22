@@ -59,11 +59,26 @@ type RequestOwner {
     unit: String
 }
 
+type RequestReferent {
+    email: String
+    firstname: String
+    lastname: String
+    phone: String
+}
+
+input RequestReferentInput {
+    email: String!
+    firstname: String!
+    lastname: String!
+    phone: String!
+}
+
 input RequestInput {
     object: RequestObject
     reason: String
     from: DateTime
     to: DateTime
+    referent: RequestReferentInput
     # List of IDs of places where we request access
     places: [String]
 }
@@ -85,6 +100,7 @@ type Request implements Node {
     status: RequestStatus!
     to: DateTime!
     owner: RequestOwner!
+    referent: RequestReferent
     # List of places to be visited
     places: [Place]!
 }

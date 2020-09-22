@@ -168,6 +168,31 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
   return ExportToken.createCSVToken(Visitor, { ...filters, 'request.campus._id': this._id }, projection, options);
 };
 
+CampusSchema.methods.createVisitorsTemplate = async function createVisitorsTemplate() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const fields = [
+    { label: 'MINARM', value: 'isInternal' },
+    { label: 'NID*', value: 'nid' },
+    { label: 'Type d\'employé', value: 'employeeType' },
+    { label: 'Prénom', value: 'firstname' },
+    { label: 'Nom de Naissance', value: 'birthLastname' },
+    { label: 'Nom d\'usage', value: 'usageLastname' },
+    { label: 'Email', value: 'email' },
+    { label: 'Grade*', value: 'rank' },
+    { label: 'Unité / Entreprise', value: 'company' },
+    { label: 'VIP', value: 'vip' },
+    { label: 'Motif VIP', value: 'vipReason' },
+    { label: 'Nationaité', value: 'nationality' },
+    { label: 'Date de Naissance', value: 'birthday' },
+    { label: 'Lieu de Naissance', value: 'birthplace' },
+    { label: 'Type document identité', value: 'identityDocuments.kind' },
+    { label: 'Numéro document identité', value: 'identityDocuments.reference' },
+    { label: 'Fichier document identité', value: 'identityDocuments.file.original' },
+  ];
+
+  return ExportToken.createTemplateToken(Visitor, fields);
+};
+
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
   { role, unit }, isDone, filters, offset, first,
 ) {

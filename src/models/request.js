@@ -61,6 +61,12 @@ const RequestSchema = new Schema({
       canonical: String,
     },
   },
+  referent: {
+    email: String,
+    firstname: String,
+    lastname: String,
+    phone: String,
+  },
   status: {
     type: String,
     default: STATE_DRAFTED,

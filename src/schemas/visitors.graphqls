@@ -1,6 +1,7 @@
 extend type Campus {
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, requestsId: [String]): RequestVisitorsList!
     listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
+    getVisitorsTemplate: ExportLink
 }
 
 extend type Request {

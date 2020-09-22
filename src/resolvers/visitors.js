@@ -118,6 +118,9 @@ export const Campus = {
       },
     };
   },
+  async getVisitorsTemplate(campus) {
+    return campus.createVisitorsTemplate();
+  },
 };
 
 export const Request = {

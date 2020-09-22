@@ -1,7 +1,7 @@
 import Router from '@koa/router';
 import mongoose from 'mongoose';
 import Json2csv from 'json2csv';
-import ExportToken, { EXPORT_FORMAT_CSV } from '../models/export-token';
+import ExportToken, { EXPORT_FORMAT_CSV, EXPORT_TEMPLATE_CSV } from '../models/export-token';
 import { APIError } from '../models/helpers/errors';
 
 const { transforms: { flatten } } = Json2csv;
@@ -14,7 +14,7 @@ router.get('/download/:export_token', async (ctx) => {
   }
   const Model = mongoose.model(exportToken.modelName);
   const list = await Model.find(exportToken.filters, exportToken.projection).lean();
-  switch (exportToken.format) {
+  switch (exportToken.type) {
     case EXPORT_FORMAT_CSV:
       {
         const options = exportToken.options.csv;
@@ -27,6 +27,20 @@ router.get('/download/:export_token', async (ctx) => {
         ctx.type = 'text/csv';
         ctx.set('Content-Disposition', `attachment; filename="${exportToken._id}.csv"`);
         ctx.body = parser.parse(list);
+      }
+      break;
+    case EXPORT_TEMPLATE_CSV:
+      {
+        const options = exportToken.options.csv;
+        const parser = new Json2csv.Parser({
+          fields: options.fields,
+          quote: options.quote,
+          delimiter: options.separator,
+          encoding: options.encoding,
+        });
+        ctx.type = 'text/csv';
+        ctx.set('Content-Disposition', `attachment; filename="${exportToken._id}.csv"`);
+        ctx.body = parser.parse({});
       }
       break;
     default:

@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 const { Schema } = mongoose;
 const EXPORT_TOKEN_TTL = 3600;
-export const EXPORT_FORMAT_CSV = 'CSV';
+export const EXPORT_FORMAT_CSV = 'EXPORT_FORMAT_CSV';
+export const EXPORT_TEMPLATE_CSV = 'EXPORT_TEMPLATE_CSV';
 // @todo: export asynchronously
 const ExportTokenSchema = new Schema({
   _id: {
@@ -15,11 +16,17 @@ const ExportTokenSchema = new Schema({
     required: true,
     type: String,
   },
-  filters: Object,
-  projection: Object,
-  format: {
+  filters: {
+    type: Object,
+    default: {},
+  },
+  projection: {
+    type: Object,
+    default: {},
+  },
+  type: {
     type: String,
-    enum: [EXPORT_FORMAT_CSV],
+    enum: [EXPORT_FORMAT_CSV, EXPORT_TEMPLATE_CSV],
   },
   options: {
     csv: {
@@ -31,6 +38,9 @@ const ExportTokenSchema = new Schema({
       },
       quote: {
         type: String,
+      },
+      fields: {
+        type: Array,
       },
     },
   },
@@ -66,9 +76,26 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
       modelName: Model.modelName,
       filters,
       projection,
-      format: EXPORT_FORMAT_CSV,
+      type: EXPORT_FORMAT_CSV,
       options: {
         csv: { encoding, separator, quote },
+      },
+    });
+    return token.save({ checkKeys: false });
+  }
+
+  static async createTemplateToken(Model, fields, {
+    encoding = 'UTF-8',
+    separator = ';',
+    quote = '"',
+  } = {}) {
+    const token = new this({
+      modelName: Model.modelName,
+      type: EXPORT_TEMPLATE_CSV,
+      options: {
+        csv: {
+          encoding, separator, quote, fields,
+        },
       },
     });
     return token.save({ checkKeys: false });

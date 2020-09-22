@@ -27,7 +27,7 @@ it('Test to export list visitors in a campus', async () => {
     }
     {
       const forgedToken = await campus.createCSVTokenForVisitors();
-      await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { format: 'JSON' } });
+      await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { type: 'JSON' } });
       const { statusCode, body: { message } } = await request(app.callback())
         .get(`/download/${forgedToken._id}`);
       expect(message).toEqual('Export format not supported');
@@ -36,6 +36,17 @@ it('Test to export list visitors in a campus', async () => {
   } finally {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await campus.deleteOne();
+  }
+});
+
+it('Test to export a template for visitors', async () => {
+  const campus = await createDummyCampus();
+  const exportToken = await campus.createVisitorsTemplate();
+  try {
+    const result = await request(app.callback()).get(`/download/${exportToken._id}`);
+    expect(result.text.split('\n').length).toEqual(1);
+  } finally {
     await campus.deleteOne();
   }
 });
