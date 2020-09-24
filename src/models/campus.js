@@ -14,7 +14,7 @@ import {
 } from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
 import { MODEL_NAME as PLACE_MODEL_NAME } from './place';
-import { MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
+import { EXPORT_CSV_TEMPLATE_VISITORS, EXPORT_CSV_VISITORS, MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 import ExportToken from './export-token';
 import config from '../services/config';
 
@@ -146,51 +146,19 @@ CampusSchema.methods.countVisitors = async function countVisitors(filters) {
 
 CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenForVisitors(filters, options) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  const projection = {
-    _id: true,
-    'state.value': true,
-    'request.from': true,
-    'request.to': true,
-    'request.reason': true,
-    'request.object': true,
-    'request._id': true,
-    isInternal: true,
-    firstname: true,
-    usageLastname: true,
-    birthLastname: true,
-    nationality: true,
-    birthday: true,
-    birthplace: true,
-    employeeType: true,
-    createdAt: true,
-    updatedAt: true,
-  };
-  return ExportToken.createCSVToken(Visitor, { ...filters, 'request.campus._id': this._id }, projection, options);
+  const fields = EXPORT_CSV_VISITORS;
+  const projection = Object.fromEntries(fields.map((f) => ([f.value, true])));
+  return ExportToken.createCSVToken(
+    Visitor,
+    fields,
+    { ...filters, 'request.campus._id': this._id },
+    projection,
+    options,
+  );
 };
 
 CampusSchema.methods.createVisitorsTemplate = async function createVisitorsTemplate() {
-  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  const fields = [
-    { label: 'MINARM', value: 'isInternal' },
-    { label: 'NID*', value: 'nid' },
-    { label: 'Type d\'employé', value: 'employeeType' },
-    { label: 'Prénom', value: 'firstname' },
-    { label: 'Nom de Naissance', value: 'birthLastname' },
-    { label: 'Nom d\'usage', value: 'usageLastname' },
-    { label: 'Email', value: 'email' },
-    { label: 'Grade*', value: 'rank' },
-    { label: 'Unité / Entreprise', value: 'company' },
-    { label: 'VIP', value: 'vip' },
-    { label: 'Motif VIP', value: 'vipReason' },
-    { label: 'Nationaité', value: 'nationality' },
-    { label: 'Date de Naissance', value: 'birthday' },
-    { label: 'Lieu de Naissance', value: 'birthplace' },
-    { label: 'Type document identité', value: 'identityDocuments.kind' },
-    { label: 'Numéro document identité', value: 'identityDocuments.reference' },
-    { label: 'Fichier document identité', value: 'identityDocuments.file.original' },
-  ];
-
-  return ExportToken.createTemplateToken(Visitor, fields);
+  return ExportToken.createCSVToken(null, EXPORT_CSV_TEMPLATE_VISITORS);
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(

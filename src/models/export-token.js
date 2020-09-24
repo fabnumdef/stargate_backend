@@ -4,8 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const { Schema } = mongoose;
 const EXPORT_TOKEN_TTL = 3600;
-export const EXPORT_FORMAT_CSV = 'EXPORT_FORMAT_CSV';
-export const EXPORT_TEMPLATE_CSV = 'EXPORT_TEMPLATE_CSV';
+export const EXPORT_FORMAT_CSV = 'CSV';
 // @todo: export asynchronously
 const ExportTokenSchema = new Schema({
   _id: {
@@ -13,7 +12,6 @@ const ExportTokenSchema = new Schema({
     type: String,
   },
   modelName: {
-    required: true,
     type: String,
   },
   filters: {
@@ -24,9 +22,9 @@ const ExportTokenSchema = new Schema({
     type: Object,
     default: {},
   },
-  type: {
+  format: {
     type: String,
-    enum: [EXPORT_FORMAT_CSV, EXPORT_TEMPLATE_CSV],
+    enum: [EXPORT_FORMAT_CSV],
   },
   options: {
     csv: {
@@ -67,34 +65,22 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
     return `//${host}/download/${this._id}`;
   }
 
-  static async createCSVToken(Model, filters = {}, projection = {}, {
+  static async createCSVToken(Model, fields, filters = {}, projection = {}, {
     encoding = 'UTF-8',
     separator = ';',
     quote = '"',
   } = {}) {
     const token = new this({
-      modelName: Model.modelName,
+      modelName: Model ? Model.modelName : null,
       filters,
       projection,
-      type: EXPORT_FORMAT_CSV,
-      options: {
-        csv: { encoding, separator, quote },
-      },
-    });
-    return token.save({ checkKeys: false });
-  }
-
-  static async createTemplateToken(Model, fields, {
-    encoding = 'UTF-8',
-    separator = ';',
-    quote = '"',
-  } = {}) {
-    const token = new this({
-      modelName: Model.modelName,
-      type: EXPORT_TEMPLATE_CSV,
+      format: EXPORT_FORMAT_CSV,
       options: {
         csv: {
-          encoding, separator, quote, fields,
+          encoding,
+          separator,
+          quote,
+          fields,
         },
       },
     });

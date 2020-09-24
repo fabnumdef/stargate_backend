@@ -54,6 +54,45 @@ export const FIELDS_TO_SEARCH = [
   'email',
 ];
 
+export const EXPORT_CSV_VISITORS = [
+  { label: 'Id', value: '_id' },
+  { label: 'Status', value: 'status' },
+  { label: 'Date d\'arrivée', value: 'request.from' },
+  { label: 'Date de départ', value: 'request.to' },
+  { label: 'Motif', value: 'request.reason' },
+  { label: 'Nature Visite', value: 'request.object' },
+  { label: 'Demande', value: 'request._id' },
+  { label: 'MINARM', value: 'isInternal' },
+  { label: 'Prénom', value: 'firstname' },
+  { label: 'Nom d\'usage', value: 'usageLastname' },
+  { label: 'Nom de naissance', value: 'birthLastname' },
+  { label: 'Nationalité', value: 'nationality' },
+  { label: 'Date de naissance', value: 'birthday' },
+  { label: 'Lieu de naissance', value: 'birthplace' },
+  { label: 'Typ d\'employé', value: 'employeeType' },
+  { label: 'Date de création', value: 'createdAt' },
+  { label: 'Date de mise à jour', value: 'updatedAt' },
+];
+export const EXPORT_CSV_TEMPLATE_VISITORS = [
+  { label: 'MINARM', value: 'isInternal' },
+  { label: 'NID*', value: 'nid' },
+  { label: 'Type d\'employé', value: 'employeeType' },
+  { label: 'Prénom', value: 'firstname' },
+  { label: 'Nom de Naissance', value: 'birthLastname' },
+  { label: 'Nom d\'usage', value: 'usageLastname' },
+  { label: 'Email', value: 'email' },
+  { label: 'Grade*', value: 'rank' },
+  { label: 'Unité / Entreprise', value: 'company' },
+  { label: 'VIP', value: 'vip' },
+  { label: 'Motif VIP', value: 'vipReason' },
+  { label: 'Nationaité', value: 'nationality' },
+  { label: 'Date de Naissance', value: 'birthday' },
+  { label: 'Lieu de Naissance', value: 'birthplace' },
+  { label: 'Type document identité', value: 'identityDocuments.kind' },
+  { label: 'Numéro document identité', value: 'identityDocuments.reference' },
+  { label: 'Fichier document identité', value: 'identityDocuments.file.original' },
+];
+
 const VisitorSchema = new Schema({
   nid: String,
   firstname: {

@@ -27,7 +27,7 @@ it('Test to export list visitors in a campus', async () => {
     }
     {
       const forgedToken = await campus.createCSVTokenForVisitors();
-      await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { type: 'JSON' } });
+      await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { format: 'JSON' } });
       const { statusCode, body: { message } } = await request(app.callback())
         .get(`/download/${forgedToken._id}`);
       expect(message).toEqual('Export format not supported');
