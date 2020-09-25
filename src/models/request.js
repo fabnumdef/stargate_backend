@@ -230,6 +230,11 @@ RequestSchema.methods.createVisitor = async function createVisitor(data) {
   return visitor.save();
 };
 
+RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(data) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  //@todo use data to map and loop visitor.save()
+};
+
 RequestSchema.methods.findVisitorByIdAndRemove = async function findVisitorByIdAndRemove(id) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Visitor.findOneAndRemove({ _id: id, 'request._id': this._id });

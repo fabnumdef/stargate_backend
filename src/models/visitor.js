@@ -85,7 +85,7 @@ export const EXPORT_CSV_TEMPLATE_VISITORS = [
   { label: 'Unité / Entreprise', value: 'company' },
   { label: 'VIP', value: 'vip' },
   { label: 'Motif VIP', value: 'vipReason' },
-  { label: 'Nationaité', value: 'nationality' },
+  { label: 'Nationalité', value: 'nationality' },
   { label: 'Date de Naissance', value: 'birthday' },
   { label: 'Lieu de Naissance', value: 'birthplace' },
   { label: 'Type document identité', value: 'identityDocuments.kind' },

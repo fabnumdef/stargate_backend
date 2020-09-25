@@ -1,3 +1,4 @@
+import csv from 'csv-parser';
 import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH } from '../models/visitor';
 import {
   STATE_ACCEPTED,
@@ -12,9 +13,21 @@ export const RequestMutation = {
   async createVisitor(request, { visitor }) {
     return request.createVisitor(visitor);
   },
-  async createGroupVisitors(request, file) {
-    const { createReadStream } = await file.file[0].file;
-    console.log(createReadStream());
+  async createGroupVisitors(request, csvFile) {
+    const { createReadStream } = await csvFile.file[0].file;
+    const visitors = await new Promise((resolve) => {
+      const result = [];
+      createReadStream()
+        .pipe(csv({
+          separator: ';',
+          quote: '"',
+        }))
+        .on('data', (row) => {
+          console.log(row);
+          result.push(row);
+        })
+        .on('end', async () => resolve(await request.createGroupVisitors(result)));
+    });
     return [{ id: '12' }];
   },
   async editVisitor(request, { visitor, id }) {
