@@ -12,6 +12,11 @@ export const RequestMutation = {
   async createVisitor(request, { visitor }) {
     return request.createVisitor(visitor);
   },
+  async createGroupVisitors(request, file) {
+    const { createReadStream } = await file.file[0].file;
+    console.log(createReadStream());
+    return [{ id: '12' }];
+  },
   async editVisitor(request, { visitor, id }) {
     const v = await Visitor.findById(id);
     if (!v) {

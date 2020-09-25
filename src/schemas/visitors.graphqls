@@ -21,6 +21,7 @@ input RequestVisitorIsDone {
 
 type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    createGroupVisitors(file: Upload): [RequestVisitor]!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
     cancelVisitor(id: String!): RequestVisitor!

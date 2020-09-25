@@ -34,6 +34,7 @@ const server = new ApolloServer({
     /* istanbul ignore next */
     return context;
   },
+  uploads: false,
 });
 
 export default server;
