@@ -66,10 +66,23 @@ export const PLACE_LASEM = {
   },
 };
 
+export const MILITARY_PORT = {
+  label: 'Port Militaire',
+  campus: {
+    _id: 'NAVAL-BASE',
+    label: 'Base Navale',
+  },
+  unitInCharge: {
+    _id: null,
+    label: null,
+  },
+};
+
 export default async () => [
   PLACE_CIRI,
   PLACE_FUS,
   PLACE_SAILOR,
   PLACE_BBPD,
   PLACE_LASEM,
+  MILITARY_PORT,
 ];

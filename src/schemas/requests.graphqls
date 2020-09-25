@@ -52,11 +52,16 @@ input RequestOwnerInput {
     id: String
 }
 
+type RequestOwnerUnit {
+    id: String
+    label: String
+}
+
 type RequestOwner {
     id: String
     firstname: String!
     lastname: String!
-    unit: String
+    unit: RequestOwnerUnit
 }
 
 input RequestInput {
@@ -69,6 +74,7 @@ input RequestInput {
 }
 
 input RequestOwnerUnitInput {
+    id: String!
     label: String!
 }
 
