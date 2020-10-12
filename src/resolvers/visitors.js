@@ -13,8 +13,9 @@ export const RequestMutation = {
   async createVisitor(request, { visitor }) {
     return request.createVisitor(visitor);
   },
-  async createGroupVisitors(request, csvFile) {
-    const { createReadStream } = await csvFile.file[0].file;
+  async createGroupVisitors(request, { file }) {
+    const { createReadStream } = await file.file;
+
     const visitors = await new Promise((resolve) => {
       const result = [];
       createReadStream()
@@ -23,12 +24,11 @@ export const RequestMutation = {
           quote: '"',
         }))
         .on('data', (row) => {
-          console.log(row);
           result.push(row);
         })
         .on('end', async () => resolve(await request.createGroupVisitors(result)));
     });
-    return [{ id: '12' }];
+    return visitors;
   },
   async editVisitor(request, { visitor, id }) {
     const v = await Visitor.findById(id);

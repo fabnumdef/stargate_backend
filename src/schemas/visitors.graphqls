@@ -21,7 +21,7 @@ input RequestVisitorIsDone {
 
 type RequestMutation {
     createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
-    createGroupVisitors(file: Upload): [RequestVisitor]!
+    createGroupVisitors(file: Upload): [GroupVisitorsCSV]!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
     cancelVisitor(id: String!): RequestVisitor!
@@ -118,6 +118,11 @@ type RequestVisitorUnits {
     id: String!
     label: String
     steps: [RequestVisitorUnitsSteps]
+}
+
+type GroupVisitorsCSV {
+    visitor: RequestVisitor!
+    error: String
 }
 
 type RequestVisitor {

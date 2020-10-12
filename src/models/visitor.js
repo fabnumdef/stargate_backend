@@ -73,6 +73,10 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'Date de création', value: 'createdAt' },
   { label: 'Date de mise à jour', value: 'updatedAt' },
 ];
+
+export const ID_KIND = 'Type document identité';
+export const ID_REFERENCE = 'Numéro document identité';
+export const ID_FILE = 'Fichier document identité';
 export const EXPORT_CSV_TEMPLATE_VISITORS = [
   { label: 'MINARM', value: 'isInternal' },
   { label: 'NID*', value: 'nid' },
@@ -88,9 +92,9 @@ export const EXPORT_CSV_TEMPLATE_VISITORS = [
   { label: 'Nationalité', value: 'nationality' },
   { label: 'Date de Naissance', value: 'birthday' },
   { label: 'Lieu de Naissance', value: 'birthplace' },
-  { label: 'Type document identité', value: 'identityDocuments.kind' },
-  { label: 'Numéro document identité', value: 'identityDocuments.reference' },
-  { label: 'Fichier document identité', value: 'identityDocuments.file.original' },
+  { label: ID_KIND, value: 'identityDocuments.kind' },
+  { label: ID_REFERENCE, value: 'idendityDocuments.reference' },
+  { label: ID_FILE, value: 'identityDocuments.file.original' },
 ];
 
 const VisitorSchema = new Schema({

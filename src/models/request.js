@@ -9,6 +9,9 @@ import {
 // eslint-disable-next-line import/no-cycle
 import {
   MODEL_NAME as VISITOR_MODEL_NAME,
+  EXPORT_CSV_TEMPLATE_VISITORS,
+  ID_KIND,
+  ID_REFERENCE,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -230,9 +233,40 @@ RequestSchema.methods.createVisitor = async function createVisitor(data) {
   return visitor.save();
 };
 
-RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(data) {
-  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  //@todo use data to map and loop visitor.save()
+RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas) {
+  return Promise.all(visitorsDatas.map(async (d) => {
+    let visitor = {
+      identityDocuments: [{
+        kind: d[ID_KIND],
+        reference: d[ID_REFERENCE],
+      }],
+    };
+    EXPORT_CSV_TEMPLATE_VISITORS.map((field) => {
+      switch (d[field.label]) {
+        case '':
+          break;
+        case 'x':
+          visitor = { ...visitor, [field.value]: true };
+          break;
+        default:
+          visitor = { ...visitor, [field.value]: d[field.label] };
+          break;
+      }
+      return field;
+    });
+    try {
+      const visitorSaved = await this.createVisitor(visitor);
+      return {
+        visitor: visitorSaved,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        visitor,
+        error: Object.keys(e.errors)[0],
+      };
+    }
+  }));
 };
 
 RequestSchema.methods.findVisitorByIdAndRemove = async function findVisitorByIdAndRemove(id) {
