@@ -15,7 +15,6 @@ export const RequestMutation = {
   },
   async createGroupVisitors(request, { file }) {
     const { createReadStream } = await file.file;
-
     const visitors = await new Promise((resolve) => {
       const result = [];
       createReadStream()
