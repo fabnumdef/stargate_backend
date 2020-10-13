@@ -120,9 +120,15 @@ type RequestVisitorUnits {
     steps: [RequestVisitorUnitsSteps]
 }
 
+type GroupVisitorsCSVError {
+    lineNumber: Int!
+    kind: String!
+    field: String!
+}
+
 type GroupVisitorsCSV {
     visitor: RequestVisitor!
-    error: String
+    errors: [GroupVisitorsCSVError]
 }
 
 type RequestVisitor {

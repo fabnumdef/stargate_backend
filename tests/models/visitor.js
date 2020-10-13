@@ -10,6 +10,7 @@ export const generateDummyVisitor = (...params) => ({
   birthday: new Date(),
   birthplace: nanoid(),
   isInternal: false,
+  company: nanoid(),
   employeeType: TYPE_VISITOR,
   ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
 });

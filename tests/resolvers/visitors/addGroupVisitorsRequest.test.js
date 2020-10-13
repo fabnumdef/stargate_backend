@@ -17,7 +17,11 @@ function mutatecreateGroupVisitorsRequest(campusId, requestId, file, user = null
                         visitor {
                             id
                         }
-                        error
+                        errors {
+                            lineNumber
+                            field
+                            kind
+                        }
                     }
                 }
             }
@@ -64,10 +68,9 @@ it('Test to add a group of visitors to a request', async () => {
         file,
         generateDummyAdmin(),
       );
-
       expect(createGroupVisitors).toHaveLength(2);
-      expect(createGroupVisitors[0].error).toBeNull();
-      expect(createGroupVisitors[1].error).not.toBeNull();
+      expect(createGroupVisitors[0].errors).toBe(null);
+      expect(createGroupVisitors[1].errors).toHaveLength(1);
       const dbVersion = await Visitor.findById(createGroupVisitors[0].visitor.id);
       expect(dbVersion).toHaveProperty('request._id', dummyRequest._id);
       expect(dbVersion).toHaveProperty('__v', 0);

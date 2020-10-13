@@ -158,7 +158,10 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.createVisitorsTemplate = async function createVisitorsTemplate() {
-  return ExportToken.createCSVToken(null, EXPORT_CSV_TEMPLATE_VISITORS);
+  return ExportToken.createCSVToken(
+    null,
+    EXPORT_CSV_TEMPLATE_VISITORS.map((field) => ({ label: field.label, value: field.value })),
+  );
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(

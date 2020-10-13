@@ -25,7 +25,7 @@ app.use(compression());
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app.use(routes);
 app.use(koaBody());
-app.use(graphqlUploadKoa({ maxFileSize: 10000000, maxFiles: 10 }));
+app.use(graphqlUploadKoa({ maxFileSize: 1024 * 1024, maxFiles: 10 }));
 apolloServer.applyMiddleware({ app, path: '/api' });
 
 export default app;

@@ -29,6 +29,11 @@ export const MODEL_NAME = 'Visitor';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
+export const CONVERT_DOCUMENT_IMPORT_CSV = {
+  [ID_DOCUMENT_CIMSCARD]: 'Carte CIMS',
+  [ID_DOCUMENT_IDCARD]: 'Carte d\'identité',
+  [ID_DOCUMENT_PASSPORT]: 'Passeport',
+};
 
 export const TYPE_VISITOR = 'TYPE_VISITOR';
 export const TYPE_SUBCONTRACTOR = 'TYPE_SUBCONTRACTOR';
@@ -40,6 +45,18 @@ export const TYPE_RESERVIST = 'TYPE_RESERVIST';
 export const TYPE_CIVILIAN_DEFENSE = 'TYPE_CIVILIAN_DEFENSE';
 export const TYPE_FAMILY = 'TYPE_FAMILY';
 export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
+export const CONVERT_TYPE_IMPORT_CSV = {
+  [TYPE_VISITOR]: 'visiteur',
+  [TYPE_SUBCONTRACTOR]: 'sous-traitant',
+  [TYPE_INTERIM]: 'interimaire',
+  [TYPE_TRAINEE]: 'recrue',
+  [TYPE_DELIVERER]: 'livreur',
+  [TYPE_ACTIVE_MILITARY]: 'militaire d\'active',
+  [TYPE_RESERVIST]: 'réserviste',
+  [TYPE_CIVILIAN_DEFENSE]: 'civil de la défense',
+  [TYPE_FAMILY]: 'famille',
+  [TYPE_AUTHORITY]: 'autorité',
+};
 
 export const GLOBAL_VALIDATION_ROLES = [ROLE_SCREENING, ROLE_ACCESS_OFFICE];
 
@@ -74,11 +91,14 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'Date de mise à jour', value: 'updatedAt' },
 ];
 
-export const ID_KIND = 'Type document identité';
-export const ID_REFERENCE = 'Numéro document identité';
-export const ID_FILE = 'Fichier document identité';
+export const CSV_ID_KIND_LABEL = 'Type document identité';
+export const CSV_ID_REFERENCE_LABEL = 'Numéro document identité';
+export const CSV_NATIONALITY_LABEL = 'Nationalité';
+export const CSV_IDENTITY_VALUE = 'identityDocuments';
+export const CSV_BOOLEAN_VALUE = { YES: 'oui', NO: 'non' };
+
 export const EXPORT_CSV_TEMPLATE_VISITORS = [
-  { label: 'MINARM', value: 'isInternal' },
+  { label: 'MINARM [oui/non]', value: 'isInternal' },
   { label: 'NID*', value: 'nid' },
   { label: 'Type d\'employé', value: 'employeeType' },
   { label: 'Prénom', value: 'firstname' },
@@ -87,14 +107,13 @@ export const EXPORT_CSV_TEMPLATE_VISITORS = [
   { label: 'Email', value: 'email' },
   { label: 'Grade*', value: 'rank' },
   { label: 'Unité / Entreprise', value: 'company' },
-  { label: 'VIP', value: 'vip' },
+  { label: 'VIP [oui/non]', value: 'vip' },
   { label: 'Motif VIP', value: 'vipReason' },
-  { label: 'Nationalité', value: 'nationality' },
-  { label: 'Date de Naissance', value: 'birthday' },
+  { label: CSV_NATIONALITY_LABEL, value: 'nationality' },
+  { label: 'Date de Naissance [jj/mm/aaaa]', value: 'birthday' },
   { label: 'Lieu de Naissance', value: 'birthplace' },
-  { label: ID_KIND, value: 'identityDocuments.kind' },
-  { label: ID_REFERENCE, value: 'idendityDocuments.reference' },
-  { label: ID_FILE, value: 'identityDocuments.file.original' },
+  { label: CSV_ID_KIND_LABEL, value: 'identityDocuments' },
+  { label: CSV_ID_REFERENCE_LABEL, value: 'identityDocuments' },
 ];
 
 const VisitorSchema = new Schema({
@@ -127,12 +146,35 @@ const VisitorSchema = new Schema({
       TYPE_AUTHORITY,
     ],
   },
-  company: String,
+  company: {
+    type: String,
+    required: true,
+  },
   rank: String,
-  email: String,
-  vip: Boolean,
-  vipReason: String,
-  nationality: String,
+  email: {
+    type: String,
+    match: new RegExp(
+      '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}'
+      + '[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
+    ),
+    required: true,
+    maxlength: 256,
+  },
+  vip: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  vipReason: {
+    type: String,
+    required() {
+      return this.vip;
+    },
+  },
+  nationality: {
+    type: String,
+    required: true,
+  },
   identityDocuments: [{
     kind: {
       type: String,

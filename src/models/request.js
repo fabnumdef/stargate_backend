@@ -10,8 +10,11 @@ import {
 import {
   MODEL_NAME as VISITOR_MODEL_NAME,
   EXPORT_CSV_TEMPLATE_VISITORS,
-  ID_KIND,
-  ID_REFERENCE,
+  CSV_ID_KIND_LABEL,
+  CSV_ID_REFERENCE_LABEL,
+  CSV_BOOLEAN_VALUE,
+  CONVERT_DOCUMENT_IMPORT_CSV,
+  CONVERT_TYPE_IMPORT_CSV,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -234,38 +237,53 @@ RequestSchema.methods.createVisitor = async function createVisitor(data) {
 };
 
 RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas) {
-  return Promise.all(visitorsDatas.map(async (d) => {
-    let visitor = {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Promise.all(visitorsDatas.map(async (data, index) => {
+    const findConvertKind = Object.entries(CONVERT_DOCUMENT_IMPORT_CSV)
+      .find(([, enumValue]) => enumValue === data[CSV_ID_KIND_LABEL]);
+    const initVisitor = {
       identityDocuments: [{
-        kind: d[ID_KIND],
-        reference: d[ID_REFERENCE],
+        kind: findConvertKind ? findConvertKind[0] : null,
+        reference: data[CSV_ID_REFERENCE_LABEL],
       }],
     };
-    EXPORT_CSV_TEMPLATE_VISITORS.map((field) => {
-      switch (d[field.label]) {
-        case '':
-          break;
-        case 'x':
-          visitor = { ...visitor, [field.value]: true };
-          break;
+    const visitor = EXPORT_CSV_TEMPLATE_VISITORS.reduce((v, field) => {
+      switch (field.value) {
+        case 'isInternal':
+        case 'vip':
+          if (typeof data[field.label] === 'string'
+            && [CSV_BOOLEAN_VALUE.YES, CSV_BOOLEAN_VALUE.NO].includes(data[field.label].toLowerCase())) {
+            const value = data[field.label].toLowerCase() === CSV_BOOLEAN_VALUE.YES;
+            return { ...v, [field.value]: value };
+          }
+          return { ...v, [field.value]: null };
+        case 'employeeType': {
+          const findConvertEmployeeType = Object.entries(CONVERT_TYPE_IMPORT_CSV)
+            .find(([, enumValue]) => enumValue === data[field.label].toLowerCase());
+          return {
+            ...v,
+            [field.value]: findConvertEmployeeType ? findConvertEmployeeType[0] : null,
+          };
+        }
+        case 'identityDocuments':
+          return v;
         default:
-          visitor = { ...visitor, [field.value]: d[field.label] };
-          break;
+          return { ...v, [field.value]: data[field.label] };
       }
-      return field;
-    });
-    try {
-      const visitorSaved = await this.createVisitor(visitor);
-      return {
-        visitor: visitorSaved,
-        error: null,
-      };
-    } catch (e) {
-      return {
-        visitor,
-        error: Object.keys(e.errors)[0],
-      };
+    }, initVisitor);
+
+    const v = new Visitor(visitor);
+    v.request = this;
+    const err = v.validateSync();
+    if (err) {
+      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
+      return { visitor, errors };
     }
+    const visitorSaved = await v.save();
+    return {
+      visitor: visitorSaved,
+      errors: null,
+    };
   }));
 };
 

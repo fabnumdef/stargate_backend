@@ -14,6 +14,7 @@ export const RequestMutation = {
     return request.createVisitor(visitor);
   },
   async createGroupVisitors(request, { file }) {
+    await Visitor.deleteMany({ 'request._id': request.id });
     const { createReadStream } = await file.file;
     const visitors = await new Promise((resolve) => {
       const result = [];
