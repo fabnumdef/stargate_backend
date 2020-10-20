@@ -15,6 +15,9 @@ import {
   CSV_BOOLEAN_VALUE,
   CONVERT_DOCUMENT_IMPORT_CSV,
   CONVERT_TYPE_IMPORT_CSV,
+  CSV_INTERNAL_LABEL,
+  CSV_VIP_LABEL,
+  CSV_EMPLOYEE_TYPE_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -61,7 +64,10 @@ const RequestSchema = new Schema({
     },
     firstname: String,
     lastname: String,
-    unit: String,
+    unit: {
+      _id: Schema.ObjectId,
+      label: String,
+    },
     email: {
       original: String,
       canonical: String,
@@ -87,7 +93,7 @@ const RequestSchema = new Schema({
       },
       unitInCharge: {
         _id: { type: Schema.ObjectId },
-        label: { type: String, required: true },
+        label: { type: String },
       },
     },
   ],
@@ -221,7 +227,12 @@ RequestSchema.methods.generateID = async function generateID() {
 
 RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDatabase = false) {
   const Unit = mongoose.model(UNIT_MODEL_NAME);
-  this.units = this.places.map((p) => p.unitInCharge)
+  this.units = this.places.map((p) => {
+    if (p.unitInCharge && p.unitInCharge._id) {
+      return p.unitInCharge;
+    }
+    return this.owner.unit;
+  })
     .filter((unit, index, units) => units.findIndex((u) => u._id.equals(unit._id)) === index);
   if (fetchInDatabase) {
     this.units = await Unit.find({ _id: { $in: this.units.map((unit) => unit._id) } });
@@ -239,33 +250,35 @@ RequestSchema.methods.createVisitor = async function createVisitor(data) {
 RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Promise.all(visitorsDatas.map(async (data, index) => {
-    const findConvertKind = Object.entries(CONVERT_DOCUMENT_IMPORT_CSV)
-      .find(([, enumValue]) => enumValue === data[CSV_ID_KIND_LABEL]);
+    const findConvertData = (convertList, value) => {
+      const convertedValue = Object.entries(convertList)
+        .find(([, enumValue]) => typeof value === 'string' && enumValue === value.toLowerCase());
+      return convertedValue ? convertedValue[0] : null;
+    };
+
     const initVisitor = {
       identityDocuments: [{
-        kind: findConvertKind ? findConvertKind[0] : null,
+        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_CSV, data[CSV_ID_KIND_LABEL]),
         reference: data[CSV_ID_REFERENCE_LABEL],
       }],
     };
     const visitor = EXPORT_CSV_TEMPLATE_VISITORS.reduce((v, field) => {
-      switch (field.value) {
-        case 'isInternal':
-        case 'vip':
+      switch (field.label) {
+        case CSV_INTERNAL_LABEL:
+        case CSV_VIP_LABEL:
           if (typeof data[field.label] === 'string'
             && [CSV_BOOLEAN_VALUE.YES, CSV_BOOLEAN_VALUE.NO].includes(data[field.label].toLowerCase())) {
             const value = data[field.label].toLowerCase() === CSV_BOOLEAN_VALUE.YES;
             return { ...v, [field.value]: value };
           }
           return { ...v, [field.value]: null };
-        case 'employeeType': {
-          const findConvertEmployeeType = Object.entries(CONVERT_TYPE_IMPORT_CSV)
-            .find(([, enumValue]) => enumValue === data[field.label].toLowerCase());
+        case CSV_EMPLOYEE_TYPE_LABEL:
           return {
             ...v,
-            [field.value]: findConvertEmployeeType ? findConvertEmployeeType[0] : null,
+            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_CSV, data[field.label]),
           };
-        }
-        case 'identityDocuments':
+        case CSV_ID_KIND_LABEL:
+        case CSV_ID_REFERENCE_LABEL:
           return v;
         default:
           return { ...v, [field.value]: data[field.label] };
@@ -277,7 +290,7 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
     const err = v.validateSync();
     if (err) {
       const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
-      return { visitor, errors };
+      return { visitor: null, errors };
     }
     const visitorSaved = await v.save();
     return {

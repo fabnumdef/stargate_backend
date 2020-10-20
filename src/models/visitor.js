@@ -30,9 +30,9 @@ export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
 export const CONVERT_DOCUMENT_IMPORT_CSV = {
-  [ID_DOCUMENT_CIMSCARD]: 'Carte CIMS',
-  [ID_DOCUMENT_IDCARD]: 'Carte d\'identité',
-  [ID_DOCUMENT_PASSPORT]: 'Passeport',
+  [ID_DOCUMENT_CIMSCARD]: 'carte cims',
+  [ID_DOCUMENT_IDCARD]: 'carte d\'identité',
+  [ID_DOCUMENT_PASSPORT]: 'passeport',
 };
 
 export const TYPE_VISITOR = 'TYPE_VISITOR';
@@ -94,26 +94,29 @@ export const EXPORT_CSV_VISITORS = [
 export const CSV_ID_KIND_LABEL = 'Type document identité';
 export const CSV_ID_REFERENCE_LABEL = 'Numéro document identité';
 export const CSV_NATIONALITY_LABEL = 'Nationalité';
+export const CSV_INTERNAL_LABEL = 'MINARM [oui/non]';
+export const CSV_EMPLOYEE_TYPE_LABEL = 'Type d\'employé';
+export const CSV_VIP_LABEL = 'VIP [oui/non]';
 export const CSV_IDENTITY_VALUE = 'identityDocuments';
 export const CSV_BOOLEAN_VALUE = { YES: 'oui', NO: 'non' };
 
 export const EXPORT_CSV_TEMPLATE_VISITORS = [
-  { label: 'MINARM [oui/non]', value: 'isInternal' },
+  { label: CSV_INTERNAL_LABEL, value: 'isInternal' },
   { label: 'NID*', value: 'nid' },
-  { label: 'Type d\'employé', value: 'employeeType' },
+  { label: CSV_EMPLOYEE_TYPE_LABEL, value: 'employeeType' },
   { label: 'Prénom', value: 'firstname' },
   { label: 'Nom de Naissance', value: 'birthLastname' },
   { label: 'Nom d\'usage', value: 'usageLastname' },
   { label: 'Email', value: 'email' },
   { label: 'Grade*', value: 'rank' },
   { label: 'Unité / Entreprise', value: 'company' },
-  { label: 'VIP [oui/non]', value: 'vip' },
+  { label: CSV_VIP_LABEL, value: 'vip' },
   { label: 'Motif VIP', value: 'vipReason' },
   { label: CSV_NATIONALITY_LABEL, value: 'nationality' },
   { label: 'Date de Naissance [jj/mm/aaaa]', value: 'birthday' },
   { label: 'Lieu de Naissance', value: 'birthplace' },
-  { label: CSV_ID_KIND_LABEL, value: 'identityDocuments' },
-  { label: CSV_ID_REFERENCE_LABEL, value: 'identityDocuments' },
+  { label: CSV_ID_KIND_LABEL, value: CSV_IDENTITY_VALUE },
+  { label: CSV_ID_REFERENCE_LABEL, value: CSV_IDENTITY_VALUE },
 ];
 
 const VisitorSchema = new Schema({
@@ -234,8 +237,8 @@ const VisitorSchema = new Schema({
           label: { type: String },
         },
         unitInCharge: {
-          _id: { type: Schema.ObjectId, required: true },
-          label: { type: String, required: true },
+          _id: { type: Schema.ObjectId },
+          label: { type: String },
         },
       },
     ],

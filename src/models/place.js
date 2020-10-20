@@ -18,7 +18,7 @@ const PlaceSchema = new Schema({
     label: { type: String },
   },
   unitInCharge: {
-    _id: { type: Schema.ObjectId },
+    _id: { type: Schema.ObjectId, alias: 'unitInCharge.id' },
     label: { type: String },
   },
 }, { timestamps: true });
