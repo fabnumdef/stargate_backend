@@ -8,11 +8,13 @@ import {
 } from './unit';
 // eslint-disable-next-line import/no-cycle
 import {
+  GLOBAL_VALIDATION_ROLES,
   MODEL_NAME as VISITOR_MODEL_NAME,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
-import { sendRequestCreationMail } from '../services/mail';
+import { sendRequestCreationMail, sendRequestValidationMail } from '../services/mail';
+import { MODEL_NAME as USER_MODEL_NAME } from './user';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -132,8 +134,11 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
       [STATE_CREATED]: {
         invoke: {
-          src: () => {
+          src: async () => {
             this.markedForVisitorsCreation = true;
+            const findUsersToNotify = await Promise.all(this.units.toObject().map((u) => this.findNextStepsUsers(u)));
+            const usersToNotify = findUsersToNotify.reduce((users, current) => ([...current, ...users]), []);
+            this.requestValidationMail(usersToNotify);
             this.requestCreationMail();
           },
         },
@@ -300,6 +305,33 @@ RequestSchema.methods.requestCreationMail = async function requestCreationMail()
   await Promise.all(visitors.map(async (v) => {
     const sendMail = sendRequestCreationMail(mailDatas.base, mailDatas.from);
     sendMail(v.email, { data: mailDatas });
+  }));
+};
+
+RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(unit) {
+  const User = mongoose.model(USER_MODEL_NAME);
+  const nextStep = unit.workflow.steps.find((s) => !s.state || !s.state.value);
+  const usersFilter = GLOBAL_VALIDATION_ROLES.includes(nextStep.role)
+    ? { 'roles.role': nextStep.role }
+    : { roles: { $elemMatch: { role: nextStep.role, 'units._id': unit._id } } };
+  const usersToNotify = await User.find(usersFilter);
+  return usersToNotify;
+};
+
+RequestSchema.methods.requestValidationMail = async function requestValidationMail(users) {
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    request: { id: this._id, link: `${config.get('website_url')}/demandes/a-traiter/${this._id}` },
+    from: date(this.from),
+    to: date(this.to),
+    owner: this.owner,
+    reason: this.reason,
+    places: `${this.places.map((p) => p.label).join(' / ')}`,
+  };
+  await Promise.all(users.map(async (user) => {
+    const sendMail = sendRequestValidationMail(mailDatas.from);
+    sendMail(user.email.original, { data: mailDatas });
   }));
 };
 

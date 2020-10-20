@@ -73,3 +73,8 @@ export const sendRequestCreationMail = (base, from) => prepareSendMailFromTempla
   'request-creation',
   `Demande d'accès ${base} le ${from}`,
 );
+
+export const sendRequestValidationMail = (from) => prepareSendMailFromTemplate(
+  'request-validation',
+  `Validation demande d'accès pour le ${from}`,
+);
