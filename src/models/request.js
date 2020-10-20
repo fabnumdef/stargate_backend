@@ -12,6 +12,7 @@ import {
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
+import { sendRequestCreationMail } from '../services/mail';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -131,7 +132,10 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
       [STATE_CREATED]: {
         invoke: {
-          src: () => { this.markedForVisitorsCreation = true; },
+          src: () => {
+            this.markedForVisitorsCreation = true;
+            this.requestCreationMail();
+          },
         },
         on: {
           [EVENT_CANCEL]: STATE_CANCELED,
@@ -279,6 +283,24 @@ RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
   return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CANCELED });
+};
+
+RequestSchema.methods.requestCreationMail = async function requestCreationMail() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const visitors = await Visitor.find({ 'request._id': this._id });
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    from: date(this.from),
+    to: date(this.to),
+    owner: this.owner,
+    reason: this.reason,
+    places: `${this.places.map((p) => p.label).join(' / ')}`,
+  };
+  await Promise.all(visitors.map(async (v) => {
+    const sendMail = sendRequestCreationMail(mailDatas.base, mailDatas.from);
+    sendMail(v.email, { data: mailDatas });
+  }));
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');

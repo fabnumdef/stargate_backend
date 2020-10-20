@@ -68,3 +68,8 @@ export const sendUserCreationMail = prepareSendMailFromTemplate(
   'create-user',
   'Initialisation de votre mot de passe Stargate',
 );
+
+export const sendRequestCreationMail = (base, from) => prepareSendMailFromTemplate(
+  'request-creation',
+  `Demande d'accès ${base} le ${from}`,
+);
