@@ -13,8 +13,9 @@ import {
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
-import { sendRequestCreationMail, sendRequestValidationMail } from '../services/mail';
+import { sendRequestCreationMail, sendRequestValidatedOwnerMail, sendRequestValidationMail } from '../services/mail';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
+import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -275,6 +276,9 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
   } else if (r.every(({ _id }) => [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED, STATE_CANCELED].includes(_id))) {
     this.status = STATE_MIXED;
   }
+  if ([STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED].includes(this.status)) {
+    this.validatedRequestOwnerMail();
+  }
   return this.save();
 };
 
@@ -333,6 +337,37 @@ RequestSchema.methods.requestValidationMail = async function requestValidationMa
     const sendMail = sendRequestValidationMail(mailDatas.from);
     sendMail(user.email.original, { data: mailDatas });
   }));
+};
+
+RequestSchema.methods.validatedRequestOwnerMail = async function validatedRequestOwnerMail() {
+  const User = mongoose.model(USER_MODEL_NAME);
+  const findUsers = await Promise.all(this.units.map(async (u) => {
+    const users = await User.find({
+      roles: {
+        $elemMatch: { role: ROLE_UNIT_CORRESPONDENT, 'units._id': u._id },
+      },
+    });
+    return users;
+  }));
+  const usersMail = findUsers
+    .reduce((users, current) => ([...current, ...users]), [])
+    .map((u) => u.email.original);
+  const refusedVisitors = await this.findVisitorsWithProjection({ status: STATE_REJECTED });
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    request: {
+      id: this._id,
+      link: `${config.get('website_url')}/demandes/traitees/${this._id}`,
+    },
+    refusedVisitors: refusedVisitors.map((v) => `* ${v.birthLastname} ${v.firstname}: refusé`),
+    from: date(this.from),
+    createdAt: date(this.createdAt),
+    owner: this.owner,
+    contact: usersMail.join(', '),
+  };
+  const sendMail = sendRequestValidatedOwnerMail(mailDatas.base, mailDatas.from);
+  sendMail(this.owner.email.original, { data: mailDatas });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');

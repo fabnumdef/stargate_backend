@@ -78,3 +78,8 @@ export const sendRequestValidationMail = (from) => prepareSendMailFromTemplate(
   'request-validation',
   `Validation demande d'accès pour le ${from}`,
 );
+
+export const sendRequestValidatedOwnerMail = (base, from) => prepareSendMailFromTemplate(
+  'request-validated-owner',
+  `Votre demande d'accès pour ${base} le ${from}`,
+);
