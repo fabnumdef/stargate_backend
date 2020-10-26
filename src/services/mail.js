@@ -53,7 +53,6 @@ export function prepareSendMailFromTemplate(template, subject) {
     if (templates.txt[lang]) {
       opts.text = templates.txt[lang](data);
     }
-
     // @todo: async in queue management
     sendMail(to, opts);
   };
@@ -74,12 +73,22 @@ export const sendRequestCreationMail = (base, from) => prepareSendMailFromTempla
   `Demande d'accès ${base} le ${from}`,
 );
 
-export const sendRequestValidationMail = (from) => prepareSendMailFromTemplate(
-  'request-validation',
+export const sendRequestValidationStepMail = (from) => prepareSendMailFromTemplate(
+  'request-validation-step',
   `Validation demande d'accès pour le ${from}`,
 );
 
 export const sendRequestValidatedOwnerMail = (base, from) => prepareSendMailFromTemplate(
   'request-validated-owner',
   `Votre demande d'accès pour ${base} le ${from}`,
+);
+
+export const sendRequestAcceptedVisitorMail = (base, from) => prepareSendMailFromTemplate(
+  'request-accepted-visitor',
+  `Votre accès ${base} le ${from}`,
+);
+
+export const sendRequestRefusedVisitorMail = (base, from) => prepareSendMailFromTemplate(
+  'request-refused-visitor',
+  `Votre accès ${base} le ${from}`,
 );

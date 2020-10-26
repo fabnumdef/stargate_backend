@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { DateTime } from 'luxon';
 import {
   WORKFLOW_BEHAVIOR_ACK,
   WORKFLOW_BEHAVIOR_ADVISEMENT,
@@ -23,6 +24,7 @@ import {
   STATE_REJECTED,
 } from './request';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from './rules';
+import { sendRequestRefusedVisitorMail, sendRequestAcceptedVisitorMail } from '../services/mail';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -259,7 +261,7 @@ VisitorSchema.methods.validateStep = async function recordStepResult(
     const Request = mongoose.model(REQUEST_MODEL_NAME);
     const request = await Request.findById(this.request._id);
     const usersToNotify = await request.findNextStepsUsers(unit);
-    request.requestValidationMail(usersToNotify);
+    request.requestValidationStepMail(usersToNotify);
   }
   return this;
 };
@@ -289,6 +291,7 @@ VisitorSchema.methods.guessStatus = async function invokeRequestComputation() {
   }
   if (this.isModified('status')) {
     this.markedForRequestComputation = true;
+    this.sendVisitorResultMail();
   }
 };
 
@@ -296,6 +299,19 @@ VisitorSchema.methods.invokeRequestComputation = async function invokeRequestCom
   const Request = mongoose.model(REQUEST_MODEL_NAME);
   const request = await Request.findById(this.request._id);
   return request.computeStateComputation();
+};
+
+VisitorSchema.methods.sendVisitorResultMail = async function sendVisitorResultMail() {
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.request.campus.label,
+    from: date(this.request.from),
+    owner: this.request.owner.toObject(),
+  };
+  const sendMail = this.status === STATE_REJECTED
+    ? sendRequestRefusedVisitorMail(mailDatas.base, mailDatas.from)
+    : sendRequestAcceptedVisitorMail(mailDatas.base, mailDatas.from);
+  sendMail(this.email, { data: mailDatas });
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');

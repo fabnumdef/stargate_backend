@@ -1,12 +1,12 @@
 Bonjour,
 
-Ceci est une notification automatique,merci de ne pas répondre à cet email.
+Ceci est une notification automatique, merci de ne pas répondre à cet email.
 
-Votre demande d'accès {{request.id}} initée le {{from}}
+Votre demande d'accès {{request.id}} initée le {{from}} {{#if isAccepted}}a été acceptée{{else}}a été refusée{{/if}}{{#if refusedVisitors}}, exceptés:
 {{#each refusedVisitors}}
-    {{this}}
+    * {{this.birthLastname}} {{this.firstname}}: refusé
 {{/each}}
-a été accepté.
+{{/if}}
 
 Pour toutes questions à propos de cette décision, veuillez vous adresser à: {{contact}}
 
@@ -14,5 +14,5 @@ Cordialement,
 
 STARGATE - {{base}}
 
-Système de Traitement des Accès Réglementés Généralisé A Toutes les Entités
-Conctactez nous: [Mail Stargate]
+<i>Système de Traitement des Accès Réglementés Généralisé A Toutes les Entités</i>
+<i>Contactez nous: [Mail Stargate]</i>

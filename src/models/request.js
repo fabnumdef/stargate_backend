@@ -13,7 +13,7 @@ import {
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
-import { sendRequestCreationMail, sendRequestValidatedOwnerMail, sendRequestValidationMail } from '../services/mail';
+import { sendRequestCreationMail, sendRequestValidatedOwnerMail, sendRequestValidationStepMail } from '../services/mail';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
 import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
@@ -139,7 +139,7 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
             this.markedForVisitorsCreation = true;
             const findUsersToNotify = await Promise.all(this.units.toObject().map((u) => this.findNextStepsUsers(u)));
             const usersToNotify = findUsersToNotify.reduce((users, current) => ([...current, ...users]), []);
-            this.requestValidationMail(usersToNotify);
+            this.requestValidationStepMail(usersToNotify);
             this.requestCreationMail();
           },
         },
@@ -277,7 +277,7 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
     this.status = STATE_MIXED;
   }
   if ([STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED].includes(this.status)) {
-    this.validatedRequestOwnerMail();
+    this.requestValidatedOwnerMail();
   }
   return this.save();
 };
@@ -322,7 +322,7 @@ RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(uni
   return usersToNotify;
 };
 
-RequestSchema.methods.requestValidationMail = async function requestValidationMail(users) {
+RequestSchema.methods.requestValidationStepMail = async function requestValidationStepMail(users) {
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
   const mailDatas = {
     base: this.campus.label,
@@ -334,12 +334,12 @@ RequestSchema.methods.requestValidationMail = async function requestValidationMa
     places: `${this.places.map((p) => p.label).join(' / ')}`,
   };
   await Promise.all(users.map(async (user) => {
-    const sendMail = sendRequestValidationMail(mailDatas.from);
+    const sendMail = sendRequestValidationStepMail(mailDatas.from);
     sendMail(user.email.original, { data: mailDatas });
   }));
 };
 
-RequestSchema.methods.validatedRequestOwnerMail = async function validatedRequestOwnerMail() {
+RequestSchema.methods.requestValidatedOwnerMail = async function validatedRequestOwnerMail() {
   const User = mongoose.model(USER_MODEL_NAME);
   const findUsers = await Promise.all(this.units.map(async (u) => {
     const users = await User.find({
@@ -352,6 +352,7 @@ RequestSchema.methods.validatedRequestOwnerMail = async function validatedReques
   const usersMail = findUsers
     .reduce((users, current) => ([...current, ...users]), [])
     .map((u) => u.email.original);
+  const isAccepted = [STATE_ACCEPTED, STATE_MIXED].includes(this.status);
   const refusedVisitors = await this.findVisitorsWithProjection({ status: STATE_REJECTED });
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
   const mailDatas = {
@@ -360,7 +361,10 @@ RequestSchema.methods.validatedRequestOwnerMail = async function validatedReques
       id: this._id,
       link: `${config.get('website_url')}/demandes/traitees/${this._id}`,
     },
-    refusedVisitors: refusedVisitors.map((v) => `* ${v.birthLastname} ${v.firstname}: refusé`),
+    isAccepted,
+    refusedVisitors: this.status === STATE_MIXED
+      ? refusedVisitors.map((v) => v.toObject())
+      : null,
     from: date(this.from),
     createdAt: date(this.createdAt),
     owner: this.owner,
