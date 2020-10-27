@@ -13,7 +13,11 @@ import {
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
-import { sendRequestCreationMail, sendRequestValidatedOwnerMail, sendRequestValidationStepMail } from '../services/mail';
+import {
+  sendRequestCreationMail,
+  sendRequestValidatedOwnerMail,
+  sendRequestValidationStepMail,
+} from '../services/mail';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
 import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
@@ -137,9 +141,7 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         invoke: {
           src: async () => {
             this.markedForVisitorsCreation = true;
-            const findUsersToNotify = await Promise.all(this.units.toObject().map((u) => this.findNextStepsUsers(u)));
-            const usersToNotify = findUsersToNotify.reduce((users, current) => ([...current, ...users]), []);
-            this.requestValidationStepMail(usersToNotify);
+            this.units.toObject().map((unit) => this.requestValidationStepMail(unit));
             this.requestCreationMail();
           },
         },
@@ -322,7 +324,8 @@ RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(uni
   return usersToNotify;
 };
 
-RequestSchema.methods.requestValidationStepMail = async function requestValidationStepMail(users) {
+RequestSchema.methods.requestValidationStepMail = async function requestValidationStepMail(unit) {
+  const usersToNotify = await this.findNextStepsUsers(unit);
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
   const mailDatas = {
     base: this.campus.label,
@@ -333,7 +336,7 @@ RequestSchema.methods.requestValidationStepMail = async function requestValidati
     reason: this.reason,
     places: `${this.places.map((p) => p.label).join(' / ')}`,
   };
-  await Promise.all(users.map(async (user) => {
+  await Promise.all(usersToNotify.map(async (user) => {
     const sendMail = sendRequestValidationStepMail(mailDatas.from);
     sendMail(user.email.original, { data: mailDatas });
   }));

@@ -195,7 +195,7 @@ VisitorSchema.post('save', async (visitor) => {
   }
 });
 
-VisitorSchema.methods.validateStep = async function recordStepResult(
+VisitorSchema.methods.validateStep = function recordStepResult(
   unitID,
   role,
   decision,
@@ -258,10 +258,7 @@ VisitorSchema.methods.validateStep = async function recordStepResult(
 
   this.guessStatus();
   if (this.status === STATE_CREATED && !(step.behavior === WORKFLOW_BEHAVIOR_VALIDATION && !step.state.isOK)) {
-    const Request = mongoose.model(REQUEST_MODEL_NAME);
-    const request = await Request.findById(this.request._id);
-    const usersToNotify = await request.findNextStepsUsers(unit);
-    request.requestValidationStepMail(usersToNotify);
+    this.sendNextStepMail(unit);
   }
   return this;
 };
@@ -299,6 +296,12 @@ VisitorSchema.methods.invokeRequestComputation = async function invokeRequestCom
   const Request = mongoose.model(REQUEST_MODEL_NAME);
   const request = await Request.findById(this.request._id);
   return request.computeStateComputation();
+};
+
+VisitorSchema.methods.sendNextStepMail = async function sendNextStepMail(unit) {
+  const Request = mongoose.model(REQUEST_MODEL_NAME);
+  const request = await Request.findById(this.request._id);
+  request.requestValidationStepMail(unit);
 };
 
 VisitorSchema.methods.sendVisitorResultMail = async function sendVisitorResultMail() {
