@@ -3,3 +3,4 @@ scalar EmailAddress
 scalar UUIDV4
 scalar URL
 scalar ProtocolLessURL
+scalar Upload

@@ -23,6 +23,7 @@ import {
   STATE_REJECTED,
 } from './request';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from './rules';
+import DownloadToken from './download-token';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -53,6 +54,8 @@ export const FIELDS_TO_SEARCH = [
   'nationality',
   'email',
 ];
+
+export const BUCKETNAME_VISITOR_FILE = 'visitorIdFile';
 
 const VisitorSchema = new Schema({
   nid: String,
@@ -99,6 +102,12 @@ const VisitorSchema = new Schema({
     reference: {
       type: String,
       required: true,
+    },
+    file: {
+      _id: {
+        type: Schema.ObjectId,
+        alias: 'file.id',
+      },
     },
   }],
   birthday: {
@@ -290,6 +299,10 @@ VisitorSchema.methods.invokeRequestComputation = async function invokeRequestCom
   const Request = mongoose.model(REQUEST_MODEL_NAME);
   const request = await Request.findById(this.request._id);
   return request.computeStateComputation();
+};
+
+VisitorSchema.methods.createIdentityFileTokenForVisitors = async function createIdentityFileTokenForVisitors(fileData) {
+  return DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, fileData);
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');
