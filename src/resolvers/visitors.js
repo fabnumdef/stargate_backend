@@ -1,5 +1,6 @@
 import csv from 'csv-parser';
-import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH } from '../models/visitor';
+import { deleteUploadedFile } from '../models/helpers/upload';
+import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH, BUCKETNAME_VISITOR_FILE } from '../models/visitor';
 import {
   STATE_ACCEPTED,
   STATE_CREATED,
@@ -11,7 +12,18 @@ import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor }) {
-    return request.createVisitor(visitor);
+    let datas = visitor;
+    if (visitor.file) {
+      const file = await request.uploadVisitorIdFile(visitor, BUCKETNAME_VISITOR_FILE);
+      if (file === 'File upload error') {
+        throw new Error('File upload error');
+      }
+      datas = {
+        ...visitor,
+        identityDocuments: visitor.identityDocuments.map((docs) => ({ ...docs, file })),
+      };
+    }
+    return request.createVisitor(datas);
   },
   async createGroupVisitors(request, { file }) {
     await Visitor.deleteMany({ 'request._id': request.id });
@@ -31,11 +43,37 @@ export const RequestMutation = {
     return visitors;
   },
   async editVisitor(request, { visitor, id }) {
+    let datas = visitor;
     const v = await Visitor.findById(id);
     if (!v) {
       throw new Error('Visitor not found');
     }
-    v.set(visitor);
+    if (visitor.file && visitor.file[0]) {
+      if (v.identityDocuments.length) {
+        await deleteUploadedFile(v.identityDocuments[0].file._id, BUCKETNAME_VISITOR_FILE);
+      }
+      const file = await request.uploadVisitorIdFile(visitor, BUCKETNAME_VISITOR_FILE);
+      if (file === 'File upload error') {
+        throw new Error('File upload error');
+      }
+      datas = {
+        ...visitor,
+        identityDocuments: visitor.identityDocuments.map((docs) => ({ ...docs, file })),
+      };
+    } else {
+      datas = {
+        ...visitor,
+        identityDocuments: v.identityDocuments.map((docs) => {
+          if (docs.kind === visitor.identityDocuments[0].kind) {
+            deleteUploadedFile(docs.file.id, BUCKETNAME_VISITOR_FILE);
+            return visitor.identityDocuments[0];
+          }
+          return docs;
+        }),
+      };
+    }
+
+    v.set(datas);
     return v.save();
   },
 
@@ -44,6 +82,12 @@ export const RequestMutation = {
     if (!removedVisitor) {
       throw new Error('Visitor not found');
     }
+    await Promise.all(removedVisitor.identityDocuments.map((doc) => {
+      if (doc.file) {
+        return deleteUploadedFile(doc.file.id, BUCKETNAME_VISITOR_FILE);
+      }
+      return null;
+    }));
     return removedVisitor;
   },
 
@@ -177,6 +221,11 @@ export const Request = {
 export const RequestVisitor = {
   units(visitor) {
     return visitor.request.units;
+  },
+  generateIdentityFileExportLink(visitor) {
+    return visitor.identityDocuments[0].file
+      ? visitor.createIdentityFileTokenForVisitors(visitor.identityDocuments[0].file)
+      : null;
   },
 };
 

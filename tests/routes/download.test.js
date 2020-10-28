@@ -1,52 +1,31 @@
+import { nanoid } from 'nanoid';
 import request from 'supertest';
 import { generateDummyUser } from '../models/user';
 import Request, { createDummyRequest } from '../models/request';
-import { createDummyCampus } from '../models/campus';
+import Campus, { createDummyCampus } from '../models/campus';
 import Visitor, { createDummyVisitor } from '../models/visitor';
 import app from '../../src/app';
-import ExportToken from '../../src/models/export-token';
+import DownloadToken from '../../src/models/download-token';
+import { deleteUploadedFile, uploadFile } from '../../src/models/helpers/upload';
+import { BUCKETNAME_VISITOR_FILE } from '../../src/models/visitor';
+import { fileUpload } from '../helpers/file-upload';
 
-it('Test to export list visitors in a campus', async () => {
+it('Test to export a file', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus, owner });
-  const visitors = [
-    await createDummyVisitor({ request: dummyRequest }),
-    await createDummyVisitor({ request: dummyRequest }),
-  ];
-  const exportToken = await campus.createCSVTokenForVisitors();
+  const v = await createDummyVisitor({ request: dummyRequest });
+  const dbFilename = nanoid();
+  const file = await uploadFile(fileUpload[0].files.file, dbFilename, BUCKETNAME_VISITOR_FILE);
+  const downloadToken = await v.createIdentityFileTokenForVisitors(file);
   try {
-    {
-      const result = await request(app.callback()).get(`/download/${exportToken._id}`);
-      expect(result.text.split('\n').length).toEqual(3);
-    }
-    {
-      const { statusCode, body: { message } } = await request(app.callback()).get('/download/foo');
-      expect(message).toEqual('Token not found');
-      expect(statusCode).toEqual(404);
-    }
-    {
-      const forgedToken = await campus.createCSVTokenForVisitors();
-      await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { format: 'JSON' } });
-      const { statusCode, body: { message } } = await request(app.callback())
-        .get(`/download/${forgedToken._id}`);
-      expect(message).toEqual('Export format not supported');
-      expect(statusCode).toEqual(500);
-    }
+    const result = await request(app.callback()).get(`/download/${downloadToken._id}`);
+    expect(result.statusCode).toEqual(200);
   } finally {
-    await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
+    await deleteUploadedFile(file._id, BUCKETNAME_VISITOR_FILE);
+    await Campus.findOneAndDelete({ _id: campus._id });
     await Request.findOneAndDelete({ _id: dummyRequest._id });
-    await campus.deleteOne();
-  }
-});
-
-it('Test to export a template for visitors', async () => {
-  const campus = await createDummyCampus();
-  const exportToken = await campus.createVisitorsTemplate();
-  try {
-    const result = await request(app.callback()).get(`/download/${exportToken._id}`);
-    expect(result.text.split('\n').length).toEqual(1);
-  } finally {
-    await campus.deleteOne();
+    await Visitor.findOneAndDelete({ _id: v._id });
+    await DownloadToken.findOneAndDelete({ _id: downloadToken._id });
   }
 });

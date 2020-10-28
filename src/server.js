@@ -13,6 +13,6 @@ const log = pino();
   if (exporterPort) {
     prometheusExporter(exporterPort);
   }
-  app.listen(port);
+  app.listen(port, config.get('host'));
   log.info(`Koa listening on port ${port}`);
 })();

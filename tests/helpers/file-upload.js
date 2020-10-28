@@ -1,12 +1,14 @@
 import fs from 'fs';
+import stream from 'stream';
 import { nanoid } from 'nanoid';
+import path from 'path';
 
-const file = [Promise.resolve({
-  createReadStream: () => fs.createReadStream(`${__dirname}/test.txt`),
+const file = Promise.resolve({
+  createReadStream: () => fs.createReadStream(path.join(__dirname, 'test.txt')),
   filename: 'test.txt',
   mimetype: 'text/plain',
   encoding: '7bit',
-})];
+});
 
 const csvFile = Promise.resolve({
   createReadStream: () => fs.createReadStream(`${__dirname}/csvFile.csv`),
@@ -16,7 +18,7 @@ const csvFile = Promise.resolve({
 });
 
 const fileError = Promise.resolve({
-  createReadStream: () => fs.createReadStream('./fakePath'),
+  createReadStream: () => stream.PassThrough,
   filename: 'fileError',
   mimetype: 'application/pdf',
   encoding: '7bit',
@@ -24,12 +26,12 @@ const fileError = Promise.resolve({
 
 export const fileUpload = [{
   value: nanoid(),
-  files: file,
+  files: { file },
 }];
 
 export const fileUploadError = [{
   value: nanoid(),
-  files: fileError,
+  files: { file: fileError },
 }];
 
 export const csvFileUpload = {
