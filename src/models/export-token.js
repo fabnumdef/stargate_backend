@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { v4 as uuidv4 } from 'uuid';
 
 const { Schema } = mongoose;
-const EXPORT_TOKEN_TTL = 3600;
+export const EXPORT_TOKEN_TTL = 3600;
 export const EXPORT_FORMAT_CSV = 'CSV';
 // @todo: export asynchronously
 const ExportTokenSchema = new Schema({
@@ -54,7 +54,7 @@ ExportTokenSchema.pre('validate', async function preSave() {
 
 ExportTokenSchema.loadClass(class ExportTokenClass {
   getDownloadLink({ host = '' } = {}) {
-    return `//${host}/download/${this._id}`;
+    return `//${host}/export/${this._id}`;
   }
 
   static async createCSVToken(Model, filters = {}, projection = {}, {
