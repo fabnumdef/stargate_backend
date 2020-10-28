@@ -32,6 +32,7 @@
     "graphql-middleware": "^4.0.2",
     "graphql-scalars": "^1.2.6",
     "graphql-shield": "^7.3.3",
+    "graphql-upload": "^11.0.0",
     "handlebars": "^4.7.6",
     "json2csv": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
@@ -76,13 +77,13 @@
     "eslint-plugin-flowtype": "^4.6.0",
     "eslint-plugin-import": "^2.20.1",
     "flow-bin": "^0.122.0",
-    "jest": "^25.2.7",
+    "jest": "^26.6.1",
     "jsdoc": "^3.6.5",
     "minami": "^1.2.3",
-    "nock": "^12.0.1",
+    "nock": "^13.0.4",
     "nodemon": "^2.0.2",
     "pino-pretty": "^4.1.0",
-    "supertest": "^4.0.2"
+    "supertest": "^5.0.0"
   },
   "peerDependencies": {
     "graphql-tools": "4.x.x"

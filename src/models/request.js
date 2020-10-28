@@ -20,6 +20,7 @@ import {
 } from '../services/mail';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
 import { ROLE_UNIT_CORRESPONDENT } from './rules';
+import { uploadFile } from './helpers/upload';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -257,6 +258,12 @@ RequestSchema.methods.findVisitorsWithProjection = function findVisitorsWithProj
 RequestSchema.methods.countVisitors = async function countVisitors(filters) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Visitor.countDocuments({ ...filters, 'request._id': this._id });
+};
+
+RequestSchema.methods.uploadVisitorIdFile = async function uploadVisitorIdFile(visitor, bucketName) {
+  const dbFilename = `scan${visitor.identityDocuments[0].kind}_${visitor.birthLastname}_${visitor.firstname}`;
+  const file = await uploadFile(visitor.file[0].files.file, dbFilename, bucketName);
+  return file;
 };
 
 RequestSchema.methods.computeStateComputation = async function computeStateComputation() {

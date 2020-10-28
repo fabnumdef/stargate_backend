@@ -17,11 +17,11 @@ it('Test to export list visitors in a campus', async () => {
   const exportToken = await campus.createCSVTokenForVisitors();
   try {
     {
-      const result = await request(app.callback()).get(`/download/${exportToken._id}`);
+      const result = await request(app.callback()).get(`/export/${exportToken._id}`);
       expect(result.text.split('\n').length).toEqual(3);
     }
     {
-      const { statusCode, body: { message } } = await request(app.callback()).get('/download/foo');
+      const { statusCode, body: { message } } = await request(app.callback()).get('/export/foo');
       expect(message).toEqual('Token not found');
       expect(statusCode).toEqual(404);
     }
@@ -29,7 +29,7 @@ it('Test to export list visitors in a campus', async () => {
       const forgedToken = await campus.createCSVTokenForVisitors();
       await ExportToken.updateOne({ _id: forgedToken._id }, { $set: { format: 'JSON' } });
       const { statusCode, body: { message } } = await request(app.callback())
-        .get(`/download/${forgedToken._id}`);
+        .get(`/export/${forgedToken._id}`);
       expect(message).toEqual('Export format not supported');
       expect(statusCode).toEqual(500);
     }

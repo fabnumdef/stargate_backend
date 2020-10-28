@@ -51,6 +51,7 @@ input RequestVisitorFilters {
 input RequestIdentityDocumentInput {
     kind: String
     reference: String
+    file: identityFileInput
 }
 
 enum VisitorEmployeeType {
@@ -80,6 +81,7 @@ input RequestVisitorInput {
     vipReason: String
     nationality: String!
     identityDocuments: [RequestIdentityDocumentInput]
+    file: Upload
     birthday: DateTime!
     birthplace: String!
 }
@@ -87,6 +89,17 @@ input RequestVisitorInput {
 type RequestIdentityDocument {
     kind: String
     reference: String
+    file: identityFile
+}
+
+type identityFile {
+    id: ID
+}
+
+input identityFileInput {
+    id: ID
+    filename: String
+    original: String
 }
 
 type UnitStepStatus {
@@ -138,4 +151,5 @@ type RequestVisitor {
     status: String!
     units: [RequestVisitorUnits]
     request: Request
+    generateIdentityFileExportLink: ExportLink
 }

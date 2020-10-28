@@ -2,8 +2,10 @@ import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
-import { createDummyCampus } from '../../models/campus';
+import Campus, { createDummyCampus } from '../../models/campus';
 import Visitor, { generateDummyVisitor } from '../../models/visitor';
+import { ID_DOCUMENT_PASSPORT } from '../../../src/models/visitor';
+import { fileUpload, fileUploadError } from '../../helpers/file-upload';
 
 function mutatecreateVisitorRequest(campusId, requestId, visitor, user = null) {
   const { mutate } = queryFactory(user);
@@ -14,6 +16,13 @@ function mutatecreateVisitorRequest(campusId, requestId, visitor, user = null) {
           mutateRequest(id: $requestId) {
             createVisitor(visitor: $visitor) {
               id
+              identityDocuments {
+                  kind
+                  reference
+                  file {
+                      id
+                  }
+              }
             }
           }
         }
@@ -27,7 +36,22 @@ it('Test to add a visitor to a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus, owner });
-  const visitor = await generateDummyVisitor();
+  const visitor = await generateDummyVisitor({
+    identityDocuments: {
+      kind: ID_DOCUMENT_PASSPORT,
+      reference: nanoid(),
+    },
+    file: fileUpload,
+  });
+
+  const visitorError = await generateDummyVisitor({
+    identityDocuments: {
+      kind: ID_DOCUMENT_PASSPORT,
+      reference: nanoid(),
+    },
+    file: fileUploadError,
+  });
+
   try {
     {
       const { errors } = await mutatecreateVisitorRequest(campus._id, dummyRequest._id, visitor);
@@ -40,9 +64,19 @@ it('Test to add a visitor to a request', async () => {
     {
       const { errors } = await mutatecreateVisitorRequest(campus._id, nanoid(), visitor, generateDummyAdmin());
 
-      // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Request not found');
+    }
+
+    {
+      const { errors } = await mutatecreateVisitorRequest(
+        campus._id,
+        dummyRequest._id,
+        visitorError,
+        generateDummyAdmin(),
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('File upload error');
     }
 
     {
@@ -59,10 +93,13 @@ it('Test to add a visitor to a request', async () => {
         usageLastname: visitor.usageLastname,
       });
       expect(dbVersion).toHaveProperty('request._id', dummyRequest._id);
+      expect(dbVersion.identityDocuments[0]).toHaveProperty('kind', ID_DOCUMENT_PASSPORT);
+      expect(dbVersion.identityDocuments[0].file).toHaveProperty('_id');
       expect(dbVersion).toHaveProperty('__v', 0);
     }
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
-    await campus.deleteOne();
+    await Campus.findOneAndDelete({ _id: campus._id });
+    await Visitor.findOneAndDelete({ email: visitor.email });
   }
 });

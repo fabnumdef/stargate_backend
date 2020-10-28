@@ -1,9 +1,11 @@
+import { nanoid } from 'nanoid';
 import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
+import { ID_DOCUMENT_PASSPORT } from '../../../src/models/visitor';
 
 function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null) {
   const { mutate } = queryFactory(user);
@@ -31,7 +33,18 @@ it('Test to remove a visitor from a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
   const dummyRequest = await createDummyRequest({ campus, owner });
-  const visitor = await createDummyVisitor({ request: dummyRequest });
+  const visitor = await createDummyVisitor({
+    request: dummyRequest,
+    identityDocuments: [{
+      kind: ID_DOCUMENT_PASSPORT,
+      reference: nanoid(),
+      file: {
+        id: new mongoose.Types.ObjectId(),
+        filename: nanoid(),
+        original: nanoid(),
+      },
+    }],
+  });
   try {
     {
       const { errors } = await mutateRemoveVisitorRequest(campus._id, dummyRequest._id, visitor._id.toString());
