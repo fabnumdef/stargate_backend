@@ -2,7 +2,7 @@ import Visitor, { generateDummyVisitor } from './visitor';
 import { createDummyUnit } from './unit';
 import Campus, { generateDummyCampus } from './campus';
 import Place, { generateDummyPlace } from './place';
-import Request, { generateDummyRequest } from './request';
+import Request, { createDummyRequest, generateDummyRequest } from './request';
 import {
   WORKFLOW_BEHAVIOR_ADVISEMENT,
   WORKFLOW_BEHAVIOR_INFORMATION,
@@ -48,14 +48,15 @@ describe('Ensure that workflow is rightly generated for a visitor', () => {
     const place1 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
     const place2 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
     const place3 = new Place(generateDummyPlace({ campus, unitInCharge: unit2 }));
-    const request = new Request(generateDummyRequest({
+    const request = await createDummyRequest({
       campus,
+      owner: generateDummyUser(),
       places: [
         place1,
         place2,
         place3,
       ],
-    }));
+    });
     await request.cacheUnitsFromPlaces(true);
     const visitor = new Visitor(generateDummyVisitor({
       request,

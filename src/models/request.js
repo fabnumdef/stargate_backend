@@ -324,6 +324,9 @@ RequestSchema.methods.requestCreationMail = async function requestCreationMail()
 RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(unit) {
   const User = mongoose.model(USER_MODEL_NAME);
   const nextStep = unit.workflow.steps.find((s) => !s.state || !s.state.value);
+  if (!nextStep) {
+    return [];
+  }
   const usersFilter = GLOBAL_VALIDATION_ROLES.includes(nextStep.role)
     ? { 'roles.role': nextStep.role }
     : { roles: { $elemMatch: { role: nextStep.role, 'units._id': unit._id } } };
