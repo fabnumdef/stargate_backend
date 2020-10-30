@@ -32,6 +32,7 @@ variables:
   HELM_ENV_VAR_VERSION: Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})
 
 npm:test:
+  image: node:lts-alpine
   services:
     - mongo:latest
   variables:
