@@ -149,10 +149,14 @@ export const Campus = {
   async listRequestByVisitorStatus(
     campus,
     {
-      filters = {}, as, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, isDone,
+      filters = {},
+      as,
+      cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
+      isDone,
+      sort = { 'requestData.from': 'asc' },
     },
   ) {
-    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first);
+    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first, sort);
 
     return {
       list: requests.list,

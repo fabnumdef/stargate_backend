@@ -40,7 +40,7 @@ export const Campus = {
 
 export const PlacesList = {
   async list({ campus, filters, cursor: { offset, first } }, _params, _ctx, info) {
-    return campus.findPlacesWithProjection(filters, info).skip(offset).limit(first);
+    return campus.findPlacesWithProjection(filters, info).sort({ label: 'asc' }).skip(offset).limit(first);
   },
   meta: (parent) => parent,
 };
