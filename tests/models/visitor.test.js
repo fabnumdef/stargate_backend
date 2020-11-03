@@ -74,7 +74,7 @@ describe('Ensure that workflow is rightly generated for a visitor', () => {
     expect(() => visitor.validateStep(unit2._id.toString(), unit2.workflow.steps[0].role, WORKFLOW_DECISION_ACCEPTED))
       .toThrow(`Step "${visitor.request.units[1].workflow.steps[0]._id}" already validated`);
     expect(() => visitor.validateStep(unit1._id.toString(), unit1.workflow.steps[2].role, WORKFLOW_DECISION_ACCEPTED))
-      .toThrow(`Previous step of "${visitor.request.units[0].workflow.steps[2]._id}" not yet validated`);
+      .toThrow(`Previous step for role ${visitor.request.units[0].workflow.steps[2].role} not yet validated`);
   });
 
   it('We should not be able to change to invalid state', async () => {

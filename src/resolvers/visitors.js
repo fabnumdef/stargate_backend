@@ -202,7 +202,7 @@ export const RequestVisitor = {
     return visitor.request.units;
   },
   generateIdentityFileExportLink(visitor) {
-    return visitor.identityDocuments[0].file
+    return visitor.identityDocuments[0] && visitor.identityDocuments[0].file
       ? visitor.createIdentityFileTokenForVisitors(visitor.identityDocuments[0].file)
       : null;
   },

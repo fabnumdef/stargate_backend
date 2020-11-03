@@ -212,7 +212,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
 ) {
   if (GLOBAL_VALIDATION_ROLES.includes(role)) {
     const isOneUnitPreviousRoleOk = this.request.units.find((u) => u.workflow.steps.find(
-      (s, index) => s.role === role && u.workflow.steps[index - 1].state.isOK,
+      (s, index) => s.role === role && (index === 0 || u.workflow.steps[index - 1].state.isOK),
     ));
     if (!isOneUnitPreviousRoleOk) {
       throw new Error(`Previous step for role ${role} not yet validated`);
@@ -236,7 +236,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
       }
       return acc;
     }, false)) {
-    throw new Error(`Previous step of "${step._id.toString()}" not yet validated`);
+    throw new Error(`Previous step for role ${role} not yet validated`);
   }
 
   switch (step.behavior) {
