@@ -1,5 +1,5 @@
 extend type Campus {
-    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter): PlacesList!
+    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter, sort: PlacesSort): PlacesList!
     getPlace(id: String!): Place
 }
 
@@ -12,6 +12,10 @@ extend type CampusMutation {
 type PlacesList implements OffsetPaginator {
     meta: OffsetPaginatorMeta!
     list: [Place]!
+}
+
+input PlacesSort {
+    label: String
 }
 
 input PlaceFilters {

@@ -21,6 +21,7 @@ export const Campus = {
     filters = {},
     cursor: { offset = 0, first = MAX_REQUESTABLE_PLACES } = {},
     hasUnit = {},
+    sort = { label: 'asc' },
   }) {
     let unitInChargeFilter = {};
     if (hasUnit.id) {
@@ -31,6 +32,7 @@ export const Campus = {
       filters: { ...filters, ...unitInChargeFilter },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_PLACES) },
       countMethod: campus.countPlaces.bind(campus),
+      sort,
     };
   },
   async getPlace(campus, { id }) {
@@ -39,8 +41,10 @@ export const Campus = {
 };
 
 export const PlacesList = {
-  async list({ campus, filters, cursor: { offset, first } }, _params, _ctx, info) {
-    return campus.findPlacesWithProjection(filters, info).sort({ label: 'asc' }).skip(offset).limit(first);
+  async list({
+    campus, filters, cursor: { offset, first }, sort,
+  }, _params, _ctx, info) {
+    return campus.findPlacesWithProjection(filters, info).sort(sort).skip(offset).limit(first);
   },
   meta: (parent) => parent,
 };
