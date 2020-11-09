@@ -230,6 +230,8 @@ VisitorSchema.methods.validateStep = function recordStepResult(
   if (!GLOBAL_VALIDATION_ROLES.includes(role)
     && Array.from({ length: unit.workflow.steps.indexOf(step) }).reduce((acc, row, index) => {
       if (!acc) {
+        // Input sanitized by graphQL.
+        // eslint-disable-next-line security/detect-object-injection
         return typeof unit.workflow.steps[index].state.value === 'undefined';
       }
       return acc;

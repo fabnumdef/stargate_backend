@@ -6,6 +6,8 @@ import MongooseService from '../src/services/mongoose';
 import config from '../src/services/config';
 
 const { promisify } = util;
+// non-literal to ensure file location
+// eslint-disable-next-line security/detect-non-literal-fs-filename
 const readDir = promisify(fs.readdir);
 beforeAll(async () => {
   config.set('mail:transporter:host', '');
@@ -19,7 +21,8 @@ beforeAll(async () => {
     .filter((fileName) => !['permissions.js', 'rules.js'].includes(fileName))
     .map(async (fileName) => {
       try {
-        // eslint-disable-next-line import/no-dynamic-require,global-require
+        // non-literal to ensure file location
+        // eslint-disable-next-line import/no-dynamic-require,global-require,security/detect-non-literal-require
         const { default: Model } = require(path.join(__dirname, '../src/models', fileName));
         await Model.syncIndexes();
       } catch (e) {
