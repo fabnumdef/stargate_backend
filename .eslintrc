@@ -1,14 +1,16 @@
 {
-  "extends": ["airbnb-base", "plugin:flowtype/recommended"],
-  "plugins": ["flowtype"],
+  "extends": ["airbnb-base", "plugin:security/recommended"],
+  "plugins": [
+    "security"
+  ],
   "env": {
     "node": true,
     "jest": true
   },
-  "settings": {
-    "flowtype": {
-      "onlyFilesWithFlowAnnotation": true
-    }
+  "settings": {},
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 2018
   },
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id", "__v"] }],

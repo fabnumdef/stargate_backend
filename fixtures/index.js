@@ -1,4 +1,7 @@
-/* eslint-disable global-require,import/no-dynamic-require */
+/* eslint-disable global-require,
+import/no-dynamic-require,
+security/detect-non-literal-fs-filename,
+security/detect-non-literal-require */
 import path from 'path';
 import util from 'util';
 import fs from 'fs';

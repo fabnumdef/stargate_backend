@@ -30,7 +30,7 @@ export const deleteUploadedFile = async (id, bucketName) => {
   try {
     const uploadStream = await bucket.delete(id);
     return uploadStream;
-  } catch {
+  } catch (e) {
     return 'File not found';
   }
 };

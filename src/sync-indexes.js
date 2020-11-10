@@ -1,8 +1,12 @@
-/* eslint-disable import/no-dynamic-require,global-require */
+/* eslint-disable global-require,
+import/no-dynamic-require,
+security/detect-non-literal-fs-filename,
+security/detect-non-literal-require */
 import util from 'util';
 import fs from 'fs';
 import path from 'path';
 import mongoose from 'mongoose';
+import services from './services';
 
 const { promisify } = util;
 const readDir = promisify(fs.readdir);
@@ -13,7 +17,7 @@ const DIRNAME = typeof __dirname !== 'undefined' ? __dirname
   : FILENAME.replace(/[/\\][^/\\]*?$/, '');
 
 (async () => {
-  await import('./services');
+  await services;
 
   await Promise.all((await readDir(path.join(DIRNAME, 'models')))
     .filter((fileName) => fileName.endsWith('.js'))
