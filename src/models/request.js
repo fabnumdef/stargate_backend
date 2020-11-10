@@ -57,9 +57,10 @@ const RequestSchema = new Schema({
     firstname: String,
     lastname: String,
     unit: {
-      _id: Schema.ObjectId,
-      label: String,
+      _id: { type: Schema.ObjectId, required: true },
+      label: { type: String, required: true },
     },
+    role: { type: String, required: true },
     email: {
       original: String,
       canonical: String,
