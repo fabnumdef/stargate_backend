@@ -1,6 +1,6 @@
 extend type Campus {
     getRequest(id: String!): Request
-    listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
+    listRequests(cursor: OffsetCursor, as: ValidationPersonas, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
     listMyRequests(cursor: OffsetCursor, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
 }
 
