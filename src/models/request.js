@@ -4,7 +4,9 @@ import {
   Machine as StateMachine, interpret, State,
 } from 'xstate';
 import {
-  MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
+  MODEL_NAME as UNIT_MODEL_NAME,
+  WORKFLOW_DECISION_ACCEPTED,
+  WORKFLOW_ENUM,
 } from './unit';
 // eslint-disable-next-line import/no-cycle
 import {
@@ -280,7 +282,29 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
 RequestSchema.methods.createVisitors = async function createVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
-  return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CREATED });
+  await Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CREATED });
+  return this.autoValidateRequestOwnerStep();
+};
+
+RequestSchema.methods.autoValidateRequestOwnerStep = async function autoValidateRequestOwnerStep() {
+  const ownerStep = this.units
+    .find((u) => u._id.equals(this.owner.unit._id)).workflow.steps
+    .find((s) => s.role === this.owner.role);
+  if (!ownerStep) {
+    return null;
+  }
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const visitors = await Visitor.find({ 'request._id': this._id });
+  return visitors.map(async (v) => {
+    const visitor = await v.validateStep(
+      this.owner.unit._id.toString(),
+      this.owner.role,
+      WORKFLOW_DECISION_ACCEPTED,
+      [],
+      true,
+    );
+    visitor.save();
+  });
 };
 
 RequestSchema.methods.cancelVisitors = async function cancelVisitors() {

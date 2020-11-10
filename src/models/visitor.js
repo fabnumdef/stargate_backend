@@ -207,8 +207,9 @@ VisitorSchema.methods.validateStep = function recordStepResult(
   role,
   decision,
   tags = [],
+  bypassPreviousStep = false,
 ) {
-  if (GLOBAL_VALIDATION_ROLES.includes(role)) {
+  if (GLOBAL_VALIDATION_ROLES.includes(role) && !bypassPreviousStep) {
     const isOneUnitPreviousRoleOk = this.request.units.find((u) => u.workflow.steps.find(
       (s, index) => s.role === role && u.workflow.steps[index - 1].state.isOK,
     ));
