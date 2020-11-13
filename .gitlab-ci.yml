@@ -35,12 +35,8 @@ npm:test:
   image: node:lts-alpine
   services:
     - mongo:latest
-    - registry.gitlab.com/fabnum-minarm/igloo/docker-images/mailcatcher-alpine:latest
   variables:
     MONGODB: "mongodb://mongo/stargate"
-    MAIL__TRANSPORTER__HOST: "mailcatcher"
-    MAIL__TRANSPORTER__PORT: 1025
-    MAIL__TRANSPORTER__DEFAUT_FROM: "\"name\" <name@localhost>"
 
 deploy:review:
   variables:

@@ -3,8 +3,10 @@ import Handlebars from 'handlebars';
 import nodeFs from 'fs';
 import nodePath from 'path';
 import glob from 'glob';
+import pino from 'pino';
 import config from './config';
 
+const logger = pino();
 const { readFileSync } = nodeFs;
 const { resolve, join } = nodePath;
 const currentPath = __dirname;
@@ -24,7 +26,12 @@ export default async function sendMail(recipients, options = {}) {
   };
   const transporter = Nodemailer.createTransport(conf);
   const mailOptions = { to, ...opts };
-  return transporter.sendMail(mailOptions);
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (e) {
+    logger.error(e.message);
+    return Promise.resolve();
+  }
 }
 
 function compileTemplates(path, ext) {
