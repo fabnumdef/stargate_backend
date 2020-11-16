@@ -1,33 +1,26 @@
-FROM node:13-stretch-slim as base
-FROM base as builder
+FROM node:14 AS prod-install
+ADD . /app
+WORKDIR /app
 
-RUN apt update && apt upgrade -y
+RUN apt update
 RUN apt install -y \
     python \
     make \
     g++ \
     locales
+WORKDIR /app
+RUN npm ci --only=production
+RUN npm install --unsafe-perm full-icu > /dev/null 2>&1
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm install --unsafe-perm -g full-icu > /dev/null 2>&1
-ENV NODE_ICU_DATA="/usr/local/lib/node_modules/full-icu"
-
-RUN npm install
-
-FROM base
-
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY . /usr/src/app/
+FROM gcr.io/distroless/nodejs:14
+WORKDIR /app
+COPY --from=prod-install /app /app
 
 EXPOSE 3000
 EXPOSE 9091
+ENV HOST=0.0.0.0
+ENV PORT=3000
+ENV NODE_ENV=production
+ENV NODE_ICU_DATA="/app/node_modules/full-icu"
 
-ENTRYPOINT [ "npm" ]
-CMD [ "run", "start" ]
+CMD ["./node_modules/.bin/babel-node", "src/server.js"]

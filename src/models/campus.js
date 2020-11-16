@@ -169,7 +169,7 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
-  { role, unit }, isDone, filters, offset, first,
+  { role, unit }, isDone, filters, offset, first, sort,
 ) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
 
@@ -214,7 +214,8 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
       .addFields({ id: '$_id' })
       .project({ _id: 0, 'visitors._id': 0, 'requestData._id': 0 })
       .skip(offset)
-      .limit(first);
+      .limit(first)
+      .sort(sort);
     return result;
   };
 

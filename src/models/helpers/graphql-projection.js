@@ -19,6 +19,8 @@ function transformProjection(graphQLInfo, { force, omit }) {
   }
 }
 export default function graphQLProjectionPlugin(schema) {
+  // Keys are sanitized by graphQL here
+  /* eslint-disable security/detect-object-injection */
   const pathKeys = Object.keys(schema.paths);
   const force = [
     '_id',

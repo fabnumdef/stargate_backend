@@ -37,6 +37,8 @@ export default async function sendMail(recipients, options = {}) {
 function compileTemplates(path, ext) {
   return glob.sync(`${path}.*${ext}`)
     .reduce((acc, curr) => {
+      // ext variable come from code
+      // eslint-disable-next-line security/detect-non-literal-regexp
       const langRegex = new RegExp(`([a-z]+)${ext.replace('.', '\\.')}$`);
       const [, lang] = langRegex.exec(curr);
       return Object.assign(acc, {
@@ -52,12 +54,18 @@ export function prepareSendMailFromTemplate(template, subject) {
   };
 
   return async (to, { data = {}, lang = DEFAULT_LANG }) => {
+    // Input come from code
+    // eslint-disable-next-line security/detect-object-injection
     if (!templates.txt[lang]) {
       throw new Error('No mail template found');
     }
 
     const opts = { subject };
+    // Input come from code
+    // eslint-disable-next-line security/detect-object-injection
     if (templates.txt[lang]) {
+      // Input come from code
+      // eslint-disable-next-line security/detect-object-injection
       opts.text = templates.txt[lang](data);
     }
     // @todo: async in queue management
