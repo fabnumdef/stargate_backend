@@ -9,7 +9,7 @@ extend type Request {
 }
 
 input ValidationPersonas {
-    role: String!,
+    role: String,
     unit: String,
 }
 

@@ -1,4 +1,7 @@
-/* eslint-disable import/no-dynamic-require,global-require */
+/* eslint-disable global-require,
+import/no-dynamic-require,
+security/detect-non-literal-fs-filename,
+security/detect-non-literal-require */
 import pino from 'pino';
 import mongoose from 'mongoose';
 import util from 'util';

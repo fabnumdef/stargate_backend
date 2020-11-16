@@ -19,7 +19,7 @@ router.get('/download/:export_token', async (ctx) => {
       `attachment; filename="${file.data.filename}"`,
     );
     ctx.body = file.stream;
-  } catch {
+  } catch (e) {
     throw new APIError(500, 'Download format not supported');
   }
 });
