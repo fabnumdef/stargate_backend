@@ -207,9 +207,9 @@ VisitorSchema.methods.validateStep = function recordStepResult(
   role,
   decision,
   tags = [],
-  bypassPreviousStep = false,
+  autoValidation = false,
 ) {
-  if (GLOBAL_VALIDATION_ROLES.includes(role) && !bypassPreviousStep) {
+  if (GLOBAL_VALIDATION_ROLES.includes(role)) {
     const isOneUnitPreviousRoleOk = this.request.units.find((u) => u.workflow.steps.find(
       (s, index) => s.role === role && u.workflow.steps[index - 1].state.isOK,
     ));
@@ -220,7 +220,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
 
   const unit = this.request.units.find((u) => u._id.toString() === unitID);
   const step = unit.workflow.steps.find((s) => s.role === role);
-  if (this.status !== STATE_CREATED) {
+  if (this.status !== STATE_CREATED && !autoValidation) {
     throw new Error(`Visitor cannot be validated while in status "${this.status}"`);
   }
 
@@ -228,7 +228,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
     throw new Error(`Step "${step._id.toString()}" already validated`);
   }
 
-  if (!GLOBAL_VALIDATION_ROLES.includes(role)
+  if (!GLOBAL_VALIDATION_ROLES.includes(role) && !autoValidation
     && Array.from({ length: unit.workflow.steps.indexOf(step) }).reduce((acc, row, index) => {
       if (!acc) {
         return typeof unit.workflow.steps[index].state.value === 'undefined';

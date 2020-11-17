@@ -15,6 +15,7 @@ import {
 import RequestCounter from './request-counters';
 import config from '../services/config';
 import { uploadFile } from './helpers/upload';
+import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -59,10 +60,9 @@ const RequestSchema = new Schema({
     firstname: String,
     lastname: String,
     unit: {
-      _id: { type: Schema.ObjectId, required: true },
-      label: { type: String, required: true },
+      _id: Schema.ObjectId,
+      label: String,
     },
-    role: { type: String, required: true },
     email: {
       original: String,
       canonical: String,
@@ -229,10 +229,13 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
   return this;
 };
 
-RequestSchema.methods.createVisitor = async function createVisitor(data) {
+RequestSchema.methods.createVisitor = async function createVisitor(data, role) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   const visitor = new Visitor(data);
   visitor.request = this;
+  if (role === ROLE_UNIT_CORRESPONDENT) {
+    await visitor.validateStep(this.owner.unit._id.toString(), role, WORKFLOW_DECISION_ACCEPTED, [], true);
+  }
   return visitor.save();
 };
 
@@ -282,29 +285,7 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
 RequestSchema.methods.createVisitors = async function createVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
-  await Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CREATED });
-  return this.autoValidateRequestOwnerStep();
-};
-
-RequestSchema.methods.autoValidateRequestOwnerStep = async function autoValidateRequestOwnerStep() {
-  const ownerStep = this.units
-    .find((u) => u._id.equals(this.owner.unit._id)).workflow.steps
-    .find((s) => s.role === this.owner.role);
-  if (!ownerStep) {
-    return null;
-  }
-  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  const visitors = await Visitor.find({ 'request._id': this._id });
-  return visitors.map(async (v) => {
-    const visitor = await v.validateStep(
-      this.owner.unit._id.toString(),
-      this.owner.role,
-      WORKFLOW_DECISION_ACCEPTED,
-      [],
-      true,
-    );
-    visitor.save();
-  });
+  return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CREATED });
 };
 
 RequestSchema.methods.cancelVisitors = async function cancelVisitors() {

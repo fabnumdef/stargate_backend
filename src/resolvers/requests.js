@@ -3,10 +3,10 @@ import RequestModel, { EVENT_REMOVE, STATE_REMOVED } from '../models/request';
 import { ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT } from '../models/rules';
 
 export const CampusMutation = {
-  async createRequest(campus, { request, ownerData }, { user }) {
+  async createRequest(campus, { request, unit }, { user }) {
     return campus.createRequest(Object.assign(
       request,
-      { owner: { ...user, unit: { _id: ownerData.unitId, label: ownerData.unitLabel }, role: ownerData.role } },
+      { owner: { ...user, unit: { _id: unit.id, label: unit.label } } },
     ));
   },
   async editRequest(campus, { request, id }) {

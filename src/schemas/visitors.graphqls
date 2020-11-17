@@ -19,7 +19,7 @@ input RequestVisitorIsDone {
 }
 
 type RequestMutation {
-    createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    createVisitor(visitor: RequestVisitorInput!, as: ValidationPersonas!): RequestVisitor!
     editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
     deleteVisitor(id: String!): RequestVisitor!
     cancelVisitor(id: String!): RequestVisitor!
