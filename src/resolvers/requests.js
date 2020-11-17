@@ -63,22 +63,17 @@ export const Campus = {
     return request;
   },
   async listRequests(campus, {
-    as = null,
+    as,
     filters = {},
     cursor: { offset = 0, first = MAX_REQUESTABLE_REQUESTS } = {},
     search,
     sort = { from: 'ascending' },
   }) {
-    let roleFilters = {};
-    let unitFilters = {};
+    const roleFilters = { 'units.workflow.steps.role': as.role };
+    const unitFilters = [ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT].includes(as.role)
+      ? { 'units.label': as.unit }
+      : {};
     const searchFilters = {};
-
-    if (as) {
-      roleFilters = { 'units.workflow.steps.role': as.role };
-      unitFilters = [ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT].includes(as.role)
-        ? { 'units.label': as.unit }
-        : {};
-    }
     if (search) {
       searchFilters.$text = { $search: search };
     }
