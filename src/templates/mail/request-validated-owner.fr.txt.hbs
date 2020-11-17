@@ -2,17 +2,17 @@ Bonjour,
 
 Ceci est une notification automatique, merci de ne pas répondre à cet email.
 
-Votre demande d'accès {{request.id}} initée le {{from}} {{#if isAccepted}}a été acceptée{{else}}a été refusée{{/if}}{{#if refusedVisitors}}, exceptés:
+Votre demande d'accès {{{request.id}}} initée le {{{from}}} {{#if isAccepted}}a été acceptée{{else}}a été refusée{{/if}}{{#if refusedVisitors}}, exceptés:
 {{#each refusedVisitors}}
-    * {{this.birthLastname}} {{this.firstname}}: refusé
+    * {{{this.birthLastname}}} {{{this.firstname}}}: refusé
 {{/each}}
 {{/if}}
 
-Pour toutes questions à propos de cette décision, veuillez vous adresser à: {{contact}}
+Pour toutes questions à propos de cette décision, veuillez vous adresser à: {{{contact}}}
 
 Cordialement,
 
-STARGATE - {{base}}
+STARGATE - {{{base}}}
 
 <i>Système de Traitement des Accès Réglementés Généralisé A Toutes les Entités</i>
 <i>Contactez nous: [Mail Stargate]</i>
