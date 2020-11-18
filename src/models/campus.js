@@ -168,6 +168,74 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
   return ExportToken.createCSVToken(Visitor, { ...filters, 'request.campus._id': this._id }, projection, options);
 };
 
+CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValidate(
+  { role, unit }, filters, offset, first,
+) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+
+  const stateValue = { 'workflow.steps': { $elemMatch: { role, 'state.value': { $exists: false } } } };
+  const avoidRejected = {
+    'workflow.steps': { $not: { $elemMatch: { behavior: WORKFLOW_BEHAVIOR_VALIDATION, 'state.isOK': false } } },
+  };
+
+  const notDoneFilter = {
+    'request.units': unit
+      ? { $elemMatch: { $and: [{ _id: mongoose.Types.ObjectId(unit) }, stateValue, avoidRejected] } }
+      : { $elemMatch: { $and: [stateValue, avoidRejected] } },
+    status: { $nin: [STATE_CANCELED] },
+  };
+
+  const nextStepsFilter = {
+    $filter: {
+      input: '$request.unitsToCheck.workflow.steps',
+      as: 'step',
+      cond: {
+        $and: [
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_ACCEPTED] },
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_POSITIVE] },
+          { $ne: ['$$step.state.value', WORKFLOW_DECISION_NEGATIVE] },
+        ],
+      },
+    },
+  };
+
+  const visitorsListTotal = Visitor.aggregate()
+    .match(filters)
+    .match(notDoneFilter)
+    .addFields({
+      'request.id': '$request._id',
+      'request.unitsToCheck': '$request.units',
+      'request.units':
+        {
+          $map:
+            {
+              input: '$request.units',
+              as: 'unit',
+              in: { id: { $toString: '$$unit._id' }, workflow: '$$unit.workflow', label: '$$unit.label' },
+            },
+        },
+    })
+    .unwind('request.unitsToCheck')
+    .match(unit ? { 'request.unitsToCheck._id': mongoose.Types.ObjectId(unit) } : {})
+    .addFields({ nextSteps: nextStepsFilter })
+    .addFields({ nextStep: { $arrayElemAt: ['$nextSteps', 0] } })
+    .match({ 'nextStep.role': role })
+    .addFields({ id: '$_id' })
+    .project({ _id: 0 });
+
+  const paginateVisitors = async () => {
+    const list = await visitorsListTotal
+      .skip(offset)
+      .limit(first);
+    return list;
+  };
+
+  const countVisitors = await visitorsListTotal.exec();
+  const visitorsListPaginate = await paginateVisitors();
+
+  return { list: visitorsListPaginate, total: countVisitors.length };
+};
+
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
   { role, unit }, isDone, filters, offset, first, sort,
 ) {
