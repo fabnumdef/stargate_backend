@@ -308,8 +308,8 @@ CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsBy
       })
       .match({ 'requestData.status': STATE_CREATED });
 
-  const requests = await execVisitorAggregate();
   const countRequests = await visitorAggregate.exec();
+  const requests = await execVisitorAggregate();
 
   return {
     list: requests,
