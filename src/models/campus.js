@@ -231,11 +231,12 @@ CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValid
   };
 
   const countVisitors = await visitorsListTotal.exec();
-  const visitorsListPaginate = await paginateVisitors();
+  const visitorsListPaginated = await paginateVisitors();
 
-  return { list: visitorsListPaginate, total: countVisitors.length };
+  return { list: visitorsListPaginated, total: countVisitors.length };
 };
 
+// @todo delete method (and resolvers, schemas, test) when the front will display list of visitors instead of request
 CampusSchema.methods.findRequestsByVisitorStatus = async function findRequestsByVisitorStatus(
   { role, unit }, isDone, filters, offset, first, sort,
 ) {
