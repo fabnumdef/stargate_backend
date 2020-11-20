@@ -1,5 +1,6 @@
 extend type Campus {
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, requestsId: [String]): RequestVisitorsList!
+    listVisitorsToValidate(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, as: ValidationPersonas): RequestVisitorsToValidateList!
     listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
 }
 
@@ -30,6 +31,11 @@ type RequestVisitorsList implements OffsetPaginator {
     generateCSVExportLink(options: CSVExportOptions): ExportLink!
     meta: OffsetPaginatorMeta!
     list: [RequestVisitor]!
+}
+
+type RequestVisitorsToValidateList {
+    list: [RequestVisitor]!
+    meta: OffsetPaginatorMeta!
 }
 
 type RequestsListGroupByVisitors {
