@@ -25,7 +25,6 @@ import {
 } from './request';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from './rules';
 import { sendRequestRefusedVisitorMail, sendRequestAcceptedVisitorMail } from '../services/mail';
-import DownloadToken from './download-token';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -307,10 +306,6 @@ VisitorSchema.methods.invokeRequestComputation = async function invokeRequestCom
   const Request = mongoose.model(REQUEST_MODEL_NAME);
   const request = await Request.findById(this.request._id);
   return request.computeStateComputation();
-};
-
-VisitorSchema.methods.createIdentityFileTokenForVisitors = async function createIdentityFileTokenForVisitors(fileData) {
-  return DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, fileData);
 };
 
 VisitorSchema.methods.sendNextStepMail = async function sendNextStepMail(unit) {
