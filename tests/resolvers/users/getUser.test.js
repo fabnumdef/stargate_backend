@@ -5,7 +5,7 @@ function queryGetUser(id, userRole = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     query: gql`
-      query GetUserQuery($id: String!) {
+      query GetUserQuery($id: ObjectID!) {
         getUser(id: $id) {
           id
           firstname

@@ -1,16 +1,24 @@
 extend type Campus {
-    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter, sort: PlacesSort): PlacesList!
-    getPlace(id: String!): Place
+    # List all places on a campus
+    listPlaces(cursor: OffsetCursor, filters: PlaceFilters, hasUnit: HasUnitFilter): PlacesList!
+    # Get Place on a campus
+    getPlace(id: ObjectID!): Place
 }
 
 extend type CampusMutation {
+    # Create place on a campus
     createPlace(place: PlaceInput!): Place!
-    editPlace(id: String!, place: PlaceInput!): Place!
-    deletePlace(id: String!): Place!
+    # Edit place on a campus
+    editPlace(id: ObjectID!, place: PlaceInput!): Place!
+    # Remove a place on a campus
+    deletePlace(id: ObjectID!): Place!
 }
 
+# Object related to the places list
 type PlacesList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of places
     list: [Place]!
 }
 
@@ -18,33 +26,47 @@ input PlacesSort {
     label: String
 }
 
+# Available filters for places
 input PlaceFilters {
+    # Label should be identical to
     label: String
-    unitInCharge: UnitInChargeInput
+    # unitInCharge should match
+    unitInCharge: UnitInChargeFilters
 }
 
 input HasUnitFilter {
     id: String!
 }
 
+# Customizable information on place creation/edition
 input PlaceInput {
+    # Label, the human readable part
     label: String
-    unitInCharge: UnitInChargeInput
+    # ID of the unit in charge of this place
+
+    unitInCharge: UnitInChargeFilters
 }
 
-input UnitInChargeInput {
-    id: String
+# Used in PlaceFilters
+input UnitInChargeFilters {
+    # Id of the unit in charge
+    id: ObjectID
+    # Human readable label
     label: String
 }
 
+# Fragment of Unit, please see Unit Object
 type UnitInCharge {
-    id: String
+    # Unique ID of the Unit
+    id: ObjectID
+    # Human readable label
     label: String
 }
 
+# A place is a geographic element linked to a campus
 type Place implements Node {
     # Unique id of the place
-    id: String!
+    id: ObjectID!
     # Date of creation
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition

@@ -2,10 +2,38 @@
 
 # Ensure that entity return id and revision
 interface Node {
-    # Unique id of the ressource
-    id: String!
     # Date of creation
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition
     updatedAt: DateTime!
+}
+
+# Sorting enum
+enum Sorting {
+    # Using this value is equal to not sending the key
+    default
+    # Sort ascending
+    ascending
+    # Sort descending
+    descending
+}
+
+# List of available roles
+enum Role {
+    # Superadmin can read & write everything on any campus
+    ROLE_SUPERADMIN
+    # Admin can read & write everything on a specific campus
+    ROLE_ADMIN
+    # This role is used as a group
+    ROLE_UNIT_CORRESPONDENT
+    # This role is used as a group
+    ROLE_SECURITY_OFFICER
+    # This role is used as a group
+    ROLE_ACCESS_OFFICE
+    # This role is used as a group
+    ROLE_SCREENING
+    # This role is used as a group
+    ROLE_HOST
+    # This role is used as a group
+    ROLE_OBSERVER
 }

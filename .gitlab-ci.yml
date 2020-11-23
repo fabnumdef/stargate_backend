@@ -37,6 +37,10 @@ npm:test:
     - mongo:latest
   variables:
     MONGODB: "mongodb://mongo/stargate"
+  coverage: /All\sfiles.*?\s+(\d+.\d+)/
+  artifacts:
+    reports:
+      cobertura: coverage/clover.xml
 
 deploy:review:
   variables:
