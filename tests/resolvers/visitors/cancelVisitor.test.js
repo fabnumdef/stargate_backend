@@ -26,7 +26,7 @@ function mutateCancelVisitor(campusId, requestId, visitorId, user = null) {
         mutation cancelVisitorMutation(
             $campusId: String!,
             $requestId: String!,
-            $visitorId: String!,
+            $visitorId: ObjectID!,
         ) {
             mutateCampus(id: $campusId) {
                 mutateRequest(id: $requestId) {

@@ -1,14 +1,22 @@
+# Required information for an offset paginator
 interface OffsetPaginator {
     meta: OffsetPaginatorMeta
 }
 
+# Required information for an offset cursor
 input OffsetCursor {
+    # From which index start to return results
     offset: Int
+    # Number of results to return
     first: Int
 }
 
+# Required information for the meta part of list query
 type OffsetPaginatorMeta {
+    # Index of the first element in list
     offset: Int!
+    # Number of requested results from the beginning of the list. Should be read like "First n results returned"
     first: Int!
+    # Number of items in the query, whatever the pagination
     total: Int!
 }

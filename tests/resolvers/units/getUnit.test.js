@@ -7,7 +7,7 @@ function queryGetUnit(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query GetUnitQuery($campusId: String!, $id: String!) {
+      query GetUnitQuery($campusId: String!, $id: ObjectID!) {
         getCampus(id: $campusId) {
           getUnit(id: $id) {
             id

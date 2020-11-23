@@ -12,7 +12,7 @@ function mutateDeleteUnit(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-        mutation DeleteUnitMutation($campusId: String!, $id: String!) {
+        mutation DeleteUnitMutation($campusId: String!, $id: ObjectID!) {
             mutateCampus(id: $campusId) {
                 deleteUnit(id: $id) {
                     id

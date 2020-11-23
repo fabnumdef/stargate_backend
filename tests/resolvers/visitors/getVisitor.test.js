@@ -9,7 +9,7 @@ function queryGetVisitorRequest(campusId, requestId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query GetVisitorRequestQuery($campusId: String!, $requestId: String!, $id: String!) {
+      query GetVisitorRequestQuery($campusId: String!, $requestId: String!, $id: ObjectID!) {
         getCampus(id: $campusId) {
           getRequest(id: $requestId) {
             getVisitor(id: $id) {

@@ -7,7 +7,7 @@ function mutateDeletePlace(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-        mutation DeletePlaceMutation($campusId: String!, $id: String!) {
+        mutation DeletePlaceMutation($campusId: String!, $id: ObjectID!) {
             mutateCampus(id: $campusId) {
                 deletePlace(id: $id) {
                     id
