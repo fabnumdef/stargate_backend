@@ -23,7 +23,6 @@ import {
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
 import { ROLE_UNIT_CORRESPONDENT } from './rules';
 import { uploadFile } from './helpers/upload';
-import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
