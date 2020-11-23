@@ -106,7 +106,7 @@ it('Test to list visitors filter by validating step', async () => {
         generateDummyAdmin(),
       );
       expect(list).toHaveLength(1);
-      expect(list[0].id).toEqual(visitor2._id.toString());
+      expect(list[0].id).toEqual(visitor2._id);
     }
     {
       const { data: { getCampus: { listVisitorsToValidate: { list } } } } = await queryListVisitorsToValidate(
@@ -118,7 +118,7 @@ it('Test to list visitors filter by validating step', async () => {
         generateDummyAdmin(),
       );
       expect(list).toHaveLength(1);
-      expect(list[0].id).toEqual(visitor1._id.toString());
+      expect(list[0].id).toEqual(visitor1._id);
     }
   } finally {
     await visitor1.deleteOne();
