@@ -27,7 +27,7 @@ input RequestVisitorIsDone {
 
 type RequestMutation {
     # Create a visitor
-    createVisitor(visitor: RequestVisitorInput!): RequestVisitor!
+    createVisitor(visitor: RequestVisitorInput!, as: ValidationPersonas!): RequestVisitor!
     # Edit a visitor
     editVisitor(visitor: RequestVisitorInput!, id: ObjectID!): RequestVisitor!
     # Delete a visitor

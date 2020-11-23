@@ -11,7 +11,7 @@ import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
 import DownloadToken from '../models/download-token';
 
 export const RequestMutation = {
-  async createVisitor(request, { visitor }) {
+  async createVisitor(request, { visitor, as }) {
     let datas = visitor;
     if (visitor.file) {
       const file = await request.uploadVisitorIdFile(visitor, BUCKETNAME_VISITOR_FILE);
@@ -23,7 +23,7 @@ export const RequestMutation = {
         identityDocuments: visitor.identityDocuments.map((docs) => ({ ...docs, file })),
       };
     }
-    return request.createVisitor(datas);
+    return request.createVisitor(datas, as.role);
   },
   async editVisitor(request, { visitor, id }) {
     let datas = visitor;

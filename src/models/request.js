@@ -4,7 +4,9 @@ import {
   Machine as StateMachine, interpret, State,
 } from 'xstate';
 import {
-  MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
+  MODEL_NAME as UNIT_MODEL_NAME,
+  WORKFLOW_DECISION_ACCEPTED,
+  WORKFLOW_ENUM,
 } from './unit';
 // eslint-disable-next-line import/no-cycle
 import {
@@ -13,6 +15,7 @@ import {
 import RequestCounter from './request-counters';
 import config from '../services/config';
 import { uploadFile } from './helpers/upload';
+import { ROLE_UNIT_CORRESPONDENT } from './rules';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
 
@@ -226,10 +229,13 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
   return this;
 };
 
-RequestSchema.methods.createVisitor = async function createVisitor(data) {
+RequestSchema.methods.createVisitor = async function createVisitor(data, role) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   const visitor = new Visitor(data);
   visitor.request = this;
+  if (role === ROLE_UNIT_CORRESPONDENT) {
+    await visitor.validateStep(this.owner.unit._id.toString(), role, WORKFLOW_DECISION_ACCEPTED, [], true);
+  }
   return visitor.save();
 };
 
