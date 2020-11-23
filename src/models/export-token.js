@@ -12,11 +12,16 @@ const ExportTokenSchema = new Schema({
     type: String,
   },
   modelName: {
-    required: true,
     type: String,
   },
-  filters: Object,
-  projection: Object,
+  filters: {
+    type: Object,
+    default: {},
+  },
+  projection: {
+    type: Object,
+    default: {},
+  },
   format: {
     type: String,
     enum: [EXPORT_FORMAT_CSV],
@@ -31,6 +36,9 @@ const ExportTokenSchema = new Schema({
       },
       quote: {
         type: String,
+      },
+      fields: {
+        type: Array,
       },
     },
   },
@@ -57,18 +65,23 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
     return `//${host}/export/${this._id}`;
   }
 
-  static async createCSVToken(Model, filters = {}, projection = {}, {
+  static async createCSVToken(Model, fields, filters = {}, projection = {}, {
     encoding = 'UTF-8',
     separator = ';',
     quote = '"',
   } = {}) {
     const token = new this({
-      modelName: Model.modelName,
+      modelName: Model ? Model.modelName : null,
       filters,
       projection,
       format: EXPORT_FORMAT_CSV,
       options: {
-        csv: { encoding, separator, quote },
+        csv: {
+          encoding,
+          separator,
+          quote,
+          fields,
+        },
       },
     });
     return token.save({ checkKeys: false });

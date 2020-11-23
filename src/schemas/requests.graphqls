@@ -108,6 +108,20 @@ type RequestOwner {
     unit: RequestOwnerUnit
 }
 
+type RequestReferent {
+    email: String
+    firstname: String
+    lastname: String
+    phone: String
+}
+
+input RequestReferentInput {
+    email: String!
+    firstname: String!
+    lastname: String!
+    phone: String!
+}
+
 # Available fields for edition/creation
 input RequestInput {
     # Object is like reason, but as a enum to categorize easily
@@ -118,6 +132,7 @@ input RequestInput {
     from: DateTime
     # Ending date of the visit
     to: DateTime
+    referent: RequestReferentInput
     # List of IDs of places where we request access
     places: [ObjectID]
 }
@@ -149,6 +164,7 @@ type Request implements Node {
     status: RequestStatus!
     # Owner of the request : user who created the request
     owner: RequestOwner!
+    referent: RequestReferent
     # List of places to be visited
     places: [Place]!
 }

@@ -12,6 +12,15 @@ import {
 import {
   GLOBAL_VALIDATION_ROLES,
   MODEL_NAME as VISITOR_MODEL_NAME,
+  EXPORT_CSV_TEMPLATE_VISITORS,
+  CSV_ID_KIND_LABEL,
+  CSV_ID_REFERENCE_LABEL,
+  CSV_BOOLEAN_VALUE,
+  CONVERT_DOCUMENT_IMPORT_CSV,
+  CONVERT_TYPE_IMPORT_CSV,
+  CSV_INTERNAL_LABEL,
+  CSV_VIP_LABEL,
+  CSV_EMPLOYEE_TYPE_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -74,6 +83,12 @@ const RequestSchema = new Schema({
       original: String,
       canonical: String,
     },
+  },
+  referent: {
+    email: String,
+    firstname: String,
+    lastname: String,
+    phone: String,
   },
   status: {
     type: String,
@@ -248,6 +263,59 @@ RequestSchema.methods.createVisitor = async function createVisitor(data, role) {
     await visitor.validateStep(this.owner.unit._id.toString(), role, WORKFLOW_DECISION_ACCEPTED, [], true);
   }
   return visitor.save();
+};
+
+RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas) {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  return Promise.all(visitorsDatas.map(async (data, index) => {
+    const findConvertData = (convertList, value) => {
+      const convertedValue = Object.entries(convertList)
+        .find(([, enumValue]) => typeof value === 'string' && enumValue === value.toLowerCase());
+      return convertedValue ? convertedValue[0] : null;
+    };
+
+    const initVisitor = {
+      identityDocuments: [{
+        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_CSV, data[CSV_ID_KIND_LABEL]),
+        reference: data[CSV_ID_REFERENCE_LABEL],
+      }],
+    };
+    const visitor = EXPORT_CSV_TEMPLATE_VISITORS.reduce((v, field) => {
+      switch (field.label) {
+        case CSV_INTERNAL_LABEL:
+        case CSV_VIP_LABEL:
+          if (typeof data[field.label] === 'string'
+            && [CSV_BOOLEAN_VALUE.YES, CSV_BOOLEAN_VALUE.NO].includes(data[field.label].toLowerCase())) {
+            const value = data[field.label].toLowerCase() === CSV_BOOLEAN_VALUE.YES;
+            return { ...v, [field.value]: value };
+          }
+          return { ...v, [field.value]: null };
+        case CSV_EMPLOYEE_TYPE_LABEL:
+          return {
+            ...v,
+            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_CSV, data[field.label]),
+          };
+        case CSV_ID_KIND_LABEL:
+        case CSV_ID_REFERENCE_LABEL:
+          return v;
+        default:
+          return { ...v, [field.value]: data[field.label] };
+      }
+    }, initVisitor);
+
+    const v = new Visitor(visitor);
+    v.request = this;
+    const err = v.validateSync();
+    if (err) {
+      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
+      return { visitor: null, errors };
+    }
+    const visitorSaved = await v.save();
+    return {
+      visitor: visitorSaved,
+      errors: null,
+    };
+  }));
 };
 
 RequestSchema.methods.findVisitorByIdAndRemove = async function findVisitorByIdAndRemove(id) {

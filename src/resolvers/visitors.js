@@ -1,3 +1,4 @@
+import csv from 'csv-parser';
 import { deleteUploadedFile } from '../models/helpers/upload';
 import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH, BUCKETNAME_VISITOR_FILE } from '../models/visitor';
 import {
@@ -24,6 +25,23 @@ export const RequestMutation = {
       };
     }
     return request.createVisitor(datas, as.role);
+  },
+  async createGroupVisitors(request, { file }) {
+    await Visitor.deleteMany({ 'request._id': request.id });
+    const { createReadStream } = await file.file;
+    const visitors = await new Promise((resolve) => {
+      const result = [];
+      createReadStream()
+        .pipe(csv({
+          separator: ';',
+          quote: '"',
+        }))
+        .on('data', (row) => {
+          result.push(row);
+        })
+        .on('end', async () => resolve(await request.createGroupVisitors(result)));
+    });
+    return visitors;
   },
   async editVisitor(request, { visitor, id }) {
     let datas = visitor;
@@ -184,6 +202,9 @@ export const Campus = {
         countMethod: () => requests.total,
       },
     };
+  },
+  async getVisitorsTemplate(campus) {
+    return campus.createVisitorsTemplate();
   },
 };
 

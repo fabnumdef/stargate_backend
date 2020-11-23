@@ -14,7 +14,7 @@ import {
 } from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
 import { MODEL_NAME as PLACE_MODEL_NAME } from './place';
-import { MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
+import { EXPORT_CSV_TEMPLATE_VISITORS, EXPORT_CSV_VISITORS, MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 import ExportToken from './export-token';
 import config from '../services/config';
 
@@ -146,26 +146,22 @@ CampusSchema.methods.countVisitors = async function countVisitors(filters) {
 
 CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenForVisitors(filters, options) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  const projection = {
-    _id: true,
-    'state.value': true,
-    'request.from': true,
-    'request.to': true,
-    'request.reason': true,
-    'request.object': true,
-    'request._id': true,
-    isInternal: true,
-    firstname: true,
-    usageLastname: true,
-    birthLastname: true,
-    nationality: true,
-    birthday: true,
-    birthplace: true,
-    employeeType: true,
-    createdAt: true,
-    updatedAt: true,
-  };
-  return ExportToken.createCSVToken(Visitor, { ...filters, 'request.campus._id': this._id }, projection, options);
+  const fields = EXPORT_CSV_VISITORS;
+  const projection = Object.fromEntries(fields.map((f) => ([f.value, true])));
+  return ExportToken.createCSVToken(
+    Visitor,
+    fields,
+    { ...filters, 'request.campus._id': this._id },
+    projection,
+    options,
+  );
+};
+
+CampusSchema.methods.createVisitorsTemplate = async function createVisitorsTemplate() {
+  return ExportToken.createCSVToken(
+    null,
+    EXPORT_CSV_TEMPLATE_VISITORS.map((field) => ({ label: field.label, value: field.value })),
+  );
 };
 
 CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValidate(

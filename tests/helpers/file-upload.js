@@ -12,6 +12,13 @@ const file = Promise.resolve({
   encoding: '7bit',
 });
 
+const csvFile = Promise.resolve({
+  createReadStream: () => fs.createReadStream(`${__dirname}/csvFile.csv`),
+  filename: 'csvFile.csv',
+  mimetype: 'text/csv',
+  encoding: '7bit',
+});
+
 const fileError = Promise.resolve({
   createReadStream: () => stream.PassThrough,
   filename: 'fileError',
@@ -28,3 +35,7 @@ export const fileUploadError = [{
   value: nanoid(),
   files: { file: fileError },
 }];
+
+export const csvFileUpload = {
+  file: csvFile,
+};

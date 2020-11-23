@@ -3,6 +3,7 @@ extend type Campus {
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, requestsId: [String]): RequestVisitorsList!
     listVisitorsToValidate(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, as: ValidationPersonas): RequestVisitorsToValidateList!
     listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
+    getVisitorsTemplate: ExportLink
 }
 
 extend type Request {
@@ -28,6 +29,8 @@ input RequestVisitorIsDone {
 type RequestMutation {
     # Create a visitor
     createVisitor(visitor: RequestVisitorInput!, as: ValidationPersonas!): RequestVisitor!
+    # Create a group of visitors from a CSV file
+    createGroupVisitors(file: Upload): [GroupVisitorsCSV]!
     # Edit a visitor
     editVisitor(visitor: RequestVisitorInput!, id: ObjectID!): RequestVisitor!
     # Delete a visitor
@@ -185,6 +188,17 @@ type RequestVisitorUnits {
     id: String!
     label: String
     steps: [RequestVisitorUnitsSteps]
+}
+
+type GroupVisitorsCSVError {
+    lineNumber: Int!
+    kind: String!
+    field: String!
+}
+
+type GroupVisitorsCSV {
+    visitor: RequestVisitor
+    errors: [GroupVisitorsCSVError]
 }
 
 type RequestVisitor {
