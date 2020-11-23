@@ -3,8 +3,10 @@ import Handlebars from 'handlebars';
 import nodeFs from 'fs';
 import nodePath from 'path';
 import glob from 'glob';
+import pino from 'pino';
 import config from './config';
 
+const logger = pino();
 const { readFileSync } = nodeFs;
 const { resolve, join } = nodePath;
 const currentPath = __dirname;
@@ -24,7 +26,12 @@ export default async function sendMail(recipients, options = {}) {
   };
   const transporter = Nodemailer.createTransport(conf);
   const mailOptions = { to, ...opts };
-  return transporter.sendMail(mailOptions);
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (e) {
+    logger.error(e.message);
+    return Promise.resolve();
+  }
 }
 
 function compileTemplates(path, ext) {
@@ -61,7 +68,6 @@ export function prepareSendMailFromTemplate(template, subject) {
       // eslint-disable-next-line security/detect-object-injection
       opts.text = templates.txt[lang](data);
     }
-
     // @todo: async in queue management
     sendMail(to, opts);
   };
@@ -75,4 +81,29 @@ export const sendPasswordResetMail = prepareSendMailFromTemplate(
 export const sendUserCreationMail = prepareSendMailFromTemplate(
   'create-user',
   'Initialisation de votre mot de passe Stargate',
+);
+
+export const sendRequestCreationMail = (base, from) => prepareSendMailFromTemplate(
+  'request-creation',
+  `Demande d'accès ${base} le ${from}`,
+);
+
+export const sendRequestValidationStepMail = (from) => prepareSendMailFromTemplate(
+  'request-validation-step',
+  `Validation demande d'accès pour le ${from}`,
+);
+
+export const sendRequestValidatedOwnerMail = (base, from) => prepareSendMailFromTemplate(
+  'request-validated-owner',
+  `Votre demande d'accès pour ${base} le ${from}`,
+);
+
+export const sendRequestAcceptedVisitorMail = (base, from) => prepareSendMailFromTemplate(
+  'request-accepted-visitor',
+  `Votre accès ${base} le ${from}`,
+);
+
+export const sendRequestRefusedVisitorMail = (base, from) => prepareSendMailFromTemplate(
+  'request-refused-visitor',
+  `Votre accès ${base} le ${from}`,
 );

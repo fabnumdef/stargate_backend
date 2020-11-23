@@ -178,6 +178,22 @@ it('Test to validate a step for a visitor', async () => {
         request._id,
         visitor._id,
         {
+          unit: unit1._id.toString(),
+          role: ROLE_OBSERVER,
+        },
+        WORKFLOW_BEHAVIOR_ACK,
+        [],
+        generateDummyAdmin(),
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Previous step for role ROLE_OBSERVER not yet validated');
+    }
+    {
+      const { errors } = await mutatevalidateStepRequest(
+        campus._id,
+        request._id,
+        visitor._id,
+        {
           role: ROLE_SCREENING,
         },
         WORKFLOW_DECISION_POSITIVE,

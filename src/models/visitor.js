@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { DateTime } from 'luxon';
 import {
   WORKFLOW_BEHAVIOR_ACK,
   WORKFLOW_BEHAVIOR_ADVISEMENT,
@@ -23,6 +24,7 @@ import {
   STATE_REJECTED,
 } from './request';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from './rules';
+import { sendRequestRefusedVisitorMail, sendRequestAcceptedVisitorMail } from '../services/mail';
 
 const { Schema } = mongoose;
 export const MODEL_NAME = 'Visitor';
@@ -210,7 +212,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
 ) {
   if (GLOBAL_VALIDATION_ROLES.includes(role)) {
     const isOneUnitPreviousRoleOk = this.request.units.find((u) => u.workflow.steps.find(
-      (s, index) => s.role === role && u.workflow.steps[index - 1].state.value,
+      (s, index) => s.role === role && (index === 0 || u.workflow.steps[index - 1].state.value),
     ));
     if (!isOneUnitPreviousRoleOk) {
       throw new Error(`Previous step for role ${role} not yet validated`);
@@ -236,7 +238,7 @@ VisitorSchema.methods.validateStep = function recordStepResult(
       }
       return acc;
     }, false)) {
-    throw new Error(`Previous step of "${step._id.toString()}" not yet validated`);
+    throw new Error(`Previous step for role ${role} not yet validated`);
   }
 
   switch (step.behavior) {
@@ -266,6 +268,9 @@ VisitorSchema.methods.validateStep = function recordStepResult(
   step.state.date = new Date();
 
   this.guessStatus();
+  if (this.status === STATE_CREATED && !(step.behavior === WORKFLOW_BEHAVIOR_VALIDATION && !step.state.isOK)) {
+    this.sendNextStepMail(unit);
+  }
   return this;
 };
 
@@ -294,6 +299,7 @@ VisitorSchema.methods.guessStatus = async function invokeRequestComputation() {
   }
   if (this.isModified('status')) {
     this.markedForRequestComputation = true;
+    this.sendVisitorResultMail();
   }
 };
 
@@ -301,6 +307,25 @@ VisitorSchema.methods.invokeRequestComputation = async function invokeRequestCom
   const Request = mongoose.model(REQUEST_MODEL_NAME);
   const request = await Request.findById(this.request._id);
   return request.computeStateComputation();
+};
+
+VisitorSchema.methods.sendNextStepMail = async function sendNextStepMail(unit) {
+  const Request = mongoose.model(REQUEST_MODEL_NAME);
+  const request = await Request.findById(this.request._id);
+  request.requestValidationStepMail(unit);
+};
+
+VisitorSchema.methods.sendVisitorResultMail = async function sendVisitorResultMail() {
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.request.campus.label,
+    from: date(this.request.from),
+    owner: this.request.owner.toObject(),
+  };
+  const sendMail = this.status === STATE_REJECTED
+    ? sendRequestRefusedVisitorMail(mailDatas.base, mailDatas.from)
+    : sendRequestAcceptedVisitorMail(mailDatas.base, mailDatas.from);
+  sendMail(this.email, { data: mailDatas });
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');
