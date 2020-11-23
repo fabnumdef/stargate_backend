@@ -1,4 +1,4 @@
-/* eslint-disable import/no-dynamic-require,global-require */
+/* eslint-disable import/no-dynamic-require,global-require,security/detect-non-literal-require */
 import path from 'path';
 
 const { readSync, CASELESS_SORT } = require('readdir');

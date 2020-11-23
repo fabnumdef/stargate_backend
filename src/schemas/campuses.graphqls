@@ -1,32 +1,47 @@
+# This object contain all root methods to retrieve information
 type Query {
+    # List campuses
     listCampuses(cursor: OffsetCursor, filters: CampusFilters): CampusesList!
+    # Get campus, used to fetch data linked to campus
     getCampus(id: String!): Campus
 }
 
+# This object contain all root methods to set information
 type Mutation {
+    # Campus creation
     createCampus(id: String!, campus: CampusInput!): Campus!
+    # Campus edition
     editCampus(id: String!, campus: CampusInput!): Campus!
+    # Campus mutation, used to edit data linked to campus
     mutateCampus(id: String!): CampusMutation!
+    # Campus deletion
     deleteCampus(id: String!): Campus!
 }
 
 # CampusMutation non-extended in units.graphqls
 
+# Object related to the campuses list
 type CampusesList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of campuses
     list: [Campus]!
 }
 
+# Available filters for campus
 input CampusFilters {
+    # Label of the campus
     label: String
 }
 
+# Basic information, user provided, for a campus
 input CampusInput {
+    # Label of the campus
     label: String!
 }
 
 type Campus implements Node {
-    # Unique id of the campus
+    # Unique id of the campus, here ObjectID
     id: String!
     # Date of creation
     createdAt: DateTime!

@@ -32,10 +32,15 @@ variables:
   HELM_ENV_VAR_VERSION: Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})
 
 npm:test:
+  image: node:lts-alpine
   services:
     - mongo:latest
   variables:
     MONGODB: "mongodb://mongo/stargate"
+  coverage: /All\sfiles.*?\s+(\d+.\d+)/
+  artifacts:
+    reports:
+      cobertura: coverage/clover.xml
 
 deploy:review:
   variables:

@@ -35,6 +35,8 @@ const UserSchema = new Schema({
   email: {
     original: {
       type: String,
+      // Non literal to respect max-length
+      // eslint-disable-next-line security/detect-non-literal-regexp
       match: new RegExp(
         '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}'
           + '[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',

@@ -7,7 +7,7 @@ function mutateDeleteUserRole(user, id, userRole = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     mutation: gql`
-        mutation DeleteUserRoleMutation($user: UserInput! ,$id: String!) {
+        mutation DeleteUserRoleMutation($user: UserInput! ,$id: ObjectID!) {
             deleteUserRole(user: $user, id: $id) {
                 id
             }

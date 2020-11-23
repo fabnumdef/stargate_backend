@@ -8,7 +8,7 @@ function queryGetPlace(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query GetPlaceQuery($campusId: String!, $id: String!) {
+      query GetPlaceQuery($campusId: String!, $id: ObjectID!) {
         getCampus(id: $campusId) {
           getPlace(id: $id) {
             id

@@ -7,7 +7,7 @@ function queryGetZone(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query GetZoneQuery($campusId: String!, $id: String!) {
+      query GetZoneQuery($campusId: String!, $id: ObjectID!) {
         getCampus(id: $campusId) {
           getZone(id: $id) {
             id

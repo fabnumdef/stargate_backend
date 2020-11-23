@@ -1,65 +1,109 @@
 extend type Campus {
+    # Get a request from IDrequest
     getRequest(id: String!): Request
+    # List requests
     listRequests(cursor: OffsetCursor, as: ValidationPersonas!, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
+    # List requests related to the current user
     listMyRequests(cursor: OffsetCursor, filters: RequestFilters, search: String, sort: RequestSort): RequestsList!
 }
 
+# List of possible transitions for a request
 enum RequestTransition {
+    # Cancel a request, will cascade visitors cancelation
     CANCEL
+    # Remove a request, will cascade visitors removal
     REMOVE
+    # Create a request (switch from draft)
     CREATE
 }
 
+# List of possible statuses for a request
 enum RequestStatus {
+    # The request is in draft, still modifiable, should not be examined yet
     DRAFTED
+    # The request has started his examination process
     CREATED
+    # The request has been canceled, request is abort
     CANCELED
+    # Every visitor in the request has passed every validation process, all is green
     ACCEPTED
+    # At least one visitor has failed at least one validation process, result is green & red
     MIXED
+    # Every visitor in the request has failed validation process, all is red
     REJECTED
 }
 
 extend type CampusMutation {
+    # Create a request
     createRequest(request: RequestInput!, unit: RequestOwnerUnitInput!): Request!
+    # Edit a request
     editRequest(id: String!, request: RequestInput!): Request!
+    # Change the status of a request, by sending a transition
     shiftRequest(id: String!, transition: RequestTransition!): Request!
+    # Remove a request
     deleteRequest(id: String!): Request!
+    # To edit data related to a request
     mutateRequest(id: String!): RequestMutation!
 }
 
+# Object related to the requests list
 type RequestsList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of requests
     list: [Request]!
 }
 
+# Filters that can be applied on owner sub-object
+input RequestOwnerFilters {
+    id: ObjectID
+}
+
+# Filters that can be applied to the list query
 input RequestFilters {
+    # Lowest date to return
     from: DateTime
+    # Greatest date to return
     to: DateTime
+    # List of status to return
     status: [RequestStatus]
-    owner: RequestOwnerInput
+    # Owner filters to return
+    owner: RequestOwnerFilters
 }
 
+# List of sortable fields
 input RequestSort {
-    from: DateTime
+    from: Sorting
+    to: Sorting
 }
 
+# Object is like reason, but as a enum to categorize easily
 enum RequestObject {
+    # When the request is for private reasons
     PRIVATE
+    # When the request is for professional reasons
     PROFESSIONAL
 }
 
 input RequestOwnerInput {
+    # Unique id of the owner
     id: String
 }
 
 type RequestOwnerUnit {
+    # Unique id of the owner unit
     id: String
+    # Human readable label for owner unit
     label: String
 }
 
+# User fragment
 type RequestOwner {
-    id: String
+    # Unique id of the user
+    id: ObjectID
+    # Firstname of the user
     firstname: String!
+    # Lastname of the user
     lastname: String!
     unit: RequestOwnerUnit
 }
@@ -78,21 +122,29 @@ input RequestReferentInput {
     phone: String!
 }
 
+# Available fields for edition/creation
 input RequestInput {
+    # Object is like reason, but as a enum to categorize easily
     object: RequestObject
+    # Reason of the visit
     reason: String
+    # Starting date of the visit
     from: DateTime
+    # Ending date of the visit
     to: DateTime
     referent: RequestReferentInput
     # List of IDs of places where we request access
-    places: [String]
+    places: [ObjectID]
 }
 
 input RequestOwnerUnitInput {
+    # Unique id of the owner unit
     id: String!
+    # Human readable label
     label: String!
 }
 
+# Request object
 type Request implements Node {
     # Unique id of the request
     id: String!
@@ -100,11 +152,17 @@ type Request implements Node {
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition
     updatedAt: DateTime!
-    object: String!
+    # Object is like reason, but as a enum to categorize easily
+    object: RequestObject!
+    # Reason of the visit
     reason: String!
+    # Starting date of the visit
     from: DateTime!
-    status: RequestStatus!
+    # Ending date of the visit
     to: DateTime!
+    # Current status of the request
+    status: RequestStatus!
+    # Owner of the request : user who created the request
     owner: RequestOwner!
     referent: RequestReferent
     # List of places to be visited

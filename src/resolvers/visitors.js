@@ -9,6 +9,7 @@ import {
   STATE_CANCELED,
 } from '../models/request';
 import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
+import DownloadToken from '../models/download-token';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor }) {
@@ -164,13 +165,35 @@ export const Campus = {
       countMethod: campus.countVisitors.bind(campus),
     };
   },
+  async listVisitorsToValidate(
+    campus,
+    {
+      filters = {},
+      as,
+      cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
+      search = {},
+    },
+  ) {
+    const visitors = await campus.findVisitorsToValidate(as, filters, offset, first, search);
+    return {
+      list: visitors.list,
+      meta: {
+        cursor: { offset, first },
+        countMethod: () => visitors.total,
+      },
+    };
+  },
   async listRequestByVisitorStatus(
     campus,
     {
-      filters = {}, as, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, isDone,
+      filters = {},
+      as,
+      cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
+      isDone,
+      sort = { 'requestData.from': 'asc' },
     },
   ) {
-    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first);
+    const requests = await campus.findRequestsByVisitorStatus(as, isDone, filters, offset, first, sort);
 
     return {
       list: requests.list,
@@ -224,7 +247,7 @@ export const RequestVisitor = {
   },
   generateIdentityFileExportLink(visitor) {
     return visitor.identityDocuments[0].file
-      ? visitor.createIdentityFileTokenForVisitors(visitor.identityDocuments[0].file)
+      ? DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, visitor.identityDocuments[0].file)
       : null;
   },
 };

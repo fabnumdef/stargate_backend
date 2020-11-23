@@ -1,55 +1,83 @@
 extend type Campus {
+    # List all units in a campus
     listUnits(cursor: OffsetCursor, filters: UnitFilters, search: String): UnitsList!
-    getUnit(id: String!): Unit
+    # Get a unit in a campus
+    getUnit(id: ObjectID!): Unit
 }
 
 type CampusMutation {
+    # Create unit in a campus
     createUnit(unit: UnitInput!): Unit!
-    editUnit(id: String!, unit: UnitInput!): Unit!
-    deleteUnit(id: String!): Unit!
+    # Edit unit in a campus
+    editUnit(id: ObjectID!, unit: UnitInput!): Unit!
+    # Delete unit in a campus
+    deleteUnit(id: ObjectID!): Unit!
 }
 
 type UnitsList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of units
     list: [Unit]!
 }
 
+# Filterable fields for a unit list
 input UnitFilters {
+    # Human readable label
     label: String
 }
 
+# A step in a unit workflow
 input UnitWorkflowStepInput {
-    role: String
+    # Role associated to this step
+    role: Role
+    # Workflow behavior of this step
     behavior: UnitWorkflowBehavior
 }
+
+# Workflow configuration for this unit
 input UnitWorkflowInput {
+    # List of steps, order matters
     steps: [UnitWorkflowStepInput]
 }
 
+# Unit information
 input UnitInput {
+    # Human readable label
     label: String!
+    # Trigram is a 3 letters representation of the label
     trigram: String!
+    # Workflow of the unit
     workflow: UnitWorkflowInput
 }
 
+# Enum of available behaviors
 enum UnitWorkflowBehavior {
+    # Information bevahior : the group/role should acknowledge information reception
     INFORMATION
+    # Validation behavior : the group/role can block/pass the process
     VALIDATION
+    # Advisement behavior : the group/role can say if they are OK/KO for the validation steps
     ADVISEMENT
 }
 
+# Workflow behavior of this step
 type UnitWorkflowStep {
-    role: String
+    # Role associated to this step
+    role: Role
+    # Workflow behavior of this step
     behavior: UnitWorkflowBehavior
 }
 
+# Workflow configuration for this unit
 type UnitWorkflow {
+    # List of steps, order matters
     steps: [UnitWorkflowStep]
 }
 
 type Unit implements Node {
     # Unique id of the unit
-    id: String!
+    id: ObjectID!
     # Date of creation
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition

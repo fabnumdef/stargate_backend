@@ -17,7 +17,7 @@ it('Test to export a file', async () => {
   const v = await createDummyVisitor({ request: dummyRequest });
   const dbFilename = nanoid();
   const file = await uploadFile(fileUpload[0].files.file, dbFilename, BUCKETNAME_VISITOR_FILE);
-  const downloadToken = await v.createIdentityFileTokenForVisitors(file);
+  const downloadToken = await DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, file);
   try {
     const result = await request(app.callback()).get(`/download/${downloadToken._id}`);
     expect(result.statusCode).toEqual(200);

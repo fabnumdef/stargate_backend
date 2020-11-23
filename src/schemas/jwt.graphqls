@@ -1,8 +1,12 @@
 extend type Mutation {
+    # Generate requestable tokens, to use authentication on subsequent requests
     login(email: EmailAddress!, password: String, token: String): RequestableTokens,
+    # Generate a new token
     jwtRefresh: RequestableTokens,
 }
 
+# Object to request one or many kinds of tokens.
 type RequestableTokens {
-    jwt: String
+    # JWT with data embedded
+    jwt: JWT
 }

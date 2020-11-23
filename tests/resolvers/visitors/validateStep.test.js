@@ -21,7 +21,7 @@ function mutatevalidateStepRequest(campusId, requestId, visitorId, personas, dec
       mutation validateStepRequestMutation(
         $campusId: String!,
         $requestId: String!,
-        $visitorId: String!,
+        $visitorId: ObjectID!,
         $personas: ValidationPersonas!,
         $decision: String!
         $tags: [String]

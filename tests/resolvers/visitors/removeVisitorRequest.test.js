@@ -11,7 +11,7 @@ function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null)
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation RemoveVisitorRequestMutation($campusId: String!, $requestId: String!, $visitorId: String!) {
+      mutation RemoveVisitorRequestMutation($campusId: String!, $requestId: String!, $visitorId: ObjectID!) {
         mutateCampus(id: $campusId) {
           mutateRequest(id: $requestId) {
             deleteVisitor(id: $visitorId) {
