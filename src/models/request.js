@@ -4,10 +4,13 @@ import {
   Machine as StateMachine, interpret, State,
 } from 'xstate';
 import {
-  MODEL_NAME as UNIT_MODEL_NAME, WORKFLOW_ENUM,
+  MODEL_NAME as UNIT_MODEL_NAME,
+  WORKFLOW_DECISION_ACCEPTED,
+  WORKFLOW_ENUM,
 } from './unit';
 // eslint-disable-next-line import/no-cycle
 import {
+  GLOBAL_VALIDATION_ROLES,
   MODEL_NAME as VISITOR_MODEL_NAME,
   EXPORT_CSV_TEMPLATE_VISITORS,
   CSV_ID_KIND_LABEL,
@@ -21,6 +24,13 @@ import {
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
+import {
+  sendRequestCreationMail,
+  sendRequestValidatedOwnerMail,
+  sendRequestValidationStepMail,
+} from '../services/mail';
+import { MODEL_NAME as USER_MODEL_NAME } from './user';
+import { ROLE_UNIT_CORRESPONDENT } from './rules';
 import { uploadFile } from './helpers/upload';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
@@ -147,7 +157,11 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
       [STATE_CREATED]: {
         invoke: {
-          src: () => { this.markedForVisitorsCreation = true; },
+          src: async () => {
+            this.markedForVisitorsCreation = true;
+            this.units.toObject().map((unit) => this.requestValidationStepMail(unit));
+            this.requestCreationMail();
+          },
         },
         on: {
           [EVENT_CANCEL]: STATE_CANCELED,
@@ -241,10 +255,13 @@ RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDa
   return this;
 };
 
-RequestSchema.methods.createVisitor = async function createVisitor(data) {
+RequestSchema.methods.createVisitor = async function createVisitor(data, role) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   const visitor = new Visitor(data);
   visitor.request = this;
+  if (role === ROLE_UNIT_CORRESPONDENT) {
+    await visitor.validateStep(this.owner.unit._id.toString(), role, WORKFLOW_DECISION_ACCEPTED, [], true);
+  }
   return visitor.save();
 };
 
@@ -341,6 +358,9 @@ RequestSchema.methods.computeStateComputation = async function computeStateCompu
   } else if (r.every(({ _id }) => [STATE_ACCEPTED, STATE_REJECTED, STATE_MIXED, STATE_CANCELED].includes(_id))) {
     this.status = STATE_MIXED;
   }
+  if ([STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED].includes(this.status)) {
+    this.requestValidatedOwnerMail();
+  }
   return this.save();
 };
 
@@ -354,6 +374,90 @@ RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   // @todo: batch this in a queue system for requests with a lot of visitors
   return Visitor.updateMany({ 'request._id': this._id }, { status: STATE_CANCELED });
+};
+
+RequestSchema.methods.requestCreationMail = async function requestCreationMail() {
+  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+  const visitors = await Visitor.find({ 'request._id': this._id });
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    from: date(this.from),
+    to: date(this.to),
+    owner: this.owner,
+    reason: this.reason,
+    places: `${this.places.map((p) => p.label).join(' / ')}`,
+  };
+  await Promise.all(visitors.map(async (v) => {
+    const sendMail = sendRequestCreationMail(mailDatas.base, mailDatas.from);
+    sendMail(v.email, { data: mailDatas });
+  }));
+};
+
+RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(unit) {
+  const User = mongoose.model(USER_MODEL_NAME);
+  const nextStep = unit.workflow.steps.find((s) => !s.state || !s.state.value);
+  if (!nextStep) {
+    return [];
+  }
+  const usersFilter = GLOBAL_VALIDATION_ROLES.includes(nextStep.role)
+    ? { 'roles.role': nextStep.role }
+    : { roles: { $elemMatch: { role: nextStep.role, 'units._id': unit._id } } };
+  const usersToNotify = await User.find(usersFilter);
+  return usersToNotify;
+};
+
+RequestSchema.methods.requestValidationStepMail = async function requestValidationStepMail(unit) {
+  const usersToNotify = await this.findNextStepsUsers(unit);
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    request: { id: this._id, link: `${config.get('website_url')}/demandes/a-traiter/${this._id}` },
+    from: date(this.from),
+    to: date(this.to),
+    owner: this.owner,
+    reason: this.reason,
+    places: `${this.places.map((p) => p.label).join(' / ')}`,
+  };
+  await Promise.all(usersToNotify.map(async (user) => {
+    const sendMail = sendRequestValidationStepMail(mailDatas.from);
+    sendMail(user.email.original, { data: mailDatas });
+  }));
+};
+
+RequestSchema.methods.requestValidatedOwnerMail = async function validatedRequestOwnerMail() {
+  const User = mongoose.model(USER_MODEL_NAME);
+  const findUsers = await Promise.all(this.units.map(async (u) => {
+    const users = await User.find({
+      roles: {
+        $elemMatch: { role: ROLE_UNIT_CORRESPONDENT, 'units._id': u._id },
+      },
+    });
+    return users;
+  }));
+  const usersMail = findUsers
+    .reduce((users, current) => ([...current, ...users]), [])
+    .map((u) => u.email.original);
+  const isAccepted = [STATE_ACCEPTED, STATE_MIXED].includes(this.status);
+  const refusedVisitors = await this.findVisitorsWithProjection({ status: STATE_REJECTED });
+  const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const mailDatas = {
+    base: this.campus.label,
+    request: {
+      id: this._id,
+      link: `${config.get('website_url')}/demandes/traitees/${this._id}`,
+    },
+    isAccepted,
+    refusedVisitors: this.status === STATE_MIXED
+      ? refusedVisitors.map((v) => v.toObject())
+      : null,
+    from: date(this.from),
+    createdAt: date(this.createdAt),
+    owner: this.owner,
+    contact: usersMail.join(', '),
+  };
+  const sendMail = sendRequestValidatedOwnerMail(mailDatas.base, mailDatas.from);
+  sendMail(this.owner.email.original, { data: mailDatas });
 };
 
 export default mongoose.model(MODEL_NAME, RequestSchema, 'requests');
