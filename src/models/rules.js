@@ -9,6 +9,7 @@ export const ROLE_ACCESS_OFFICE = 'ROLE_ACCESS_OFFICE';
 export const ROLE_SCREENING = 'ROLE_SCREENING';
 export const ROLE_HOST = 'ROLE_HOST';
 export const ROLE_OBSERVER = 'ROLE_OBSERVER';
+export const ROLE_GATEKEEPER = 'ROLE_GATEKEEPER';
 
 export const isAuthenticated = rule()(async (parent, args, ctx) => !!ctx.user);
 

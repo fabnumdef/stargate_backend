@@ -7,6 +7,7 @@ import {
   ROLE_SCREENING,
   ROLE_SECURITY_OFFICER,
   ROLE_HOST,
+  ROLE_GATEKEEPER,
 } from '../../src/models/rules';
 import { NAVAL_BASE } from './campus';
 import {
@@ -51,6 +52,17 @@ export default async ({ log }) => {
       password: nanoid(),
       roles: [
         { role: ROLE_SCREENING, campuses: [NAVAL_BASE] },
+      ],
+    },
+    {
+      firstname: 'Gardien',
+      lastname: 'BaseNavale',
+      email: {
+        original: 'grd.basenavale@localhost',
+      },
+      password: nanoid(),
+      roles: [
+        { role: ROLE_GATEKEEPER, campuses: [NAVAL_BASE] },
       ],
     },
     {
