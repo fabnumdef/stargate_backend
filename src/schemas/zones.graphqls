@@ -1,30 +1,41 @@
 extend type Campus {
+    # List zones
     listZones(cursor: OffsetCursor, filters: ZoneFilters): ZonesList!
-    getZone(id: String!): Zone
+    # Get a zone
+    getZone(id: ObjectID!): Zone
 }
 
 extend type CampusMutation {
+    # Create zone
     createZone(zone: ZoneInput!): Zone!
-    editZone(id: String!, zone: ZoneInput!): Zone!
-    deleteZone(id: String!): Zone!
+    # Edit zone
+    editZone(id: ObjectID!, zone: ZoneInput!): Zone!
+    # Delete zone
+    deleteZone(id: ObjectID!): Zone!
 }
 
 type ZonesList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of zones
     list: [Zone]!
 }
 
+# Filterable fields
 input ZoneFilters {
+    # Human readable label
     label: String
 }
 
+# Editable information
 input ZoneInput {
+    # Human readable label
     label: String!
 }
 
 type Zone implements Node {
     # Unique id of the zone
-    id: String!
+    id: ObjectID!
     # Date of creation
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition

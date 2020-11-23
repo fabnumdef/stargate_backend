@@ -8,7 +8,7 @@ function mutateEditionZone(campusId, id, zone, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation EditZoneMutation($campusId: String!, $id: String!, $zone: ZoneInput!) {
+      mutation EditZoneMutation($campusId: String!, $id: ObjectID!, $zone: ZoneInput!) {
         mutateCampus(id: $campusId) {
           editZone(id: $id, zone: $zone) {
             id

@@ -1,6 +1,8 @@
 scalar DateTime
 scalar EmailAddress
+scalar ObjectID
 scalar UUIDV4
 scalar URL
 scalar ProtocolLessURL
 scalar Upload
+scalar JWT

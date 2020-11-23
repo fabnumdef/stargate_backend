@@ -7,7 +7,7 @@ function mutateEditionUser(id, user, userRole = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     mutation: gql`
-      mutation EditUserMutation($id: String!, $user: UserInput!) {
+      mutation EditUserMutation($id: ObjectID!, $user: UserInput!) {
         editUser(id: $id, user: $user) {
           id
           firstname
