@@ -1,15 +1,22 @@
 extend type Campus {
+    # List all visitors of a campus
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, requestsId: [String]): RequestVisitorsList!
+    listVisitorsToValidate(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, as: ValidationPersonas): RequestVisitorsToValidateList!
     listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
 }
 
 extend type Request {
+    # List all visitors of a request
     listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone): RequestVisitorsList!
-    getVisitor(id: String!): RequestVisitor
+    # Get visitor
+    getVisitor(id: ObjectID!): RequestVisitor
 }
 
+#Personas is an object to have a more verbose behavior when user has many roles
 input ValidationPersonas {
-    role: String,
+    # Role of the personas
+    role: Role,
+    # Unit of the personas
     unit: String,
 }
 
@@ -19,41 +26,74 @@ input RequestVisitorIsDone {
 }
 
 type RequestMutation {
+    # Create a visitor
     createVisitor(visitor: RequestVisitorInput!, as: ValidationPersonas!): RequestVisitor!
-    editVisitor(visitor: RequestVisitorInput!, id: String!): RequestVisitor!
-    deleteVisitor(id: String!): RequestVisitor!
-    cancelVisitor(id: String!): RequestVisitor!
-    validateVisitorStep(id: String!, as: ValidationPersonas!, decision: String!, tags: [String]): RequestVisitor!
+    # Edit a visitor
+    editVisitor(visitor: RequestVisitorInput!, id: ObjectID!): RequestVisitor!
+    # Delete a visitor
+    deleteVisitor(id: ObjectID!): RequestVisitor!
+    # Cancel a visitor
+    cancelVisitor(id: ObjectID!): RequestVisitor!
+    validateVisitorStep(id: ObjectID!, as: ValidationPersonas!, decision: String!, tags: [String]): RequestVisitor!
 }
 
 type RequestVisitorsList implements OffsetPaginator {
+    # Generate a link to export list without pagination as a CSV file
     generateCSVExportLink(options: CSVExportOptions): ExportLink!
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of visitors
     list: [RequestVisitor]!
 }
 
+type RequestVisitorsToValidateList {
+    list: [RequestVisitor]!
+    meta: OffsetPaginatorMeta!
+}
+
 type RequestsListGroupByVisitors {
+    # The list of requests
     list: [RequestGroupByVisitor]
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
 }
 
 type RequestGroupByVisitor {
+    # Unique id of a request
     id: String
+    # Datas of the request
     requestData: [Request]
+    # List of visitors
     visitors: [RequestVisitor]
 }
 
+# Filterable fields of a visitor
 input RequestVisitorFilters {
+    # Firstname
     firstname: String
     status: String
 }
 
+# Types of identity documents
+enum IdentityDocumentType {
+    # National identity card
+    IDCard
+    # International passport
+    Passport
+    # French military identity card
+    CIMSCard
+}
+
+# Identity document information
 input RequestIdentityDocumentInput {
-    kind: String
+    # Kind of document
+    kind: IdentityDocumentType
+    # Ref of the document
     reference: String
     file: identityFileInput
 }
 
+# Type of visitor when he's an employee
 enum VisitorEmployeeType {
     TYPE_VISITOR
     TYPE_SUBCONTRACTOR
@@ -68,21 +108,37 @@ enum VisitorEmployeeType {
 }
 
 input RequestVisitorInput {
+    # Internal identity id
     nid: String
+    # Firstname
     firstname: String!
+    # Lastname, at the moment of birth (before union)
     birthLastname: String!
+    # Lastname, at the current moment (maybe after union)
     usageLastname: String
+    # Is it a military related people ?
     isInternal: Boolean!
+    # Type of employee
     employeeType: VisitorEmployeeType!
+    # Rank
     rank: String
+    # Company
     company: String
+    # Email of the visitor
     email: String!
+    # Is it a VIP people ?
     vip: Boolean
+    # Why is it a VIP people ?
     vipReason: String
+    # Nationality
     nationality: String!
+    # Identity documents
     identityDocuments: [RequestIdentityDocumentInput]
+    # Data of an uploaded file from Front
     file: Upload
+    # Birthday date
     birthday: DateTime!
+    # Birth location
     birthplace: String!
 }
 
@@ -104,7 +160,7 @@ input identityFileInput {
 
 type UnitStepStatus {
     step: String
-    role: String
+    role: Role
     behavior: String
     status: String
     tags: [String]
@@ -132,7 +188,7 @@ type RequestVisitorUnits {
 }
 
 type RequestVisitor {
-    id: String
+    id: ObjectID
     nid: String
     firstname: String!
     birthLastname: String!

@@ -1,81 +1,130 @@
 extend type Query {
+    # List users
     listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: HasRoleInput, search: String): UsersList!
-    getUser(id: String!): User
+    # Get user
+    getUser(id: ObjectID!): User
+    # Get logged user
     me: User
 }
 
 extend type Mutation {
+    # Create user
     createUser(user: UserInput): User!
-    editUser(id: String!, user: UserInput): User!
-    deleteUserRole(id: String!, user: UserInput): User!
+    # Edit user
+    editUser(id: ObjectID!, user: UserInput): User!
+    # Delete a role of a user
+    deleteUserRole(id: ObjectID!, user: UserInput): User!
+    # Edit logged user
     editMe(user: OwnUserInput): User!
-    deleteUser(id: String!): User!
+    # Delete user
+    deleteUser(id: ObjectID!): User!
+    # reset user password
     resetPassword(email: EmailAddress!): Boolean!
 }
 
 type UsersList implements OffsetPaginator {
+    # Metadata linked to the query
     meta: OffsetPaginatorMeta!
+    # The list of users
     list: [User]!
 }
 
+# Has role filters
 input HasRoleInput {
+    # Role of the user
     role: String
+    # Unit related to users
     unit: String
 }
 
+# List of filterable fields
 input UserFilters {
+    # Match firstname
     firstname: String
+    # Match lastname
     lastname: String
+    # Match email
     email: EmailAddress
+    # Match one of the sub-object
     roles: UserRoleInput
 }
 
+# Editable user
 input UserInput {
+    # Firstname of the user
     firstname: String
+    # Lastname of the user
     lastname: String
+    # Email of the user
     email: EmailAddress
+    # List of roles of the user
     roles: [UserRoleInput]
 }
 
+
+# Editable data for the current user
 input OwnUserInput {
+    # Firstname of current user
     firstname: String
+    # Lastname of current user
     lastname: String
+    # Password of current user
     password: String
 }
 
+# User email
 type UserEmail {
+    # Original email, typed by user
     original: EmailAddress
+    # Lowercased and cleaned email address, used as index in DB
     canonical: EmailAddress
+    # Return true, when used has clicked the link in validation email
     confirmed: Boolean
 }
 
+# User role representation
 type UserRole {
-    role: String!
-    userInCharge: String
+    # Role of the user
+    role: Role!
+    # User who is in charge of this one for this role
+    userInCharge: ObjectID
+    # Campuses where this role take effect
     campuses: [Campus]
+    # Units where this role take effect
     units: [Unit]
 }
 
+# User role representation
 input UserRoleInput {
-    role: String
-    userInCharge: String
+    # Role of the user
+    role: Role
+    # User who is in charge of this one for this role
+    userInCharge: ObjectID
+    # Campuses where this role take effect
     campuses: [UserCampusInput]
+    # Units where this role take effect
     units: [UserUnitInput]
 }
 
+# Fragment of campus representation
 input UserCampusInput {
+    # ID of the campus
     id: String!
+    # Human readable label
     label: String
 }
 
+# Fragment of unit representation
 input UserUnitInput {
-    id: String!
+    # ID of the unit
+    id: ObjectID!
+    # Human readable label
     label: String
 }
 
 type User implements Node {
     # Unique id of the user
-    id: String!
+    id: ObjectID!
     # Date of creation
     createdAt: DateTime!
     # Revision datetime to avoid collisions on edition

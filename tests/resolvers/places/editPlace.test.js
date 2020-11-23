@@ -9,7 +9,7 @@ function mutateEditionPlace(campusId, id, place, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-      mutation EditPlaceMutation($campusId: String!, $id: String!, $place: PlaceInput!) {
+      mutation EditPlaceMutation($campusId: String!, $id: ObjectID!, $place: PlaceInput!) {
         mutateCampus(id: $campusId) {
           editPlace(id: $id, place: $place) {
             id

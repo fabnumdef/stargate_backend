@@ -8,6 +8,7 @@ import {
   STATE_CANCELED,
 } from '../models/request';
 import { WORKFLOW_BEHAVIOR_VALIDATION } from '../models/unit';
+import DownloadToken from '../models/download-token';
 
 export const RequestMutation = {
   async createVisitor(request, { visitor, as }) {
@@ -146,6 +147,24 @@ export const Campus = {
       countMethod: campus.countVisitors.bind(campus),
     };
   },
+  async listVisitorsToValidate(
+    campus,
+    {
+      filters = {},
+      as,
+      cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {},
+      search = {},
+    },
+  ) {
+    const visitors = await campus.findVisitorsToValidate(as, filters, offset, first, search);
+    return {
+      list: visitors.list,
+      meta: {
+        cursor: { offset, first },
+        countMethod: () => visitors.total,
+      },
+    };
+  },
   async listRequestByVisitorStatus(
     campus,
     {
@@ -207,7 +226,7 @@ export const RequestVisitor = {
   },
   generateIdentityFileExportLink(visitor) {
     return visitor.identityDocuments[0].file
-      ? visitor.createIdentityFileTokenForVisitors(visitor.identityDocuments[0].file)
+      ? DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, visitor.identityDocuments[0].file)
       : null;
   },
 };

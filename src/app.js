@@ -1,6 +1,6 @@
-// @flow
 import Koa from 'koa';
 import compression from 'koa-compress';
+import helmet from 'koa-helmet';
 import jwt from 'koa-jwt';
 import koaBody from 'koa-body';
 import { graphqlUploadKoa } from 'graphql-upload';
@@ -15,6 +15,7 @@ const pino = require('koa-pino-logger')();
 const exporterPort = config.get('prometheus_exporter');
 
 const app = new Koa();
+app.use(helmet());
 app.silent = true;
 if (exporterPort) {
   app.use(metricsMiddleware);

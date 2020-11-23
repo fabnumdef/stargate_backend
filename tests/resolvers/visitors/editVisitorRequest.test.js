@@ -16,7 +16,7 @@ function mutateEditVisitorRequest(campusId, requestId, visitorData, visitorId, u
             $campusId: String!,
             $requestId: String!,
             $visitorData: RequestVisitorInput!,
-            $visitorId: String!
+            $visitorId: ObjectID!
         ) {
             mutateCampus(id: $campusId) {
                 mutateRequest(id: $requestId) {

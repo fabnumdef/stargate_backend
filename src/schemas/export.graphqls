@@ -1,10 +1,21 @@
+# An export link is related to list query, it's used to download the list query result, without pagination, in csv.
 type ExportLink {
+    # Unique token, available for a small duration, used to authenticate the link.
     token: UUIDV4!
+    # Link to download the export file.
     link: ProtocolLessURL!
 }
 
+# CSV export is configurable
+enum Encoding {
+    # Default value is UTF-8
+    UTF8
+}
 input CSVExportOptions {
-    encoding: String
+    # You should be able to choose
+    encoding: Encoding
+    # Char to split columns of the CSV
     separator: String
+    # Wrapper for escape policy of the column
     quote: String
 }

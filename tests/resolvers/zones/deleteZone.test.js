@@ -8,7 +8,7 @@ function mutateDeleteZone(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-        mutation DeleteZoneMutation($campusId: String!, $id: String!) {
+        mutation DeleteZoneMutation($campusId: String!, $id: ObjectID!) {
             mutateCampus(id: $campusId) {
                 deleteZone(id: $id) {
                     id
