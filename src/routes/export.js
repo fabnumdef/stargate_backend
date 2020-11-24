@@ -13,13 +13,14 @@ router.get('/export/:export_token', async (ctx) => {
     throw new APIError(404, 'Token not found');
   }
   const Model = exportToken.modelName ? mongoose.model(exportToken.modelName) : null;
-  const list = Model ? await Model.find(exportToken.filters, exportToken.projection).lean() : null;
+  const list = Model ? await Model.find(exportToken.filters, exportToken.projection).lean() : [];
   switch (exportToken.format) {
     case EXPORT_FORMAT_CSV:
       {
         const options = exportToken.options.csv;
         const parser = new Json2csv.Parser({
           transforms: [flatten()],
+          fields: options.fields,
           quote: options.quote,
           delimiter: options.separator,
           encoding: options.encoding,
