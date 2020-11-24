@@ -36,4 +36,6 @@ enum Role {
     ROLE_HOST
     # This role is used as a group
     ROLE_OBSERVER
+    # This role is used as a group
+    ROLE_GATEKEEPER
 }
