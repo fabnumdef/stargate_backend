@@ -199,8 +199,21 @@ CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValid
     .match(filters)
     .match(notDoneFilter)
     .addFields({
-      'request.id': '$request._id',
       'request.unitsToCheck': '$request.units',
+    })
+    .unwind('request.unitsToCheck')
+    .match(unit ? { 'request.unitsToCheck._id': mongoose.Types.ObjectId(unit) } : {})
+    .addFields({ nextSteps: nextStepsFilter })
+    .addFields({ nextStep: { $arrayElemAt: ['$nextSteps', 0] } })
+    .match({ 'nextStep.role': role })
+    .group({
+      _id: '$_id',
+      visitor: { $mergeObjects: '$$ROOT' },
+    })
+    .replaceRoot('$visitor')
+    .addFields({
+      id: '$_id',
+      'request.id': '$request._id',
       'request.units':
         {
           $map:
@@ -211,12 +224,6 @@ CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValid
             },
         },
     })
-    .unwind('request.unitsToCheck')
-    .match(unit ? { 'request.unitsToCheck._id': mongoose.Types.ObjectId(unit) } : {})
-    .addFields({ nextSteps: nextStepsFilter })
-    .addFields({ nextStep: { $arrayElemAt: ['$nextSteps', 0] } })
-    .match({ 'nextStep.role': role })
-    .addFields({ id: '$_id' })
     .project({ _id: 0 });
 
   const paginateVisitors = async () => {
