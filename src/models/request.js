@@ -30,7 +30,7 @@ import {
   sendRequestValidationStepMail,
 } from '../services/mail';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
-import { ROLE_UNIT_CORRESPONDENT } from './rules';
+import { ROLE_ACCESS_OFFICE, ROLE_SCREENING, ROLE_UNIT_CORRESPONDENT } from './rules';
 import { uploadFile } from './helpers/upload';
 
 export const DEFAULT_TIMEZONE = config.get('default_timezone');
@@ -159,7 +159,9 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
         invoke: {
           src: async () => {
             this.markedForVisitorsCreation = true;
-            this.units.toObject().map((unit) => this.requestValidationStepMail(unit));
+            const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+            const visitor = await Visitor.findOne({ 'request._id': this._id });
+            visitor.request.units.toObject().map((unit) => this.requestValidationStepMail(unit));
             this.requestCreationMail();
           },
         },
@@ -394,10 +396,10 @@ RequestSchema.methods.requestCreationMail = async function requestCreationMail()
   }));
 };
 
-RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(unit) {
+RequestSchema.methods.findNextStepsUsersToNotify = async function findNextStepsUsers(unit) {
   const User = mongoose.model(USER_MODEL_NAME);
   const nextStep = unit.workflow.steps.find((s) => !s.state || !s.state.value);
-  if (!nextStep) {
+  if (!nextStep || [ROLE_ACCESS_OFFICE, ROLE_SCREENING].includes(nextStep.role)) {
     return [];
   }
   const usersFilter = GLOBAL_VALIDATION_ROLES.includes(nextStep.role)
@@ -408,7 +410,7 @@ RequestSchema.methods.findNextStepsUsers = async function findNextStepsUsers(uni
 };
 
 RequestSchema.methods.requestValidationStepMail = async function requestValidationStepMail(unit) {
-  const usersToNotify = await this.findNextStepsUsers(unit);
+  const usersToNotify = await this.findNextStepsUsersToNotify(unit);
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
   const mailDatas = {
     base: this.campus.label,
