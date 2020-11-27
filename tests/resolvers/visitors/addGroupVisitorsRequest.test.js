@@ -5,15 +5,21 @@ import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor from '../../models/visitor';
 import { csvFileUpload } from '../../helpers/file-upload';
+import { ROLE_HOST } from '../../../src/models/rules';
 
-function mutatecreateGroupVisitorsRequest(campusId, requestId, file, user = null) {
+function mutatecreateGroupVisitorsRequest(campusId, requestId, file, as, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     mutation: gql`
-        mutation createGroupVisitorsRequestMutation($campusId: String!, $requestId: String!, $file: Upload!) {
+        mutation createGroupVisitorsRequestMutation(
+            $campusId: String!,
+            $requestId: String!,
+            $file: Upload!,
+            $as: ValidationPersonas!,
+        ) {
             mutateCampus(id: $campusId) {
                 mutateRequest(id: $requestId) {
-                    createGroupVisitors(file: $file) {
+                    createGroupVisitors(file: $file, as: $as) {
                         visitor {
                             id
                         }
@@ -27,7 +33,9 @@ function mutatecreateGroupVisitorsRequest(campusId, requestId, file, user = null
             }
         }
     `,
-    variables: { campusId, requestId: requestId.toString ? requestId.toString() : requestId, file },
+    variables: {
+      campusId, requestId: requestId.toString ? requestId.toString() : requestId, file, as,
+    },
   });
 }
 
@@ -38,7 +46,12 @@ it('Test to add a group of visitors to a request', async () => {
   const file = csvFileUpload;
   try {
     {
-      const { errors } = await mutatecreateGroupVisitorsRequest(campus._id, dummyRequest._id, file);
+      const { errors } = await mutatecreateGroupVisitorsRequest(
+        campus._id,
+        dummyRequest._id,
+        file,
+        { role: ROLE_HOST },
+      );
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -46,7 +59,13 @@ it('Test to add a group of visitors to a request', async () => {
     }
 
     {
-      const { errors } = await mutatecreateGroupVisitorsRequest(campus._id, nanoid(), file, generateDummyAdmin());
+      const { errors } = await mutatecreateGroupVisitorsRequest(
+        campus._id,
+        nanoid(),
+        file,
+        { role: ROLE_HOST },
+        generateDummyAdmin(),
+      );
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
@@ -66,6 +85,7 @@ it('Test to add a group of visitors to a request', async () => {
         campus._id,
         dummyRequest._id,
         file,
+        { role: ROLE_HOST },
         generateDummyAdmin(),
       );
       expect(createGroupVisitors).toHaveLength(2);
