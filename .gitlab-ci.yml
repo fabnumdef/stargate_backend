@@ -5,27 +5,18 @@ stages:
 
 include:
   - project: fabnum-minarm/igloo/gitlab-templates
-    file: /proxy/licence-scanning.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /proxy/dependency-scanning.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /proxy/container-scanning.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /proxy/secret-scanning.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /proxy/sast.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /npm.auto.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /docker.auto.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /helm.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /helm.reviews.auto.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /helm.staging.auto.yml
-  - project: fabnum-minarm/igloo/gitlab-templates
-    file: /helm.production.auto.yml
+    file: 
+      - /proxy/licence-scanning.yml
+      - /proxy/dependency-scanning.yml
+      - /proxy/container-scanning.yml
+      - /proxy/secret-scanning.yml
+      - /proxy/sast.yml
+      - /npm.auto.yml
+      - /docker.auto.yml
+      - /helm.yml
+      - /helm.reviews.auto.yml
+      - /helm.staging.auto.yml
+      - /helm.production.auto.yml
 
 variables:
   HELM_CHART: igloo-stable/nodejs
