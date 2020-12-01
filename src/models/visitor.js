@@ -33,7 +33,7 @@ export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
 export const CONVERT_DOCUMENT_IMPORT_CSV = {
   [ID_DOCUMENT_CIMSCARD]: 'carte cims',
-  [ID_DOCUMENT_IDCARD]: 'carte d\'identité',
+  [ID_DOCUMENT_IDCARD]: 'carte identité',
   [ID_DOCUMENT_PASSPORT]: 'passeport',
 };
 
@@ -93,7 +93,7 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'Date de mise à jour', value: 'updatedAt' },
 ];
 
-export const CSV_ID_KIND_LABEL = 'Type document identité';
+export const CSV_ID_KIND_LABEL = `Type document identité [${Object.values(CONVERT_DOCUMENT_IMPORT_CSV).join(', ')}]`;
 export const CSV_ID_REFERENCE_LABEL = 'Numéro document identité';
 export const CSV_NATIONALITY_LABEL = 'Nationalité';
 export const CSV_INTERNAL_LABEL = 'MINARM [oui/non]';
