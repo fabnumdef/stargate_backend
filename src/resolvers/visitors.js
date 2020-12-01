@@ -26,7 +26,7 @@ export const RequestMutation = {
     }
     return request.createVisitor(datas, as.role);
   },
-  async createGroupVisitors(request, { file }) {
+  async createGroupVisitors(request, { file, as }) {
     await Visitor.deleteMany({ 'request._id': request.id });
     const { createReadStream } = await file.file;
     const visitors = await new Promise((resolve) => {
@@ -39,7 +39,7 @@ export const RequestMutation = {
         .on('data', (row) => {
           result.push(row);
         })
-        .on('end', async () => resolve(await request.createGroupVisitors(result)));
+        .on('end', async () => resolve(await request.createGroupVisitors(result, as.role)));
     });
     return visitors;
   },

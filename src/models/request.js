@@ -267,7 +267,7 @@ RequestSchema.methods.createVisitor = async function createVisitor(data, role) {
   return visitor.save();
 };
 
-RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas) {
+RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(visitorsDatas, role) {
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   return Promise.all(visitorsDatas.map(async (data, index) => {
     const findConvertData = (convertList, value) => {
@@ -311,6 +311,9 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
     if (err) {
       const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
       return { visitor: null, errors };
+    }
+    if (role === ROLE_UNIT_CORRESPONDENT) {
+      await v.validateStep(this.owner.unit._id.toString(), role, WORKFLOW_DECISION_ACCEPTED, [], true);
     }
     const visitorSaved = await v.save();
     return {
