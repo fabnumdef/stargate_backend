@@ -51,7 +51,7 @@ export const CONVERT_TYPE_IMPORT_CSV = {
   [TYPE_VISITOR]: 'visiteur',
   [TYPE_SUBCONTRACTOR]: 'sous-traitant',
   [TYPE_INTERIM]: 'interimaire',
-  [TYPE_TRAINEE]: 'recrue',
+  [TYPE_TRAINEE]: 'stagiaire',
   [TYPE_DELIVERER]: 'livreur',
   [TYPE_ACTIVE_MILITARY]: 'militaire d\'active',
   [TYPE_RESERVIST]: 'réserviste',
