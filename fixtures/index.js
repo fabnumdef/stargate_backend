@@ -10,16 +10,25 @@ import mongoose from 'mongoose';
 import MongooseService from '../src/services/mongoose';
 import config from '../src/services/config';
 
+import {
+  requestToBeCreated01_id,
+} from './datarequest/request';
+import RequestModel from '../src/models/request';
+
 const log = pino();
 const { promisify } = util;
 const readDir = promisify(fs.readdir);
 const MODELS_DIR = path.resolve(__dirname, '..', 'src', 'models');
 const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR_REQ = path.join(__dirname, 'datarequest');
+
+
 
 (async () => {
   const hrstart = process.hrtime();
   await MongooseService(config.get('mongodb'));
   const files = await readDir(DATA_DIR);
+  const filesReq = await readDir(DATA_DIR_REQ);
 
   try {
     const JSON_EXT = '.json';
@@ -36,6 +45,27 @@ const DATA_DIR = path.join(__dirname, 'data');
       const data = await factory({ log, config });
       return Promise.all(data.map((d) => Model.create(d)));
     }));
+
+    await Promise.all(filesReq.filter((f) => f.endsWith(JS_EXT)).map(async (filename) => {
+      const { default: Model } = require(path.join(MODELS_DIR, path.basename(filename, JS_EXT)));
+      const { default: factory } = require(path.join(DATA_DIR_REQ, filename));
+      const data = await factory({ log, config });
+      return Promise.all(data.map((d) => Model.create(d)));
+    }));
+
+    try {
+      const shiftRequest = await RequestModel.findById(requestToBeCreated01_id);
+      await shiftRequest.stateMutation('CREATE');
+      await shiftRequest.save();
+      //console.log(shiftRequest);
+    }
+    catch (error) {
+      console.error(error);
+    }
+    finally {
+      log.info('Request transition moved from Drafted to Created!');
+    }
+
   } finally {
     await mongoose.connection.close();
   }

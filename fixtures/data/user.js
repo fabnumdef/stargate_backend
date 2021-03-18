@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { nanoid } from 'nanoid';
 import {
   ROLE_ADMIN,
@@ -18,9 +19,13 @@ import {
   UNIT_LASEM,
 } from './unit';
 
+export const SAMId = new mongoose.Types.ObjectId();
+export const ADMId = new mongoose.Types.ObjectId();
+
 export default async ({ log }) => {
   const users = [
     {
+      _id: ADMId,
       firstname: 'Super',
       lastname: 'Admin',
       email: {
@@ -231,6 +236,7 @@ export default async ({ log }) => {
       ],
     },
     {
+      _id: SAMId,
       firstname: 'Sam',
       lastname: 'Soule',
       email: {
