@@ -11,7 +11,7 @@ import MongooseService from '../src/services/mongoose';
 import config from '../src/services/config';
 
 import {
-  requestToBeCreated01_id,
+  REQUEST01_ID,
 } from './datarequest/request';
 import RequestModel from '../src/models/request';
 
@@ -21,8 +21,6 @@ const readDir = promisify(fs.readdir);
 const MODELS_DIR = path.resolve(__dirname, '..', 'src', 'models');
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_DIR_REQ = path.join(__dirname, 'datarequest');
-
-
 
 (async () => {
   const hrstart = process.hrtime();
@@ -54,18 +52,15 @@ const DATA_DIR_REQ = path.join(__dirname, 'datarequest');
     }));
 
     try {
-      const shiftRequest = await RequestModel.findById(requestToBeCreated01_id);
+      const shiftRequest = await RequestModel.findById(REQUEST01_ID);
       await shiftRequest.stateMutation('CREATE');
       await shiftRequest.save();
-      //console.log(shiftRequest);
-    }
-    catch (error) {
-      console.error(error);
-    }
-    finally {
+      // console.log(shiftRequest);
+    } catch (error) {
+      log.error(error);
+    } finally {
       log.info('Request transition moved from Drafted to Created!');
     }
-
   } finally {
     await mongoose.connection.close();
   }

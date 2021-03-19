@@ -7,12 +7,12 @@ import {
   lasemId,
 } from './unit';
 
-export const PLACE_CIRI_Id = new mongoose.Types.ObjectId();
-export const PLACE_FUS_Id = new mongoose.Types.ObjectId();
-export const PLACE_BBPD_Id = new mongoose.Types.ObjectId();
+export const PLACE_CIRI_ID = new mongoose.Types.ObjectId();
+export const PLACE_FUS_ID = new mongoose.Types.ObjectId();
+export const PLACE_BBPD_ID = new mongoose.Types.ObjectId();
 
 export const PLACE_CIRI = {
-  _id: PLACE_CIRI_Id,
+  _id: PLACE_CIRI_ID,
   label: 'Lieu CIRI',
   campus: {
     _id: 'NAVAL-BASE',
@@ -25,7 +25,7 @@ export const PLACE_CIRI = {
 };
 
 export const PLACE_FUS = {
-  _id: PLACE_FUS_Id,
+  _id: PLACE_FUS_ID,
   label: 'Lieu FUS',
   campus: {
     _id: 'NAVAL-BASE',
@@ -50,7 +50,7 @@ export const PLACE_SAILOR = {
 };
 
 export const PLACE_BBPD = {
-  _id: PLACE_BBPD_Id,
+  _id: PLACE_BBPD_ID,
   label: 'Lieu BBPD',
   campus: {
     _id: 'NAVAL-BASE',
