@@ -55,7 +55,6 @@ const DATA_DIR_REQ = path.join(__dirname, 'datarequest');
       const shiftRequest = await RequestModel.findById(REQUEST01_ID);
       await shiftRequest.stateMutation('CREATE');
       await shiftRequest.save();
-      // console.log(shiftRequest);
     } catch (error) {
       log.error(error);
     } finally {
