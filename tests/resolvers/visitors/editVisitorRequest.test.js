@@ -7,6 +7,7 @@ import Campus, { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor, generateDummyVisitor } from '../../models/visitor';
 import { ID_DOCUMENT_PASSPORT, ID_DOCUMENT_IDCARD } from '../../../src/models/visitor';
 import { fileUpload, fileUploadError } from '../../helpers/file-upload';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutateEditVisitorRequest(campusId, requestId, visitorData, visitorId, user = null) {
   const { mutate } = queryFactory(user);
@@ -39,7 +40,8 @@ function mutateEditVisitorRequest(campusId, requestId, visitorData, visitorId, u
 
 it('Test to edit a visitor with new uploaded file', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const visitorParams = {
     request: dummyRequest,
@@ -165,5 +167,6 @@ it('Test to edit a visitor with new uploaded file', async () => {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await Campus.findOneAndDelete({ _id: campus._id });
     await Visitor.findOneAndDelete({ _id: visitor.id });
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

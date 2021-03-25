@@ -104,7 +104,7 @@ it('Test to validate a step for a visitor', async () => {
   const place1 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
   const place2 = new Place(generateDummyPlace({ campus, unitInCharge: unit1 }));
   const place3 = new Place(generateDummyPlace({ campus, unitInCharge: unit2 }));
-  const owner = await generateDummyUser();
+  const owner = await generateDummyUser({ unit: unit1 });
 
   const request = await createDummyRequest({
     campus,

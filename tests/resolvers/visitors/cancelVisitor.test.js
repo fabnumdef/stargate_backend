@@ -73,11 +73,14 @@ it('Test to validate a step for a visitor', async () => {
   });
 
   const place = new Place(generateDummyPlace({ campus, unitInCharge: unit }));
-  const owner = await createDummyUser({ roles: [{ role: ROLE_HOST, unit }] });
+  const owner = await createDummyUser({ roles: [{ role: ROLE_HOST, units: [unit] }] });
 
   const request = await createDummyRequest({
     campus,
-    owner,
+    owner: {
+      ...owner.toObject(),
+      unit,
+    },
     places: [
       place,
     ],

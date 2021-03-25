@@ -24,6 +24,7 @@ const { Schema } = mongoose;
 const CampusSchema = new Schema({
   _id: { type: String, alias: 'id' },
   label: { type: String, required: true },
+  trigram: { type: String, required: true },
   timezone: {
     type: String,
     default: process.env.TZ || DEFAULT_TIMEZONE,

@@ -13,3 +13,4 @@ build
 # Others
 .DS_Store
 .vscode
+.idea

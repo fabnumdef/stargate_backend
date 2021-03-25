@@ -40,7 +40,7 @@ function queryListRequestByVisitorStatus(campusId, as, isDone, user = null) {
 it('Test to list requests by visitor status', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();
-  const owner = await generateDummyUser();
+  const owner = await generateDummyUser({ unit });
 
   const request1 = await createDummyRequest({ campus, owner, status: STATE_CREATED });
   const request2 = await createDummyRequest({ campus, owner, status: STATE_CREATED });

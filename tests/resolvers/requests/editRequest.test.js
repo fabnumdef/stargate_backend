@@ -23,9 +23,9 @@ function mutateEditionRequest(campusId, id, request, user = null) {
 
 it('Test to edit a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
-  const dummyRequest = await createDummyRequest({ campus, owner });
   const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
+  const dummyRequest = await createDummyRequest({ campus, owner });
   const newPlace = await createDummyPlace({
     campus: { _id: campus._id },
     unitInCharge: { _id: unit._id, label: unit.label },

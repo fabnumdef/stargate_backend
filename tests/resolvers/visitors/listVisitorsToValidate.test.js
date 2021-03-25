@@ -38,7 +38,7 @@ function queryListVisitorsToValidate(campusId, as, user = null) {
 it('Test to list visitors filter by validating step', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();
-  const owner = await generateDummyUser();
+  const owner = await generateDummyUser({ unit });
 
   const request1 = await createDummyRequest({ campus, owner, status: STATE_CREATED });
   const request2 = await createDummyRequest({ campus, owner, status: STATE_CREATED });
@@ -127,5 +127,6 @@ it('Test to list visitors filter by validating step', async () => {
     await request2.deleteOne();
     await unit.deleteOne();
     await campus.deleteOne();
+    await unit.deleteOne();
   }
 });

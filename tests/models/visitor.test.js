@@ -50,7 +50,7 @@ describe('Ensure that workflow is rightly generated for a visitor', () => {
     const place3 = new Place(generateDummyPlace({ campus, unitInCharge: unit2 }));
     const request = await createDummyRequest({
       campus,
-      owner: generateDummyUser(),
+      owner: generateDummyUser({ unit: unit1 }),
       places: [
         place1,
         place2,
@@ -232,7 +232,7 @@ describe('Ensure that workflow is working', () => {
     const request = new Request(generateDummyRequest({
       campus,
       places: [place1],
-      owner: generateDummyUser(),
+      owner: generateDummyUser({ unit: unit1 }),
     }));
     await request.cacheUnitsFromPlaces(true);
     request.stateMutation(EVENT_CREATE);

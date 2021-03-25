@@ -3,6 +3,7 @@ import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function queryGetRequest(campusId, id, user = null) {
   const { mutate } = queryFactory(user);
@@ -25,7 +26,8 @@ function queryGetRequest(campusId, id, user = null) {
 
 it('Test to get a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   try {
     {
@@ -55,5 +57,6 @@ it('Test to get a request', async () => {
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

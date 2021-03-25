@@ -4,6 +4,7 @@ import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import Campus, { createDummyCampus } from '../../models/campus';
 import { EVENT_CANCEL, EVENT_CREATE, STATE_CREATED } from '../../../src/models/request';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutateShiftRequest(campusId, requestId, transition, user = null) {
   const { mutate } = queryFactory(user);
@@ -32,7 +33,8 @@ function mutateShiftRequest(campusId, requestId, transition, user = null) {
 
 it('Test to shift a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
 
   const request = await createDummyRequest({
     campus,
@@ -88,5 +90,6 @@ it('Test to shift a request', async () => {
   } finally {
     await Request.findOneAndDelete({ _id: request._id });
     await Campus.findOneAndDelete({ _id: campus._id });
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

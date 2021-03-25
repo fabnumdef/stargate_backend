@@ -34,14 +34,14 @@ beforeAll(async () => {
 
 it('Test to list my requests', async () => {
   const campus = await createDummyCampus();
-  const owner = await createDummyUser();
   const unit = await createDummyUnit();
+  const user = await createDummyUser();
   const place = await createDummyPlace({ unitInCharge: unit });
   await Promise.all(Array.from({ length: 1 })
-    .map(() => createDummyRequest({ campus, owner: generateDummyUser(), places: [place] })));
+    .map(() => createDummyRequest({ campus, owner: generateDummyUser({ unit }), places: [place] })));
   const list = await Promise.all(
     Array.from({ length: 5 })
-      .map(() => createDummyRequest({ campus, owner, places: [place] })),
+      .map(() => createDummyRequest({ campus, owner: { ...user.toObject(), unit }, places: [place] })),
   );
 
   try {
@@ -57,7 +57,7 @@ it('Test to list my requests', async () => {
       const { data: { getCampus: { listMyRequests } } } = await queryListMyRequests(
         campus._id,
         null,
-        owner,
+        user,
       );
 
       // Check default values
@@ -73,7 +73,7 @@ it('Test to list my requests', async () => {
       const { data: { getCampus: { listMyRequests } } } = await queryListMyRequests(
         campus._id,
         list[0].reason,
-        owner,
+        user,
       );
 
       // Check default values
@@ -88,7 +88,7 @@ it('Test to list my requests', async () => {
     await Request.deleteMany();
     await Place.deleteOne({ _id: place.id });
     await Unit.deleteOne({ _id: unit.id });
-    await User.deleteOne({ _id: owner.id });
     await Campus.deleteOne({ _id: campus._id });
+    await User.deleteOne({ _id: user._id });
   }
 });

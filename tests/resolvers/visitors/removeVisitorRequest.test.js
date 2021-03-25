@@ -6,6 +6,7 @@ import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 import { ID_DOCUMENT_PASSPORT } from '../../../src/models/visitor';
+import { createDummyUnit } from '../../models/unit';
 
 function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null) {
   const { mutate } = queryFactory(user);
@@ -31,7 +32,8 @@ function mutateRemoveVisitorRequest(campusId, requestId, visitorId, user = null)
 
 it('Test to remove a visitor from a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const visitor = await createDummyVisitor({
     request: dummyRequest,
@@ -79,5 +81,6 @@ it('Test to remove a visitor from a request', async () => {
   } finally {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await unit.deleteOne();
   }
 });

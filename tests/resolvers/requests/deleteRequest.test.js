@@ -4,6 +4,7 @@ import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutateDeleteRequest(campusId, requestId, user = null) {
   const { mutate } = queryFactory(user);
@@ -23,8 +24,9 @@ function mutateDeleteRequest(campusId, requestId, user = null) {
 
 it('Test to delete a request', async () => {
   const dummyCampus = await createDummyCampus();
-  const owner = await generateDummyUser();
-  const dummyRequest = await createDummyRequest({ campus: { _id: dummyCampus._id }, owner });
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit: unit.toObject() });
+  const dummyRequest = await createDummyRequest({ campus: dummyCampus, owner });
   const fakeId = new mongoose.Types.ObjectId();
   await createDummyVisitor({
     request: dummyRequest,
@@ -68,5 +70,6 @@ it('Test to delete a request', async () => {
   } finally {
     await Campus.findOneAndDelete({ _id: dummyCampus._id });
     await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });
