@@ -16,7 +16,7 @@ import {
   SAMId,
 } from '../data/user';
 
-export const REQUEST01_ID = 'NAVAL-BASE20210308-13';
+export const REQUEST01_ID = `${NAVAL_BASE.trigram}${UNIT_BBPD.trigram}20210308-13`;
 
 export const ownerSAM01 = {
   _id: SAMId,
