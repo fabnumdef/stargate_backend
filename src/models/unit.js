@@ -59,31 +59,14 @@ UnitSchema.post('save', async (unit) => {
 });
 
 UnitSchema.methods.editUnitDependencies = async function deleteUnitDependencies() {
-  // @todo : optimize in a mongoDB query
   const Place = mongoose.model(PlaceModelName);
   const User = mongoose.model(UserModelName);
-  const unitPlaces = await Place.find({ 'unitInCharge._id': this._id });
-  const unitUsers = await User.find({ 'roles.units._id': this._id });
-  if (unitPlaces) {
-    await Promise.all(unitPlaces.map(async (place) => {
-      place.set('unitInCharge', { _id: this._id, label: this.label }, { strict: false });
-      return place.save();
-    }));
-  }
-  if (unitUsers) {
-    await Promise.all(unitUsers.map(async (user) => {
-      user.roles.map((r) => {
-        r.units.map((unit) => {
-          if (unit._id.toString() === this._id.toString()) {
-            unit.set({ _id: this._id, label: this.label });
-          }
-          return unit;
-        });
-        return r;
-      });
-      user.save();
-    }));
-  }
+  await Place.updateMany({ 'unitInCharge._id': this._id }, { unitInCharge: this });
+  await User.updateMany(
+    { 'roles.units._id': this._id },
+    { $set: { 'roles.$[].units.$[unit]': this } },
+    { arrayFilters: [{ 'unit._id': this._id }], multi: true },
+  );
   return this;
 };
 
