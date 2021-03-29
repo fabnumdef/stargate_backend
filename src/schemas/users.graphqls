@@ -1,6 +1,6 @@
 extend type Query {
     # List users
-    listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: HasRoleInput, search: String): UsersList!
+    listUsers(cursor: OffsetCursor, filters: UserFilters, hasRole: HasRoleInput, campus: String, search: String): UsersList!
     # Get user
     getUser(id: ObjectID!): User
     # Get logged user
