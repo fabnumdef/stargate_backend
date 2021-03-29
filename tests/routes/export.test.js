@@ -5,10 +5,12 @@ import { createDummyCampus } from '../models/campus';
 import Visitor, { createDummyVisitor } from '../models/visitor';
 import app from '../../src/app';
 import ExportToken from '../../src/models/export-token';
+import { createDummyUnit } from '../models/unit';
 
 it('Test to export list visitors in a campus', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const visitors = [
     await createDummyVisitor({ request: dummyRequest }),
@@ -37,5 +39,6 @@ it('Test to export list visitors in a campus', async () => {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await unit.deleteOne();
   }
 });

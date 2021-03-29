@@ -35,9 +35,9 @@ beforeAll(async () => {
 
 it('Test to list requests', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
   const unit1 = await createDummyUnit({ workflow: { steps: [{ role: ROLE_ACCESS_OFFICE }] } });
   const unit2 = await createDummyUnit();
+  const owner = await generateDummyUser({ unit: unit1 });
   const place1 = await createDummyPlace({ unitInCharge: unit1 });
   const place2 = await createDummyPlace({ unitInCharge: unit2 });
   await Promise.all(Array.from({ length: 1 })

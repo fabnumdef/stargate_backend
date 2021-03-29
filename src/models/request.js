@@ -62,6 +62,7 @@ const RequestSchema = new Schema({
   campus: {
     _id: { type: String, required: true },
     label: String,
+    trigram: String,
     timezone: {
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
@@ -237,9 +238,11 @@ RequestSchema.methods.stateMutation = async function stateMutation(...params) {
 };
 
 RequestSchema.methods.generateID = async function generateID() {
+  const Unit = mongoose.model(UNIT_MODEL_NAME);
+  const unit = await Unit.findById(this.owner.unit._id);
   const date = DateTime.fromJSDate(this.createdAt).setZone(this.campus.timezone).startOf('day');
   const sequence = await RequestCounter.getNextSequence(this.campus._id, date);
-  return `${this.campus._id}${date.toFormat('yyyyLLdd')}-${sequence}`;
+  return `${this.campus.trigram}${unit.trigram}${date.toFormat('yyyyLLdd')}-${sequence}`;
 };
 
 RequestSchema.methods.cacheUnitsFromPlaces = async function cacheUnits(fetchInDatabase = false) {

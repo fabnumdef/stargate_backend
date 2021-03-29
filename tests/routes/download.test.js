@@ -9,10 +9,12 @@ import DownloadToken from '../../src/models/download-token';
 import { deleteUploadedFile, uploadFile } from '../../src/models/helpers/upload';
 import { BUCKETNAME_VISITOR_FILE } from '../../src/models/visitor';
 import { fileUpload } from '../helpers/file-upload';
+import Unit, { createDummyUnit } from '../models/unit';
 
 it('Test to export a file', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const v = await createDummyVisitor({ request: dummyRequest });
   const dbFilename = nanoid();
@@ -27,5 +29,6 @@ it('Test to export a file', async () => {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await Visitor.findOneAndDelete({ _id: v._id });
     await DownloadToken.findOneAndDelete({ _id: downloadToken._id });
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

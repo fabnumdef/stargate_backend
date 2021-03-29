@@ -3,6 +3,7 @@ import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function queryCSVExportVisitors(campusId, search, user = null) {
   const { mutate } = queryFactory(user);
@@ -28,7 +29,8 @@ function queryCSVExportVisitors(campusId, search, user = null) {
 
 it('Test to export list visitors in a campus', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const visitors = [
     await createDummyVisitor({ request: dummyRequest }),
@@ -56,5 +58,6 @@ it('Test to export list visitors in a campus', async () => {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

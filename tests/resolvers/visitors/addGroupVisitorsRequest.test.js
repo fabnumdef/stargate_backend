@@ -6,6 +6,7 @@ import { createDummyCampus } from '../../models/campus';
 import Visitor from '../../models/visitor';
 import { csvFileUpload } from '../../helpers/file-upload';
 import { ROLE_HOST } from '../../../src/models/rules';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutatecreateGroupVisitorsRequest(campusId, requestId, file, as, user = null) {
   const { mutate } = queryFactory(user);
@@ -41,7 +42,8 @@ function mutatecreateGroupVisitorsRequest(campusId, requestId, file, as, user = 
 
 it('Test to add a group of visitors to a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const file = csvFileUpload;
   try {
@@ -99,5 +101,6 @@ it('Test to add a group of visitors to a request', async () => {
     await Visitor.deleteMany();
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

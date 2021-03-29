@@ -3,6 +3,7 @@ import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   const { mutate } = queryFactory(user);
@@ -57,7 +58,8 @@ function queryListVisitors(campusId, search, requestsId, user = null) {
 
 it('Test to list visitors in a request', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const visitors = [
     await createDummyVisitor({ request: dummyRequest }),
@@ -85,12 +87,14 @@ it('Test to list visitors in a request', async () => {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });
 
 it('Test to list visitors in a campus', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const dummyRequest2 = await createDummyRequest({ campus, owner });
   const visitors = [
@@ -131,5 +135,6 @@ it('Test to list visitors in a campus', async () => {
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await Request.findOneAndDelete({ _id: dummyRequest2._id });
     await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });

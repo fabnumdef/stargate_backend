@@ -4,6 +4,7 @@ import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import { createDummyVisitor } from '../../models/visitor';
 import { createDummyCampus } from '../../models/campus';
 import { createDummyRequest } from '../../models/request';
+import { createDummyUnit } from '../../models/unit';
 
 function queryGetVisitorRequest(campusId, requestId, id, user = null) {
   const { mutate } = queryFactory(user);
@@ -29,7 +30,8 @@ function queryGetVisitorRequest(campusId, requestId, id, user = null) {
 
 it('Test to get a visitorRequest', async () => {
   const campus = await createDummyCampus();
-  const owner = await generateDummyUser();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
 
   const request = await createDummyRequest({
     campus,
@@ -79,5 +81,6 @@ it('Test to get a visitorRequest', async () => {
     await visitor.deleteOne();
     await request.deleteOne();
     await campus.deleteOne();
+    await unit.deleteOne();
   }
 });

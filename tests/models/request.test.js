@@ -20,18 +20,19 @@ const DEFAULT_TIMEZONE = config.get('default_timezone');
 
 describe('Ensure that ID is generated from elements', () => {
   it('Should generate an id if no one is provided', async () => {
-    const owner = generateDummyUser();
+    const unit = await createDummyUnit();
+    const owner = generateDummyUser({ unit });
     const campus = generateDummyCampus();
     const date = DateTime.local().setZone(DEFAULT_TIMEZONE).startOf('day');
     {
       const request = new Request(generateDummyRequest({ owner, campus }));
       await request.save();
-      expect(request._id).toEqual(`${campus._id}${date.toFormat('yyyyLLdd')}-1`);
+      expect(request._id).toEqual(`${campus.trigram}${unit.trigram}${date.toFormat('yyyyLLdd')}-1`);
     }
     {
       const request = new Request(generateDummyRequest({ owner, campus }));
       await request.save();
-      expect(request._id).toEqual(`${campus._id}${date.toFormat('yyyyLLdd')}-2`);
+      expect(request._id).toEqual(`${campus.trigram}${unit.trigram}${date.toFormat('yyyyLLdd')}-2`);
     }
   });
 });
@@ -92,7 +93,8 @@ describe('Ensure that units can be cached from places', () => {
 describe('Ensure that workflow is working', () => {
   it('Entity should be removed when state switch to removed', async () => {
     const campus = new Campus(generateDummyCampus());
-    const owner = await generateDummyUser();
+    const unit = await createDummyUnit();
+    const owner = await generateDummyUser({ unit });
     const request = await createDummyRequest({ campus, owner });
     await request.stateMutation(EVENT_REMOVE);
     expect(await Request.findById(request._id)).toBeNull();
@@ -115,7 +117,7 @@ describe('Ensure that workflow is working', () => {
     const request = new Request(generateDummyRequest({
       campus,
       places: [place1],
-      owner: generateDummyUser(),
+      owner: generateDummyUser({ unit: unit1 }),
     }));
     await request.cacheUnitsFromPlaces(true);
     await request.save();
@@ -152,7 +154,7 @@ describe('Ensure that workflow is working', () => {
     const request = new Request(generateDummyRequest({
       campus,
       places: [place1],
-      owner: generateDummyUser(),
+      owner: generateDummyUser({ unit: unit1 }),
     }));
     await request.cacheUnitsFromPlaces(true);
     request.stateMutation(EVENT_CREATE);

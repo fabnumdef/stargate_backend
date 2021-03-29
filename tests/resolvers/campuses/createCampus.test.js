@@ -22,7 +22,10 @@ it('Test to create a campus', async () => {
 
   try {
     {
-      const { errors } = await mutateCreateCampus(dummyCampus._id, { label: dummyCampus.label });
+      const { errors } = await mutateCreateCampus(
+        dummyCampus._id,
+        { label: dummyCampus.label, trigram: dummyCampus.trigram },
+      );
 
       // You're not authorized to create campus while without rights
       expect(errors).toHaveLength(1);
@@ -32,7 +35,7 @@ it('Test to create a campus', async () => {
     {
       const { data } = await mutateCreateCampus(
         dummyCampus._id,
-        { label: dummyCampus.label },
+        { label: dummyCampus.label, trigram: dummyCampus.trigram },
         generateDummySuperAdmin(),
       );
       expect(data.createCampus).toHaveProperty('id', dummyCampus._id);

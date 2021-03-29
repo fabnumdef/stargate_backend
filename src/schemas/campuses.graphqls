@@ -11,7 +11,7 @@ type Mutation {
     # Campus creation
     createCampus(id: String!, campus: CampusInput!): Campus!
     # Campus edition
-    editCampus(id: String!, campus: CampusInput!): Campus!
+    editCampus(id: String!, campus: EditCampusInput!): Campus!
     # Campus mutation, used to edit data linked to campus
     mutateCampus(id: String!): CampusMutation!
     # Campus deletion
@@ -38,6 +38,16 @@ input CampusFilters {
 input CampusInput {
     # Label of the campus
     label: String!
+    # Trigram of the campus
+    trigram: String!
+}
+
+# Editable data for a campus
+input EditCampusInput {
+    # Label of the campus
+    label: String
+    # Trigram of the campus
+    trigram: String
 }
 
 type Campus implements Node {
