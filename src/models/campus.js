@@ -14,6 +14,7 @@ import {
 } from './request';
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
 import { MODEL_NAME as PLACE_MODEL_NAME } from './place';
+import { MODEL_NAME as USER_MODEL_NAME } from './user';
 import { EXPORT_CSV_TEMPLATE_VISITORS, EXPORT_CSV_VISITORS, MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 import ExportToken from './export-token';
 import config from '../services/config';
@@ -38,6 +39,31 @@ const CampusSchema = new Schema({
     },
   },
 }, { timestamps: true });
+
+CampusSchema.post('save', async (campus) => {
+  await campus.editCampusDependencies();
+});
+
+CampusSchema.methods.editCampusDependencies = async function editCampusDependencies() {
+  const modelsToUpdate = [
+    { modelName: PLACE_MODEL_NAME, field: 'campus' },
+    { modelName: UNIT_MODEL_NAME, field: 'campus' },
+    { modelName: REQUEST_MODEL_NAME, field: 'campus' },
+    { modelName: ZONE_MODEL_NAME, field: 'campus' },
+    { modelName: VISITOR_MODEL_NAME, field: 'request.campus' },
+  ];
+  await Promise.all(modelsToUpdate.map(async (m) => {
+    const Model = mongoose.model(m.modelName);
+    return Model.updateMany({ [`${m.field}._id`]: this._id }, { [m.field]: this });
+  }));
+
+  const User = mongoose.model(USER_MODEL_NAME);
+  await User.updateMany(
+    { 'roles.campuses._id': this._id },
+    { $set: { 'roles.$[].campuses.$[campus]': this } },
+    { arrayFilters: [{ 'campus._id': this._id }], multi: true },
+  );
+};
 
 CampusSchema.methods.createUnit = async function createUnit(data) {
   const Unit = mongoose.model(UNIT_MODEL_NAME);

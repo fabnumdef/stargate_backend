@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummySuperAdmin } from '../../models/user';
 import Campus, { createDummyCampus } from '../../models/campus';
+import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutateEditionCampus(id, campus, user = null) {
   const { mutate } = queryFactory(user);
@@ -20,6 +21,7 @@ function mutateEditionCampus(id, campus, user = null) {
 
 it('Test to edit a campus', async () => {
   const dummyCampus = await createDummyCampus();
+  const unit = await createDummyUnit({ campus: dummyCampus });
   const newLabel = nanoid();
   try {
     {
@@ -49,8 +51,11 @@ it('Test to edit a campus', async () => {
       const dbVersion = await Campus.findOne({ _id: dummyCampus._id });
       expect(dbVersion).toMatchObject({ _id: dummyCampus._id, label: newLabel });
       expect(dbVersion).toHaveProperty('__v', 1);
+      const dbUnit = await Unit.findOne({ _id: unit._id });
+      expect(dbUnit.campus).toMatchObject({ _id: dummyCampus._id, label: newLabel });
     }
   } finally {
     await Campus.findOneAndDelete({ _id: dummyCampus._id });
+    await Unit.findOneAndDelete({ _id: unit._id });
   }
 });
