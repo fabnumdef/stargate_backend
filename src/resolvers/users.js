@@ -59,8 +59,9 @@ export const Mutation = {
 const MAX_REQUESTABLE_USERS = 30;
 export const Query = {
   async listUsers(_parent, {
-    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole = {}, search,
+    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole = {}, campus = null, search,
   }) {
+    const campusFilter = campus ? { 'roles.campuses._id': campus } : {};
     let roleFilter = {};
     if (hasRole.role) {
       roleFilter = {
@@ -78,7 +79,9 @@ export const Query = {
       searchFilters = { $or: [{ lastname: { $regex: search, $options: 'i' } }] };
     }
     return {
-      filters: { ...filters, ...roleFilter, ...searchFilters },
+      filters: {
+        ...filters, ...roleFilter, ...searchFilters, ...campusFilter,
+      },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_USERS) },
       countMethod: User.countDocuments.bind(User),
     };
