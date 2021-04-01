@@ -68,6 +68,7 @@ export const FIELDS_TO_SEARCH = [
   'birthLastname',
   'usageLastname',
   'company',
+  'workPlace',
   'rank',
   'nationality',
   'email',
@@ -112,6 +113,7 @@ export const EXPORT_CSV_TEMPLATE_VISITORS = [
   { label: 'Email', value: 'email' },
   { label: 'Grade*', value: 'rank' },
   { label: 'Unité / Entreprise', value: 'company' },
+  { label: 'Lieu de travail', value: 'workPlace' },
   { label: CSV_VIP_LABEL, value: 'vip' },
   { label: 'Motif VIP', value: 'vipReason' },
   { label: CSV_NATIONALITY_LABEL, value: 'nationality' },
@@ -157,6 +159,7 @@ const VisitorSchema = new Schema({
     type: String,
     required: true,
   },
+  workPlace: String,
   rank: String,
   email: {
     type: String,

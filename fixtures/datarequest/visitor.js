@@ -16,6 +16,7 @@ const VISITOR01 = {
   isInternal: true,
   employeeType: 'TYPE_INTERIM',
   company: 'Expendable',
+  workPlace: 'Hollywood',
   rank: '',
   email: 'cu.ciri@localhost.fr',
   vip: true,
