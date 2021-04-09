@@ -50,7 +50,7 @@ export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
 export const CONVERT_TYPE_IMPORT_CSV = {
   [TYPE_VISITOR]: 'visiteur',
   [TYPE_SUBCONTRACTOR]: 'sous-traitant',
-  [TYPE_INTERIM]: 'interimaire',
+  [TYPE_INTERIM]: 'intérimaire',
   [TYPE_TRAINEE]: 'stagiaire',
   [TYPE_DELIVERER]: 'livreur',
   [TYPE_ACTIVE_MILITARY]: 'militaire d\'active',
@@ -58,6 +58,14 @@ export const CONVERT_TYPE_IMPORT_CSV = {
   [TYPE_CIVILIAN_DEFENSE]: 'civil de la défense',
   [TYPE_FAMILY]: 'famille',
   [TYPE_AUTHORITY]: 'autorité',
+};
+
+export const CONVERT_STATE_VISITOR_CSV = {
+  ACCEPTED: 'Accepté',
+  REJECTED: 'Refusé',
+  MIXED: 'Partiellement accepté',
+  CREATED: 'En cours',
+  CANCELED: 'Annulé',
 };
 
 export const GLOBAL_VALIDATION_ROLES = [ROLE_SCREENING, ROLE_ACCESS_OFFICE];
@@ -89,7 +97,8 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'Nationalité', value: 'nationality' },
   { label: 'Date de naissance', value: 'birthday' },
   { label: 'Lieu de naissance', value: 'birthplace' },
-  { label: 'Typ d\'employé', value: 'employeeType' },
+  { label: 'Lieu de travail', value: 'workPlace' },
+  { label: 'Type d\'employé', value: 'employeeType' },
   { label: 'Date de création', value: 'createdAt' },
   { label: 'Date de mise à jour', value: 'updatedAt' },
 ];

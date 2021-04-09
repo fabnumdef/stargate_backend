@@ -2,6 +2,8 @@ import Router from '@koa/router';
 import mongoose from 'mongoose';
 import Json2csv from 'json2csv';
 import ExportToken, { EXPORT_FORMAT_CSV } from '../models/export-token';
+import { CONVERT_TYPE_IMPORT_CSV, CONVERT_STATE_VISITOR_CSV } from '../models/visitor';
+
 import { APIError } from '../models/helpers/errors';
 
 const { transforms: { flatten } } = Json2csv;
@@ -14,6 +16,29 @@ router.get('/export/:export_token', async (ctx) => {
   }
   const Model = exportToken.modelName ? mongoose.model(exportToken.modelName) : null;
   const list = Model ? await Model.find(exportToken.filters, exportToken.projection).lean() : [];
+  if (exportToken.modelName === 'Visitor') {
+    list.map((item) => {
+      // eslint-disable-next-line no-param-reassign
+      item.request.from = item.request.from.toLocaleString('fr-FR');
+      // eslint-disable-next-line no-param-reassign
+      item.request.to = item.request.to.toLocaleString('fr-FR');
+      // eslint-disable-next-line no-param-reassign
+      item.birthday = item.birthday.toLocaleString('fr-FR');
+      // eslint-disable-next-line no-param-reassign
+      item.createdAt = item.createdAt.toLocaleString('fr-FR');
+      // eslint-disable-next-line no-param-reassign
+      item.updatedAt = item.updatedAt.toLocaleString('fr-FR');
+      // eslint-disable-next-line no-param-reassign
+      item.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
+      // eslint-disable-next-line no-param-reassign
+      item.nationality = item.nationality.toUpperCase();
+      // eslint-disable-next-line no-param-reassign
+      item.employeeType = CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase();
+      // eslint-disable-next-line no-param-reassign
+      item.status = CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase();
+      return item;
+    });
+  }
   switch (exportToken.format) {
     case EXPORT_FORMAT_CSV:
       {
