@@ -11,7 +11,7 @@ import {
 
 export default shield({
   Query: {
-    listCampuses: isAuthenticated,
+    listCampuses: isSuperAdmin,
     getCampus: isAuthenticated,
     getUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     me: isAuthenticated,

@@ -51,7 +51,7 @@ input EditCampusInput {
 }
 
 type Campus implements Node {
-    # Unique id of the campus, here ObjectID
+    # Unique id of the campus
     id: String!
     # Date of creation
     createdAt: DateTime!
@@ -59,4 +59,6 @@ type Campus implements Node {
     updatedAt: DateTime!
     # Label of the campus
     label: String
+    # Trigram of the campus
+    trigram: String
 }
