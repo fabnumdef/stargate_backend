@@ -18,25 +18,17 @@ router.get('/export/:export_token', async (ctx) => {
   const list = Model ? await Model.find(exportToken.filters, exportToken.projection).lean() : [];
   if (exportToken.modelName === 'Visitor') {
     list.map((item) => {
-      // eslint-disable-next-line no-param-reassign
-      item.request.from = item.request.from.toLocaleString('fr-FR');
-      // eslint-disable-next-line no-param-reassign
-      item.request.to = item.request.to.toLocaleString('fr-FR');
-      // eslint-disable-next-line no-param-reassign
-      item.birthday = item.birthday.toLocaleString('fr-FR');
-      // eslint-disable-next-line no-param-reassign
-      item.createdAt = item.createdAt.toLocaleString('fr-FR');
-      // eslint-disable-next-line no-param-reassign
-      item.updatedAt = item.updatedAt.toLocaleString('fr-FR');
-      // eslint-disable-next-line no-param-reassign
-      item.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
-      // eslint-disable-next-line no-param-reassign
-      item.nationality = item.nationality.toUpperCase();
-      // eslint-disable-next-line no-param-reassign
-      item.employeeType = CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase();
-      // eslint-disable-next-line no-param-reassign
-      item.status = CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase();
-      return item;
+      const newItem = Object.assign(item);
+      newItem.request.from = item.request.from.toLocaleString('fr-FR');
+      newItem.request.to = item.request.to.toLocaleString('fr-FR');
+      newItem.birthday = item.birthday.toLocaleString('fr-FR');
+      newItem.createdAt = item.createdAt.toLocaleString('fr-FR');
+      newItem.updatedAt = item.updatedAt.toLocaleString('fr-FR');
+      newItem.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
+      newItem.nationality = item.nationality.toUpperCase();
+      newItem.employeeType = CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase();
+      newItem.status = CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase();
+      return newItem;
     });
   }
   switch (exportToken.format) {
