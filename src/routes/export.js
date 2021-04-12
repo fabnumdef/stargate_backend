@@ -26,8 +26,12 @@ router.get('/export/:export_token', async (ctx) => {
       newItem.updatedAt = item.updatedAt.toLocaleString('fr-FR');
       newItem.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
       newItem.nationality = item.nationality.toUpperCase();
-      newItem.employeeType = CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase();
-      newItem.status = CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase();
+      newItem.employeeType = typeof (CONVERT_TYPE_IMPORT_CSV[item.employeeType]) !== 'undefined'
+        ? CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase()
+        : 'INDEFINI';
+      newItem.status = typeof (CONVERT_STATE_VISITOR_CSV[item.status]) !== 'undefined'
+        ? CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase()
+        : 'INDEFINI';
       return newItem;
     });
   }
