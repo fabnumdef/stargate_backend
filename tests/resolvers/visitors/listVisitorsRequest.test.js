@@ -1,9 +1,12 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummySuperAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
-import { createDummyCampus } from '../../models/campus';
+import Campus, { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 import Unit, { createDummyUnit } from '../../models/unit';
+import Place, { generateDummyPlace } from '../../models/place';
+import { ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
+import { WORKFLOW_BEHAVIOR_VALIDATION, WORKFLOW_DECISION_ACCEPTED } from '../../../src/models/unit';
 
 function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   const { mutate } = queryFactory(user);
@@ -33,13 +36,18 @@ function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   });
 }
 
-function queryListVisitors(campusId, search, requestsId, user = null) {
+function queryListVisitors(campusId, search, requestsId, user = null, isDone = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query ListVisitorsRequestQuery($campusId: String!, $search: String, $requestsId: [String]) {
+      query ListVisitorsRequestQuery(
+          $campusId: String!,
+          $search: String,
+          $requestsId: [String],
+          $isDone: RequestVisitorIsDone,
+      ) {
         getCampus(id: $campusId) {
-          listVisitors(search: $search, requestsId: $requestsId) {
+          listVisitors(search: $search, requestsId: $requestsId, isDone: $isDone) {
             list {
               id
               firstname
@@ -52,6 +60,39 @@ function queryListVisitors(campusId, search, requestsId, user = null) {
       campusId,
       search,
       requestsId,
+      isDone,
+    },
+  });
+}
+
+function mutatevalidateStepRequest(campusId, requestId, visitorId, personas, decision, tags = [], user = null) {
+  const { mutate } = queryFactory(user);
+  return mutate({
+    mutation: gql`
+        mutation validateStepRequestMutation(
+            $campusId: String!,
+            $requestId: String!,
+            $visitorId: ObjectID!,
+            $personas: ValidationPersonas!,
+            $decision: String!
+            $tags: [String]
+        ) {
+            mutateCampus(id: $campusId) {
+                mutateRequest(id: $requestId) {
+                    validateVisitorStep(id: $visitorId, as: $personas, decision: $decision, tags: $tags) {
+                        id
+                    }
+                }
+            }
+        }
+    `,
+    variables: {
+      campusId,
+      requestId: requestId.toString ? requestId.toString() : requestId,
+      visitorId: visitorId.toString ? visitorId.toString() : visitorId,
+      personas,
+      decision,
+      tags,
     },
   });
 }
@@ -93,15 +134,27 @@ it('Test to list visitors in a request', async () => {
 
 it('Test to list visitors in a campus', async () => {
   const campus = await createDummyCampus();
-  const unit = await createDummyUnit();
+  const unit = await createDummyUnit({
+    workflow: {
+      steps: [
+        {
+          role: ROLE_UNIT_CORRESPONDENT,
+          behavior: WORKFLOW_BEHAVIOR_VALIDATION,
+        },
+      ],
+    },
+  });
   const owner = await generateDummyUser({ unit });
-  const dummyRequest = await createDummyRequest({ campus, owner });
+  const place = new Place(generateDummyPlace({ campus, unitInCharge: unit }));
+  const dummyRequest = await createDummyRequest({
+    campus, owner, status: 'CREATED', places: [place],
+  });
   const dummyRequest2 = await createDummyRequest({ campus, owner });
   const visitors = [
-    await createDummyVisitor({ request: dummyRequest }),
-    await createDummyVisitor({ request: dummyRequest }),
-    await createDummyVisitor({ request: dummyRequest2 }),
-    await createDummyVisitor({ request: dummyRequest2 }),
+    await createDummyVisitor({ request: dummyRequest, status: 'CREATED' }),
+    await createDummyVisitor({ request: dummyRequest, status: 'CREATED' }),
+    await createDummyVisitor({ request: dummyRequest2, status: 'CREATED' }),
+    await createDummyVisitor({ request: dummyRequest2, status: 'CREATED' }),
   ];
 
   try {
@@ -130,11 +183,31 @@ it('Test to list visitors in a campus', async () => {
       );
       expect(listVisitors.list).toHaveLength(2);
     }
+    {
+      await mutatevalidateStepRequest(
+        campus._id,
+        dummyRequest._id,
+        visitors[0]._id,
+        { unit: unit._id.toString(), role: ROLE_UNIT_CORRESPONDENT },
+        WORKFLOW_DECISION_ACCEPTED,
+        [],
+        generateDummyAdmin(),
+      );
+
+      const { data: { getCampus: { listVisitors } } } = await queryListVisitors(
+        campus._id,
+        null,
+        null,
+        generateDummySuperAdmin(),
+        { role: ROLE_UNIT_CORRESPONDENT, unit: unit._id.toString(), value: true },
+      );
+      expect(listVisitors.list).toHaveLength(1);
+    }
   } finally {
     await Promise.all(visitors.map((v) => Visitor.findOneAndDelete({ _id: v._id })));
     await Request.findOneAndDelete({ _id: dummyRequest._id });
     await Request.findOneAndDelete({ _id: dummyRequest2._id });
-    await campus.deleteOne();
+    await Campus.findOneAndDelete({ _id: campus._id });
     await Unit.findOneAndDelete({ _id: unit._id });
   }
 });
