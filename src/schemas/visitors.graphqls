@@ -23,6 +23,7 @@ input ValidationPersonas {
 
 input RequestVisitorIsDone {
     role: String
+    unit: ObjectID
     value: Boolean!
 }
 

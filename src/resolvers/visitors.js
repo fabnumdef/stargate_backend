@@ -1,4 +1,5 @@
 import csv from 'csv-parser';
+import mongoose from 'mongoose';
 import { deleteUploadedFile } from '../models/helpers/upload';
 import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH, BUCKETNAME_VISITOR_FILE } from '../models/visitor';
 import {
@@ -141,8 +142,17 @@ export const Campus = {
     let isDoneFilters = {};
     if (isDone) {
       isDoneFilters = {
-        status: isDone.value ? [STATE_REJECTED, STATE_ACCEPTED, STATE_MIXED, STATE_CANCELED] : STATE_CREATED,
-        'request.units.workflow.steps': { $elemMatch: { role: isDone.role, 'state.value': { $exists: isDone.value } } },
+        'request.units': {
+          $elemMatch: {
+            _id: isDone.unit ? mongoose.Types.ObjectId(isDone.unit) : { $exists: true },
+            'workflow.steps': {
+              $elemMatch: {
+                role: isDone.role,
+                'state.value': { $exists: isDone.value },
+              },
+            },
+          },
+        },
       };
     }
     let requestsFilters = {};
