@@ -83,24 +83,21 @@ export const FIELDS_TO_SEARCH = [
 ];
 
 export const EXPORT_CSV_VISITORS = [
-  { label: 'Id', value: '_id' },
-  { label: 'Status', value: 'status' },
-  { label: 'Date d\'arrivée', value: 'request.from' },
-  { label: 'Date de départ', value: 'request.to' },
-  { label: 'Motif', value: 'request.reason' },
-  { label: 'Nature Visite', value: 'request.object' },
-  { label: 'Demande', value: 'request._id' },
-  { label: 'MINARM', value: 'isInternal' },
-  { label: 'Prénom', value: 'firstname' },
-  { label: 'Nom d\'usage', value: 'usageLastname' },
+  { label: 'Statut', value: 'status' },
   { label: 'Nom de naissance', value: 'birthLastname' },
-  { label: 'Nationalité', value: 'nationality' },
+  { label: 'Nom d\'usage', value: 'usageLastname' },
+  { label: 'Prénom', value: 'firstname' },
   { label: 'Date de naissance', value: 'birthday' },
   { label: 'Lieu de naissance', value: 'birthplace' },
+  { label: 'Unité / Société', value: 'company' },
+  { label: 'Date debut validité', value: 'request.from' },
+  { label: 'Date fin validité', value: 'request.to' },
+  { label: 'Nationalité', value: 'nationality' },
   { label: 'Lieu de travail', value: 'workPlace' },
+  { label: 'Origine', value: 'isInternal' },
   { label: 'Type d\'employé', value: 'employeeType' },
-  { label: 'Date de création', value: 'createdAt' },
-  { label: 'Date de mise à jour', value: 'updatedAt' },
+  { label: 'Numéro demande', value: 'request._id' },
+  { label: 'unités', value: 'request.units' },
 ];
 
 export const CSV_ID_KIND_LABEL = `Type document identité [${Object.values(CONVERT_DOCUMENT_IMPORT_CSV).join(', ')}]`;
