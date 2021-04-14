@@ -83,21 +83,21 @@ export const FIELDS_TO_SEARCH = [
 ];
 
 export const EXPORT_CSV_VISITORS = [
-  { label: 'Statut', value: 'status' },
-  { label: 'Nom de naissance', value: 'birthLastname' },
-  { label: 'Nom d\'usage', value: 'usageLastname' },
-  { label: 'Prénom', value: 'firstname' },
-  { label: 'Date de naissance', value: 'birthday' },
-  { label: 'Lieu de naissance', value: 'birthplace' },
-  { label: 'Unité / Société', value: 'company' },
-  { label: 'Date debut validité', value: 'request.from' },
-  { label: 'Date fin validité', value: 'request.to' },
-  { label: 'Nationalité', value: 'nationality' },
-  { label: 'Lieu de travail', value: 'workPlace' },
-  { label: 'Origine', value: 'isInternal' },
-  { label: 'Type d\'employé', value: 'employeeType' },
-  { label: 'Numéro demande', value: 'request._id' },
-  { label: 'unités', value: 'request.units' },
+  { label: 'STATUT', value: 'status' },
+  { label: 'NOM DE NAISSANCE', value: 'birthLastname' },
+  { label: 'NOM MARITAL', value: 'usageLastname' },
+  { label: 'PRENOM', value: 'firstname' },
+  { label: 'DATE DE NAISSANCE', value: 'birthday' },
+  { label: 'LIEU DE NAISSANCE', value: 'birthplace' },
+  { label: 'UNITE / SOCIETE', value: 'company' },
+  { label: 'DATE DEBUT VALIDITE', value: 'request.from' },
+  { label: 'DATE FIN VALIDITE', value: 'request.to' },
+  { label: 'NATIONALITE', value: 'nationality' },
+  { label: 'LIEU DE TRAVAIL', value: 'workPlace' },
+  { label: 'ORIGINE', value: 'isInternal' },
+  { label: 'TYPE D\'EMPLOYE', value: 'employeeType' },
+  { label: 'N° DEMANDE', value: 'request._id' },
+  { label: 'UNITES', value: 'request.units' },
 ];
 
 export const CSV_ID_KIND_LABEL = `Type document identité [${Object.values(CONVERT_DOCUMENT_IMPORT_CSV).join(', ')}]`;

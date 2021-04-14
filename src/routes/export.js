@@ -38,7 +38,7 @@ router.get('/export/:export_token', async (ctx) => {
         const stepSO = unit.workflow.steps.find((s) => s.role === ROLE_SECURITY_OFFICER);
         const stepGend = unit.workflow.steps.find((s) => s.role === ROLE_SCREENING);
         newItem.typeBadge = stepSO.state.payload.tags.join('\r');
-        newItem.dateScreening = DateTime.fromJSDate(stepGend.state.date).toFormat('dd/LL/yyyy');
+        newItem.dateScreening = DateTime.fromJSDate(stepGend.state.date).toFormat('LL/yyyy');
       } else {
         newItem.typeBadge = 'INDEFINI';
         newItem.dateScreening = 'INDEFINI';
@@ -64,22 +64,22 @@ router.get('/export/:export_token', async (ctx) => {
           await Promise.all(list.map(async (item) => Model.update({ _id: item._id }, { exportDate: new Date() })));
         }
         const options = exportToken.options.csv;
-        const fieldToBeRemoved = { label: 'Unité', value: 'request.units' };
-        const fieldToBeAdded1 = { label: 'Service', value: 'emptyField' };
-        const fieldToBeAdded2 = { label: 'Pays de naissance', value: 'emptyfield' };
-        const fieldToBeAdded3 = { label: 'Date criblage', value: 'dateScreening' };
-        const fieldToBeAdded4 = { label: 'Type de badge', value: 'typeBadge' };
-        const fieldToBeAdded5 = { label: 'Nom personne visitée', value: 'emptyfield' };
-        const fieldToBeAdded6 = { label: 'Prénom personne visitée', value: 'emptyfield' };
+        const fieldToBeRemoved = { label: 'UNITES', value: 'request.units' };
+        const fieldToBeAdded1 = { label: 'SERVICE', value: 'emptyField' };
+        const fieldToBeAdded2 = { label: 'PAYS DE NAISSANCE', value: 'emptyfield' };
+        const fieldToBeAdded3 = { label: 'DATE CRIBLAGE', value: 'dateScreening' };
+        const fieldToBeAdded4 = { label: 'TYPE DE BADGE', value: 'typeBadge' };
+        const fieldToBeAdded5 = { label: 'NOM PERSONNE VISITEE', value: 'emptyfield' };
+        const fieldToBeAdded6 = { label: 'PRENOM PERSONNE VISITEE', value: 'emptyfield' };
         // remove field
         options.fields.splice(options.fields.findIndex((a) => a.value === fieldToBeRemoved.value), 1);
         // insert fields that does not exist in Visitor
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Date début validité'), 0, fieldToBeAdded1);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Lieu de travail'), 0, fieldToBeAdded2);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Numéro demande'), 0, fieldToBeAdded3);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Numéro demande'), 0, fieldToBeAdded4);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Numéro demande'), 0, fieldToBeAdded5);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'Numéro demande'), 0, fieldToBeAdded6);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'DATE DEBUT VALIDITE'), 0, fieldToBeAdded1);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'LIEU DE TRAVAIL'), 0, fieldToBeAdded2);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded3);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded4);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded5);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded6);
 
         const parser = new Json2csv.Parser({
           transforms: [flatten()],
