@@ -4,7 +4,7 @@ import Json2csv from 'json2csv';
 import { DateTime } from 'luxon';
 import ExportToken, { EXPORT_FORMAT_CSV } from '../models/export-token';
 import { CONVERT_TYPE_IMPORT_CSV, CONVERT_STATE_VISITOR_CSV } from '../models/visitor';
-import { ROLE_SECURITY_OFFICER, ROLE_SCREENING } from '../models/rules';
+import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from '../models/rules';
 
 import { APIError } from '../models/helpers/errors';
 
@@ -32,10 +32,11 @@ router.get('/export/:export_token', async (ctx) => {
       newItem.request.to = DateTime.fromJSDate(item.request.to).toFormat('dd/LL/yyyy');
       newItem.birthday = DateTime.fromJSDate(item.birthday).toFormat('dd/LL/yyyy');
 
-      // get step of SECURITY_OFFICER and SCREENING
+      // get step of ACCESS_OFFICE for searching validation tags and SCREENING
+      // get step of SCREENING     for searching date screening
       const unit = item.request.units[0];
       if (typeof (unit) !== 'undefined') {
-        const stepSO = unit.workflow.steps.find((s) => s.role === ROLE_SECURITY_OFFICER);
+        const stepSO = unit.workflow.steps.find((s) => s.role === ROLE_ACCESS_OFFICE);
         const stepGend = unit.workflow.steps.find((s) => s.role === ROLE_SCREENING);
         newItem.typeBadge = stepSO.state.payload.tags.join('\r');
         newItem.dateScreening = DateTime.fromJSDate(stepGend.state.date).toFormat('LL/yyyy');
@@ -64,22 +65,26 @@ router.get('/export/:export_token', async (ctx) => {
           await Promise.all(list.map(async (item) => Model.update({ _id: item._id }, { exportDate: new Date() })));
         }
         const options = exportToken.options.csv;
+
+        // remove field
         const fieldToBeRemoved = { label: 'UNITES', value: 'request.units' };
+        options.fields.splice(options.fields.findIndex((a) => a.value === fieldToBeRemoved.value), 1);
+
+        // insert fields that does not exist in Visitor
         const fieldToBeAdded1 = { label: 'SERVICE', value: 'emptyField' };
         const fieldToBeAdded2 = { label: 'PAYS DE NAISSANCE', value: 'emptyfield' };
-        const fieldToBeAdded3 = { label: 'DATE CRIBLAGE', value: 'dateScreening' };
-        const fieldToBeAdded4 = { label: 'TYPE DE BADGE', value: 'typeBadge' };
-        const fieldToBeAdded5 = { label: 'NOM PERSONNE VISITEE', value: 'emptyfield' };
-        const fieldToBeAdded6 = { label: 'PRENOM PERSONNE VISITEE', value: 'emptyfield' };
-        // remove field
-        options.fields.splice(options.fields.findIndex((a) => a.value === fieldToBeRemoved.value), 1);
-        // insert fields that does not exist in Visitor
+        const fieldToBeAdded3 = { label: 'LIEU(X) DE TRAVAIL', value: 'emptyfield' };
+        const fieldToBeAdded4 = { label: 'DATE CRIBLAGE', value: 'dateScreening' };
+        const fieldToBeAdded5 = { label: 'TYPE DE BADGE', value: 'typeBadge' };
+        const fieldToBeAdded6 = { label: 'NOM PERSONNE VISITEE', value: 'emptyfield' };
+        const fieldToBeAdded7 = { label: 'PRENOM PERSONNE VISITEE', value: 'emptyfield' };
         options.fields.splice(options.fields.findIndex((a) => a.label === 'DATE DEBUT VALIDITE'), 0, fieldToBeAdded1);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'LIEU DE TRAVAIL'), 0, fieldToBeAdded2);
-        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded3);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'ORIGINE'), 0, fieldToBeAdded2);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'ORIGINE'), 0, fieldToBeAdded3);
         options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded4);
         options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded5);
         options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded6);
+        options.fields.splice(options.fields.findIndex((a) => a.label === 'N° DEMANDE'), 0, fieldToBeAdded7);
 
         const parser = new Json2csv.Parser({
           transforms: [flatten()],

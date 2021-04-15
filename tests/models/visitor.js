@@ -11,7 +11,6 @@ export const generateDummyVisitor = (...params) => ({
   birthplace: nanoid(),
   isInternal: false,
   company: nanoid(),
-  workPlace: nanoid(),
   employeeType: TYPE_VISITOR,
   ...params.reduce((acc, cur) => ({ ...acc, ...cur }), {}),
 });

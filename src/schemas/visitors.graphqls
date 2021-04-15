@@ -129,8 +129,6 @@ input RequestVisitorInput {
     rank: String
     # Company
     company: String
-    # workPlace
-    workPlace: String
     # Email of the visitor
     email: String!
     # Is it a VIP people ?
@@ -215,7 +213,6 @@ type RequestVisitor {
     employeeType: VisitorEmployeeType
     rank: String
     company: String
-    workPlace: String
     email: String!
     vip: Boolean
     vipReason: String
