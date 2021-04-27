@@ -86,7 +86,6 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
           separator,
           quote,
           fields,
-          skip_lines_with_empty_values: false,
         },
       },
     });
