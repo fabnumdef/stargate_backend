@@ -36,18 +36,18 @@ function queryListVisitorsRequest(campusId, requestId, search, user = null) {
   });
 }
 
-function queryListVisitors(campusId, search, requestsId, user = null, isDone = null) {
+function queryListVisitors(campusId, search, visitorsId, user = null, isDone = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
       query ListVisitorsRequestQuery(
           $campusId: String!,
           $search: String,
-          $requestsId: [String],
+          $visitorsId: [String],
           $isDone: RequestVisitorIsDone,
       ) {
         getCampus(id: $campusId) {
-          listVisitors(search: $search, requestsId: $requestsId, isDone: $isDone) {
+          listVisitors(search: $search, visitorsId: $visitorsId, isDone: $isDone) {
             list {
               id
               firstname
@@ -59,7 +59,7 @@ function queryListVisitors(campusId, search, requestsId, user = null, isDone = n
     variables: {
       campusId,
       search,
-      requestsId,
+      visitorsId,
       isDone,
     },
   });
@@ -178,7 +178,7 @@ it('Test to list visitors in a campus', async () => {
       const { data: { getCampus: { listVisitors } } } = await queryListVisitors(
         campus._id,
         null,
-        [dummyRequest._id.toString()],
+        [visitors[0]._id.toString(), visitors[1]._id.toString()],
         generateDummySuperAdmin(),
       );
       expect(listVisitors.list).toHaveLength(2);

@@ -137,7 +137,7 @@ const MAX_REQUESTABLE_VISITS = 30;
 
 export const Campus = {
   async listVisitors(campus, {
-    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search, isDone = null, requestsId,
+    filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_VISITS } = {}, search, isDone = null, visitorsId,
   }) {
     let isDoneFilters = {};
     if (isDone) {
@@ -155,9 +155,9 @@ export const Campus = {
         },
       };
     }
-    let requestsFilters = {};
-    if (requestsId) {
-      requestsFilters = { 'request._id': requestsId };
+    let visitorsFilters = {};
+    if (visitorsId) {
+      visitorsFilters = { _id: visitorsId };
     }
     let searchFilters = {};
     if (search) {
@@ -169,7 +169,7 @@ export const Campus = {
         ...filters,
         ...searchFilters,
         ...isDoneFilters,
-        ...requestsFilters,
+        ...visitorsFilters,
       },
       cursor: { offset, first: Math.min(first, MAX_REQUESTABLE_VISITS) },
       countMethod: campus.countVisitors.bind(campus),

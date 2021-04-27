@@ -211,6 +211,9 @@ const VisitorSchema = new Schema({
     type: String,
     default: STATE_DRAFTED,
   },
+  exportDate: {
+    type: Date,
+  },
   request: {
     _id: {
       type: String,

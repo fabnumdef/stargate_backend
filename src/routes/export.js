@@ -17,6 +17,9 @@ router.get('/export/:export_token', async (ctx) => {
   switch (exportToken.format) {
     case EXPORT_FORMAT_CSV:
       {
+        if (exportToken.persistDate) {
+          await Promise.all(list.map(async (item) => Model.update({ _id: item._id }, { exportDate: new Date() })));
+        }
         const options = exportToken.options.csv;
         const parser = new Json2csv.Parser({
           transforms: [flatten()],

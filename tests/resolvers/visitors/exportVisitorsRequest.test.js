@@ -5,13 +5,13 @@ import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 import Unit, { createDummyUnit } from '../../models/unit';
 
-function queryCSVExportVisitors(campusId, search, user = null) {
+function queryCSVExportVisitors(campusId, search = '', visitorsId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
     query: gql`
-      query ListVisitorsRequestQuery($campusId: String!, $search: String) {
+      query ListVisitorsRequestQuery($campusId: String!, $search: String, $visitorsId: [String]) {
         getCampus(id: $campusId) {
-          listVisitors(search: $search) {
+          listVisitors(search: $search, visitorsId: $visitorsId) {
             generateCSVExportLink {
               token
               link
@@ -23,6 +23,7 @@ function queryCSVExportVisitors(campusId, search, user = null) {
     variables: {
       campusId,
       search,
+      visitorsId,
     },
   });
 }
@@ -48,7 +49,8 @@ it('Test to export list visitors in a campus', async () => {
     {
       const { data: { getCampus: { listVisitors: { generateCSVExportLink } } } } = await queryCSVExportVisitors(
         campus._id,
-        visitors[0].firstname,
+        '',
+        [visitors[0]._id.toString()],
         generateDummySuperAdmin(),
       );
       expect(generateCSVExportLink.token)

@@ -180,6 +180,7 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
     fields,
     { ...filters, 'request.campus._id': this._id },
     projection,
+    true,
     options,
   );
 };
