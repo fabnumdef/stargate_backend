@@ -175,11 +175,13 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
   const Visitor = mongoose.model(VISITOR_MODEL_NAME);
   const fields = EXPORT_CSV_VISITORS;
   const projection = Object.fromEntries(fields.map((f) => ([f.value, true])));
+  const projformat = Object.fromEntries(fields.filter((f) => f.format).map((f) => ([f.value, f.format])));
   return ExportToken.createCSVToken(
     Visitor,
     fields,
     { ...filters, 'request.campus._id': this._id },
     projection,
+    projformat,
     true,
     options,
   );
@@ -243,14 +245,14 @@ CampusSchema.methods.findVisitorsToValidate = async function findVisitorsToValid
       id: '$_id',
       'request.id': '$request._id',
       'request.units':
+      {
+        $map:
         {
-          $map:
-            {
-              input: '$request.units',
-              as: 'unit',
-              in: { id: { $toString: '$$unit._id' }, workflow: '$$unit.workflow', label: '$$unit.label' },
-            },
+          input: '$request.units',
+          as: 'unit',
+          in: { id: { $toString: '$$unit._id' }, workflow: '$$unit.workflow', label: '$$unit.label' },
         },
+      },
     })
     .project({ _id: 0 });
 
