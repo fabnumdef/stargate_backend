@@ -40,6 +40,8 @@ function mutatecreateGroupVisitorsRequest(campusId, requestId, file, as, user = 
   });
 }
 
+// setTimeout(20000) for very slow PC
+// jest.setTimeout(20000);
 it('Test to add a group of visitors to a request', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();

@@ -29,14 +29,17 @@ export const RequestMutation = {
     return request.createVisitor(datas, as.role);
   },
   async createGroupVisitors(request, { file, as }) {
-    const isCSV = file.file.filename.includes('.csv');
-    const isXLSX = file.file.filename.includes('.xlsx');
+    // using const file2import to be able to get and test filename
+    const file2import = await file.file;
+    const isCSV = file2import.filename.includes('.csv');
+    const isXLSX = file2import.filename.includes('.xlsx');
 
     let visitors = [];
+    await Visitor.deleteMany({ 'request._id': request.id });
     if (isXLSX) {
       const workBook = new Excel.Workbook();
       const result = [];
-      await workBook.xlsx.read(await file.file.createReadStream()).then((workbook) => {
+      await workBook.xlsx.read(await file2import.createReadStream()).then((workbook) => {
         const worksheet = workbook.getWorksheet(1);
         const header = [];
         worksheet.eachRow({ includeEmpty: true }, async (row, rowNumber) => {
@@ -57,10 +60,9 @@ export const RequestMutation = {
         });
       });
       visitors = await request.createGroupVisitors(result, as.role);
-      await Visitor.deleteMany({ 'request._id': request.id });
     }
     if (isCSV) {
-      const { createReadStream } = file.file;
+      const { createReadStream } = file2import;
       visitors = await new Promise((resolve) => {
         const result = [];
         createReadStream()
@@ -73,7 +75,6 @@ export const RequestMutation = {
           })
           .on('end', async () => resolve(await request.createGroupVisitors(result, as.role)));
       });
-      await Visitor.deleteMany({ 'request._id': request.id });
     }
     return visitors;
   },
