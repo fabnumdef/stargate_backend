@@ -21,6 +21,8 @@ it('Test to export list visitors in a campus', async () => {
     {
       const result = await request(app.callback()).get(`/export/${exportToken._id}`);
       expect(result.text.split('\n').length).toEqual(3);
+      const visitorDb = await Visitor.findOne({ _id: visitors[0]._id });
+      expect(visitorDb.exportDate).toBeDefined();
     }
     {
       const { statusCode, body: { message } } = await request(app.callback()).get('/export/foo');

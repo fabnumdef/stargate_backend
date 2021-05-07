@@ -26,6 +26,10 @@ const ExportTokenSchema = new Schema({
     type: String,
     enum: [EXPORT_FORMAT_CSV],
   },
+  persistDate: {
+    type: Boolean,
+    default: false,
+  },
   options: {
     csv: {
       encoding: {
@@ -65,7 +69,7 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
     return `//${host}/export/${this._id}`;
   }
 
-  static async createCSVToken(Model, fields, filters = {}, projection = {}, {
+  static async createCSVToken(Model, fields, filters = {}, projection = {}, persistDate = false, {
     encoding = 'UTF-8',
     separator = ';',
     quote = '"',
@@ -75,6 +79,7 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
       filters,
       projection,
       format: EXPORT_FORMAT_CSV,
+      persistDate,
       options: {
         csv: {
           encoding,

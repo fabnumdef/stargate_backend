@@ -1,6 +1,6 @@
 extend type Campus {
     # List all visitors of a campus
-    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, requestsId: [String]): RequestVisitorsList!
+    listVisitors(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, isDone: RequestVisitorIsDone, visitorsId: [String]): RequestVisitorsList!
     listVisitorsToValidate(cursor: OffsetCursor, filters: RequestVisitorFilters, search: String, as: ValidationPersonas): RequestVisitorsToValidateList!
     listRequestByVisitorStatus(cursor: OffsetCursor, filters: RequestVisitorFilters, as: ValidationPersonas!, isDone: RequestVisitorIsDone!): RequestsListGroupByVisitors!
     getVisitorsTemplate: ExportLink
@@ -76,6 +76,7 @@ input RequestVisitorFilters {
     # Firstname
     firstname: String
     status: String
+    exportDate: DateTime
 }
 
 # Types of identity documents
@@ -223,4 +224,5 @@ type RequestVisitor {
     units: [RequestVisitorUnits]
     request: Request
     generateIdentityFileExportLink: ExportLink
+    exportDate: DateTime
 }
