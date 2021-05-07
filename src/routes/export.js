@@ -91,7 +91,9 @@ router.get('/export/:export_token', async (ctx) => {
           encoding: options.encoding,
         });
         ctx.type = 'text/csv';
-        ctx.set('Content-Disposition', `attachment; filename="${exportToken._id}.csv"`);
+        // it was the original name ${exportToken._id}
+        const dateExport = DateTime.fromJSDate(new Date()).toFormat('yyyyLLddhhmm');
+        ctx.set('Content-Disposition', `attachment; filename="EXPORT_CSV_STARGATE_${dateExport}.csv"`);
         ctx.body = parser.parse(listFinal);
       }
       break;
