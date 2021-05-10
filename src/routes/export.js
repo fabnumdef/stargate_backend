@@ -18,6 +18,7 @@ router.get('/export/:export_token', async (ctx) => {
   }
   const Model = exportToken.modelName ? mongoose.model(exportToken.modelName) : null;
   const list = Model ? await Model.find(exportToken.filters, exportToken.projection).lean() : [];
+  let fileName = '';
   let listFinal = [];
   if (exportToken.modelName === 'Visitor') {
     // filters changed to function with aggregate
@@ -46,16 +47,18 @@ router.get('/export/:export_token', async (ctx) => {
       };
       // get step of ACCESS_OFFICE for searching validation tags and SCREENING
       // get step of SCREENING     for searching date screening
-      const firstUnit = item.request.units[0];
-      if (typeof (firstUnit) !== 'undefined') {
-        const stepSO = firstUnit.workflow.steps.find((s) => s.role === ROLE_ACCESS_OFFICE);
-        const stepGend = firstUnit.workflow.steps.find((s) => s.role === ROLE_SCREENING);
-        newItem.typeBadge = stepSO.state.payload.tags.join('\r');
-        newItem.dateScreening = DateTime.fromJSDate(stepGend.state.date).toFormat('LL/yyyy');
-      } else {
-        newItem.typeBadge = 'INDEFINI';
-        newItem.dateScreening = 'INDEFINI';
-      }
+      item.request.units.find((unit) => {
+        if (typeof (unit) !== 'undefined') {
+          const stepSO = unit.workflow.steps.find((s) => s.role === ROLE_ACCESS_OFFICE);
+          const stepGend = unit.workflow.steps.find((s) => s.role === ROLE_SCREENING);
+          newItem.typeBadge = stepSO.state.payload.tags.join('\r');
+          newItem.dateScreening = DateTime.fromJSDate(stepGend.state.date).toFormat('LL/yyyy');
+        } else {
+          newItem.typeBadge = 'INDEFINI';
+          newItem.dateScreening = 'INDEFINI';
+        }
+        return newItem;
+      });
 
       newItem.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
       newItem.nationality = item.nationality.toUpperCase();
@@ -73,8 +76,11 @@ router.get('/export/:export_token', async (ctx) => {
     const fieldToBeRemoved = { label: 'UNITES', value: 'request.units' };
     const options = exportToken.options.csv;
     options.fields.splice(options.fields.findIndex((a) => a.value === fieldToBeRemoved.value), 1);
+    const dateExport = DateTime.fromJSDate(new Date()).toFormat('yyyyLLddhhmm');
+    fileName = `EXPORT_CSV_STARGATE_${dateExport}.csv`;
   } else {
     listFinal = list;
+    fileName = `${exportToken._id}`;
   }
   switch (exportToken.format) {
     case EXPORT_FORMAT_CSV:
@@ -91,9 +97,7 @@ router.get('/export/:export_token', async (ctx) => {
           encoding: options.encoding,
         });
         ctx.type = 'text/csv';
-        // it was the original name ${exportToken._id}
-        const dateExport = DateTime.fromJSDate(new Date()).toFormat('yyyyLLddhhmm');
-        ctx.set('Content-Disposition', `attachment; filename="EXPORT_CSV_STARGATE_${dateExport}.csv"`);
+        ctx.set('Content-Disposition', `attachment; filename=${fileName}`);
         ctx.body = parser.parse(listFinal);
       }
       break;
