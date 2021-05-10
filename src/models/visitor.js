@@ -50,7 +50,7 @@ export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
 export const CONVERT_TYPE_IMPORT_CSV = {
   [TYPE_VISITOR]: 'visiteur',
   [TYPE_SUBCONTRACTOR]: 'sous-traitant',
-  [TYPE_INTERIM]: 'interimaire',
+  [TYPE_INTERIM]: 'intérimaire',
   [TYPE_TRAINEE]: 'stagiaire',
   [TYPE_DELIVERER]: 'livreur',
   [TYPE_ACTIVE_MILITARY]: 'militaire d\'active',
@@ -58,6 +58,14 @@ export const CONVERT_TYPE_IMPORT_CSV = {
   [TYPE_CIVILIAN_DEFENSE]: 'civil de la défense',
   [TYPE_FAMILY]: 'famille',
   [TYPE_AUTHORITY]: 'autorité',
+};
+
+export const CONVERT_STATE_VISITOR_CSV = {
+  ACCEPTED: 'Accepté',
+  REJECTED: 'Refusé',
+  MIXED: 'Partiellement accepté',
+  CREATED: 'En cours',
+  CANCELED: 'Annulé',
 };
 
 export const GLOBAL_VALIDATION_ROLES = [ROLE_SCREENING, ROLE_ACCESS_OFFICE];
@@ -74,23 +82,69 @@ export const FIELDS_TO_SEARCH = [
 ];
 
 export const EXPORT_CSV_VISITORS = [
-  { label: 'Id', value: '_id' },
-  { label: 'Status', value: 'status' },
-  { label: 'Date d\'arrivée', value: 'request.from' },
-  { label: 'Date de départ', value: 'request.to' },
-  { label: 'Motif', value: 'request.reason' },
-  { label: 'Nature Visite', value: 'request.object' },
-  { label: 'Demande', value: 'request._id' },
-  { label: 'MINARM', value: 'isInternal' },
-  { label: 'Prénom', value: 'firstname' },
-  { label: 'Nom d\'usage', value: 'usageLastname' },
-  { label: 'Nom de naissance', value: 'birthLastname' },
-  { label: 'Nationalité', value: 'nationality' },
-  { label: 'Date de naissance', value: 'birthday' },
-  { label: 'Lieu de naissance', value: 'birthplace' },
-  { label: 'Typ d\'employé', value: 'employeeType' },
-  { label: 'Date de création', value: 'createdAt' },
-  { label: 'Date de mise à jour', value: 'updatedAt' },
+  { label: 'STATUT', value: 'status' },
+  { label: 'NOM ET EXTENSION PHOTO', value: 'null' },
+  {
+    label: 'Adresse mail du responsable "Accès" unité/entreprise OBLIGATOIRE',
+    value: 'null',
+  },
+  { label: 'CIVILITE', value: 'null' },
+  { label: 'NOM DE NAISSANCE', value: 'birthLastname' },
+  { label: 'NOM MARITAL', value: 'usageLastname' },
+  { label: 'PRENOM', value: 'firstname' },
+  {
+    label: 'DATE DE NAISSANCE',
+    value: 'birthday',
+    format: { $dateToString: { format: '%d/%m/%Y', date: '$birthday' } },
+  },
+  { label: 'LIEU DE NAISSANCE', value: 'birthplace' },
+  { label: 'UNITE / SOCIETE', value: 'company' },
+  { label: 'SERVICE', value: 'null' },
+  { label: 'VALIDITE ACCES', value: 'null' },
+  {
+    label: 'DATE DEBUT VALIDITE',
+    value: 'request.from',
+    format: { $dateToString: { format: '%d/%m/%Y', date: '$request.from' } },
+  },
+  {
+    label: 'DATE FIN VALIDITE',
+    value: 'request.to',
+    format: { $dateToString: { format: '%d/%m/%Y', date: '$request.to' } },
+  },
+  {
+    label: 'NATIONALITE',
+    value: 'nationality',
+    // $toUpper is not enough, doing a toUpperCase in export
+    format: { $toUpper: '$nationality' },
+  },
+  { label: 'PAYS DE NAISSANCE', value: 'null' },
+  { label: 'LIEU(X) DE TRAVAIL', value: 'null' },
+  { label: 'ORIGINE', value: 'isInternal' },
+  { label: 'TYPE D\'EMPLOYE', value: 'employeeType' },
+  { label: 'DATE CRIBLAGE', value: 'dateScreening' },
+  { label: 'ACCES HOMET', value: 'null' },
+  { label: 'ACCES CACHIN', value: 'null' },
+  { label: 'ACCES COMNORD', value: 'null' },
+  { label: 'ACCES NARDOUET', value: 'null' },
+  { label: 'ACCES ILOT SUD', value: 'null' },
+  { label: 'ACCES H3', value: 'null' },
+  { label: 'ADRESSE MAIL UNITE CONTRACTANTE', value: 'null' },
+  { label: 'DROIT DE CONDUITE', value: 'null' },
+  { label: 'PROFIL D\'ACCES', value: 'null' },
+  { label: 'COMMENTAIRE', value: 'null' },
+  { label: 'FREQUENCE DE VISITE', value: 'null' },
+  { label: 'ENVOI MAIL', value: 'null' },
+  { label: 'IMPORTATION PROTECTER', value: 'null' },
+  { label: 'REFERENCE HABILITATION OU C.E.', value: 'null' },
+  { label: 'DATE FIN DE VALIDITE HABILITATION OU C.E.', value: 'null' },
+  { label: 'EXTENSION PHOTO', value: 'null' },
+  { label: 'TYPE DE BADGE', value: 'typeBadge' },
+  { label: 'NOM PERSONNE VISITEE', value: 'null' },
+  { label: 'PRENOM PERSONNE VISITEE', value: 'null' },
+  { label: 'N° DEMANDE', value: 'request._id' },
+  { label: 'CODE ACTION', value: 'null' },
+  // need this field to build other fields in CSV export file
+  { label: 'UNITES', value: 'request.units' },
 ];
 
 export const CSV_ID_KIND_LABEL = `Type document identité [${Object.values(CONVERT_DOCUMENT_IMPORT_CSV).join(', ')}]`;
