@@ -40,6 +40,7 @@ export default shield({
     createPlace: isAdmin,
     editPlace: isAdmin,
     deletePlace: isAdmin,
+    generateCSVExportLink: or(canHandleRequest, isAdmin),
     '*': isSuperAdmin,
   },
   RequestMutation: {

@@ -1,28 +1,25 @@
 import queryFactory, { gql } from '../../helpers/apollo-query';
-import { generateDummySuperAdmin, generateDummyUser } from '../../models/user';
+import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 import Unit, { createDummyUnit } from '../../models/unit';
 
-function queryCSVExportVisitors(campusId, search = '', visitorsId, user = null) {
+function mutationCSVExportVisitors(campusId, visitorsId, user = null) {
   const { mutate } = queryFactory(user);
   return mutate({
-    query: gql`
-      query ListVisitorsRequestQuery($campusId: String!, $search: String, $visitorsId: [String]) {
-        getCampus(id: $campusId) {
-          listVisitors(search: $search, visitorsId: $visitorsId) {
-            generateCSVExportLink {
+    mutation: gql`
+      mutation GenerateCSVLinkMutation($campusId: String!, $visitorsId: [String]) {
+        mutateCampus(id: $campusId) {
+          generateCSVExportLink(visitorsId: $visitorsId) {
               token
               link
             }
-          }
         }
       }
     `,
     variables: {
       campusId,
-      search,
       visitorsId,
     },
   });
@@ -40,18 +37,17 @@ it('Test to export list visitors in a campus', async () => {
 
   try {
     {
-      const { errors } = await queryCSVExportVisitors(campus._id);
+      const { errors } = await mutationCSVExportVisitors(campus._id);
       // You're not authorized to create places while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised');
     }
 
     {
-      const { data: { getCampus: { listVisitors: { generateCSVExportLink } } } } = await queryCSVExportVisitors(
+      const { data: { mutateCampus: { generateCSVExportLink } } } = await mutationCSVExportVisitors(
         campus._id,
-        '',
         [visitors[0]._id.toString()],
-        generateDummySuperAdmin(),
+        generateDummyAdmin(),
       );
       expect(generateCSVExportLink.token)
         .toMatch(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
