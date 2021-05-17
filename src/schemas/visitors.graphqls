@@ -13,6 +13,10 @@ extend type Request {
     getVisitor(id: ObjectID!): RequestVisitor
 }
 
+extend type CampusMutation {
+    generateCSVExportLink(visitorsId: [String], options: CSVExportOptions): ExportLink!
+}
+
 #Personas is an object to have a more verbose behavior when user has many roles
 input ValidationPersonas {
     # Role of the personas
@@ -42,8 +46,6 @@ type RequestMutation {
 }
 
 type RequestVisitorsList implements OffsetPaginator {
-    # Generate a link to export list without pagination as a CSV file
-    generateCSVExportLink(options: CSVExportOptions): ExportLink!
     # Metadata linked to the query
     meta: OffsetPaginatorMeta!
     # The list of visitors

@@ -218,6 +218,12 @@ export const Campus = {
   },
 };
 
+export const CampusMutation = {
+  async generateCSVExportLink(campus, { visitorsId, options }) {
+    return campus.createCSVTokenForVisitors({ _id: visitorsId }, options);
+  },
+};
+
 export const Request = {
   async listVisitors(request, {
     filters = {},
@@ -275,11 +281,6 @@ export const RequestVisitorsList = {
     return request.findVisitorsWithProjection(filters, info).skip(offset).limit(first);
   },
   meta: (parent) => parent,
-  generateCSVExportLink({
-    campus, filters, request = campus,
-  }, { options }) {
-    return request.createCSVTokenForVisitors(filters, options);
-  },
 };
 
 export const RequestVisitorUnitsStepsState = {
