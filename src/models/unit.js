@@ -83,12 +83,13 @@ UnitSchema.methods.deleteUnitDependencies = async function deleteUnitDependencie
     }));
   }
   if (unitUsers) {
-    await Promise.all(unitUsers.map(async (user) => {
-      await user.deleteUserRole({ unitId: this._id });
-      return user;
-    }));
+    await Promise.all(unitUsers.map(async (user) => user.roles.map((role) => {
+      if (role.units.find((unit) => unit._id.equals(this._id))) {
+        return user.deleteUserRole({ role: role.role, unit: this });
+      }
+      return role;
+    })));
   }
-
   return this;
 };
 
