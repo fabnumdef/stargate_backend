@@ -1,9 +1,11 @@
+import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 
 import User, { createDummyUser } from '../../models/user';
+import { ROLE_SUPERADMIN, ROLE_ADMIN, ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
 
-function mutateFindUser(email) {
-  const { mutate } = queryFactory();
+function mutateFindUser(email, userRole = null) {
+  const { mutate } = queryFactory(userRole);
   return mutate({
     mutation: gql`
         mutation findUser($email: EmailAddress!) {
@@ -21,13 +23,71 @@ function mutateFindUser(email) {
   });
 }
 
-it('Find a user by email', async () => {
+it('Test User not found with fake email', async () => {
+  const fakeEmail = `${nanoid()}@localhost`;
+
+  const { errors } = await mutateFindUser(fakeEmail, { roles: [{ role: ROLE_ADMIN }] });
+  // can't find fakeEmail
+  expect(errors).toHaveLength(1);
+  expect(errors[0].message).toContain('User not found');
+});
+
+it('Test to find a user by email, with no role', async () => {
   const dummyUser = await createDummyUser();
 
   try {
-    const { data: { findUser } } = await mutateFindUser(dummyUser.email.original);
+    const { errors } = await mutateFindUser(dummyUser.email.original);
+    // You're not authorized to edit user while without rights
+    expect(errors).toHaveLength(1);
+    expect(errors[0].message).toContain('Not Authorised');
+  } finally {
+    await User.findOneAndDelete({ _id: dummyUser._id });
+  }
+});
 
-    // const findUserByEmail = await User.findOne({ 'email.canonical': dummyUser.email.canonical });
+it('Test to find a user by email, admin role', async () => {
+  const dummyUser = await createDummyUser();
+
+  try {
+    const { data: { findUser } } = await mutateFindUser(dummyUser.email.original, { roles: [{ role: ROLE_ADMIN }] });
+
+    expect(findUser.id).toStrictEqual(dummyUser._id.toString());
+
+    const dbVersion = await User.findOne({ _id: dummyUser._id });
+
+    expect(dbVersion.email.original).toBe(dummyUser.email.original);
+  } finally {
+    await User.findOneAndDelete({ _id: dummyUser._id });
+  }
+});
+
+it('Test to find a user by email, superadmin role', async () => {
+  const dummyUser = await createDummyUser();
+
+  try {
+    const { data: { findUser } } = await mutateFindUser(
+      dummyUser.email.original,
+      { roles: [{ role: ROLE_SUPERADMIN }] },
+    );
+
+    expect(findUser.id).toStrictEqual(dummyUser._id.toString());
+
+    const dbVersion = await User.findOne({ _id: dummyUser._id });
+
+    expect(dbVersion.email.original).toBe(dummyUser.email.original);
+  } finally {
+    await User.findOneAndDelete({ _id: dummyUser._id });
+  }
+});
+
+it('Test to find a user by email, unit correspondent role', async () => {
+  const dummyUser = await createDummyUser();
+
+  try {
+    const { data: { findUser } } = await mutateFindUser(
+      dummyUser.email.original,
+      { roles: [{ role: ROLE_UNIT_CORRESPONDENT }] },
+    );
 
     expect(findUser.id).toStrictEqual(dummyUser._id.toString());
 

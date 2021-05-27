@@ -21,7 +21,7 @@ export default shield({
   Mutation: {
     login: allow,
     resetPassword: allow,
-    findUser: allow,
+    findUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     jwtRefresh: isAuthenticated,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
