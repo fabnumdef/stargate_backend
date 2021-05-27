@@ -2,25 +2,28 @@ import mongoose from 'mongoose';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import User, { createDummyUser, generateDummySuperAdmin } from '../../models/user';
 import { ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
+import Unit, { createDummyUnit } from '../../models/unit';
 
-function mutateDeleteUserRole(user, id, userRole = null) {
+function mutateDeleteUserRole(roleData, id, userRole = null) {
   const { mutate } = queryFactory(userRole);
   return mutate({
     mutation: gql`
-        mutation DeleteUserRoleMutation($user: UserInput! ,$id: ObjectID!) {
-            deleteUserRole(user: $user, id: $id) {
+        mutation DeleteUserRoleMutation($roleData: UserRoleInput! ,$id: ObjectID!) {
+            deleteUserRole(roleData: $roleData, id: $id) {
                 id
             }
         }
     `,
-    variables: { user, id: id.toString() },
+    variables: { roleData, id: id.toString() },
   });
 }
 
 it('Test to delete an user role', async () => {
+  const unit1 = await createDummyUnit();
+  const unit2 = await createDummyUnit();
   const userData = {
     roles: [
-      { role: ROLE_UNIT_CORRESPONDENT },
+      { role: ROLE_UNIT_CORRESPONDENT, units: [unit1, unit2] },
     ],
   };
   const user = await createDummyUser(userData);
@@ -28,7 +31,7 @@ it('Test to delete an user role', async () => {
 
   try {
     {
-      const { errors } = await mutateDeleteUserRole(userData, user._id);
+      const { errors } = await mutateDeleteUserRole({ role: ROLE_UNIT_CORRESPONDENT }, user._id);
 
       // You're not authorized to delete unit while without rights
       expect(errors).toHaveLength(1);
@@ -36,7 +39,7 @@ it('Test to delete an user role', async () => {
     }
     {
       const { errors } = await mutateDeleteUserRole(
-        userData,
+        { role: ROLE_UNIT_CORRESPONDENT },
         fakeId,
         generateDummySuperAdmin(),
       );
@@ -46,7 +49,17 @@ it('Test to delete an user role', async () => {
     }
     {
       const { data } = await mutateDeleteUserRole(
-        userData,
+        { role: ROLE_UNIT_CORRESPONDENT, unit: { id: unit1._id.toString() } },
+        user._id,
+        generateDummySuperAdmin(),
+      );
+      expect(data.deleteUserRole).toHaveProperty('id', user.id);
+      const dbVersion = await User.findOne({ _id: user._id });
+      expect(dbVersion.roles).toHaveLength(1);
+    }
+    {
+      const { data } = await mutateDeleteUserRole(
+        { role: ROLE_UNIT_CORRESPONDENT, unit: { id: unit2._id.toString() } },
         user._id,
         generateDummySuperAdmin(),
       );
@@ -56,5 +69,7 @@ it('Test to delete an user role', async () => {
     }
   } finally {
     await User.findOneAndDelete(({ _id: user._id }));
+    await Unit.findOneAndDelete({ _id: unit1._id });
+    await Unit.findOneAndDelete({ _id: unit2._id });
   }
 });

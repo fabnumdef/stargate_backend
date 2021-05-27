@@ -261,12 +261,20 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
 };
 
 UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
-  let roles = [];
-  if (data.roles) {
-    roles = this.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
-  }
-  if (data.unitId) {
-    roles = this.roles.filter((r) => !r.units.find((u) => u._id.equals(data.unitId)));
+  let roles;
+  const hasManyUnit = data.unit && this.roles.find((r) => r.role === data.role).units.length > 1;
+  if (hasManyUnit) {
+    roles = this.roles.toObject().map((r) => {
+      if (r.role === data.role) {
+        return {
+          ...r,
+          units: r.units.filter((u) => u._id.toString() !== data.unit.id),
+        };
+      }
+      return r;
+    });
+  } else {
+    roles = this.roles.toObject().filter((r) => r.role !== data.role);
   }
   this.set({ roles });
   return this.save();
