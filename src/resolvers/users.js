@@ -22,6 +22,14 @@ export const Mutation = {
     await user.setFromGraphQLSchema(data);
     return user.save();
   },
+  async addUserRole(_, { roleData: data, id }) {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    await user.addUserRole(data);
+    return user;
+  },
   async deleteUserRole(_, { roleData: data, id }) {
     const user = await User.findById(id);
     if (!user) {

@@ -12,6 +12,8 @@ extend type Mutation {
     createUser(user: UserInput): User!
     # Edit user
     editUser(id: ObjectID!, user: UserInput): User!
+    # Add a role to an user
+    addUserRole(id: ObjectID!, roleData: UserRoleInput): User!
     # Delete a role of a user
     deleteUserRole(id: ObjectID!, roleData: UserRoleInput): User!
     # Edit logged user

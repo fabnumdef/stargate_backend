@@ -260,6 +260,33 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   this.set(filteredData);
 };
 
+UserSchema.methods.addUserRole = async function addUserRole(data) {
+  let roles;
+  const hasRole = this.roles.find((r) => r.role === data.role);
+  if (hasRole) {
+    roles = this.roles.toObject().map((r) => {
+      if (r.role === data.role) {
+        return {
+          ...r,
+          units: [...r.units, data.unit],
+        };
+      }
+      return r;
+    });
+  } else {
+    roles = [
+      ...this.roles,
+      {
+        role: data.role,
+        units: [data.unit],
+        campuses: [data.campus],
+      },
+    ];
+  }
+  this.set({ roles });
+  return this.save();
+};
+
 UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
   let roles;
   const hasManyUnit = data.unit && this.roles.find((r) => r.role === data.role).units.length > 1;
