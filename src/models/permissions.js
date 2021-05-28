@@ -16,12 +16,12 @@ export default shield({
     getUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     me: isAuthenticated,
     listUsers: or(isUnitCorrespondent, isAdmin, isSuperAdmin),
+    findUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     '*': isSuperAdmin,
   },
   Mutation: {
     login: allow,
     resetPassword: allow,
-    findUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     jwtRefresh: isAuthenticated,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
