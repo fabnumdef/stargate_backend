@@ -54,13 +54,6 @@ export const Mutation = {
     await userExists.sendResetPasswordMail(token);
     return true;
   },
-  async findUser(_, { email }) {
-    const userExists = await User.findByEmail(email);
-    if (!userExists) {
-      throw new Error('User not found');
-    }
-    return userExists;
-  },
 };
 
 const MAX_REQUESTABLE_USERS = 30;
@@ -99,6 +92,13 @@ export const Query = {
   async me(_parent, _, ctx, info) {
     const { id } = ctx.user;
     return User.findByIdWithProjection(id, info);
+  },
+  async findUser(_, { email }) {
+    const userExists = await User.findByEmail(email);
+    if (!userExists) {
+      throw new Error('User not found');
+    }
+    return userExists;
   },
 };
 
