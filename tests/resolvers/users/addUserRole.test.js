@@ -35,7 +35,7 @@ it('Test to add an user role', async () => {
         user._id,
       );
 
-      // You're not authorized to delete unit while without rights
+      // You're not authorized to update user role while without rights
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Not Authorised!');
     }
@@ -45,7 +45,7 @@ it('Test to add an user role', async () => {
         fakeId,
         generateDummySuperAdmin(),
       );
-      // Found no unit with this id
+      // Found no user with this id
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('User not found');
     }
