@@ -5,6 +5,8 @@ extend type Query {
     getUser(id: ObjectID!): User
     # Get logged user
     me: User
+    # find user by email
+    findUser(email: EmailAddress!): User!
 }
 
 extend type Mutation {
@@ -22,8 +24,6 @@ extend type Mutation {
     deleteUser(id: ObjectID!): User!
     # reset user password
     resetPassword(email: EmailAddress!): Boolean!
-    # find user by email
-    findUser(email: EmailAddress!): User!
 }
 
 type UsersList implements OffsetPaginator {
