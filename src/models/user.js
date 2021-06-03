@@ -245,16 +245,11 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   }
 
   if (data.roles) {
-    const haveRole = this.roles.find((role) => data.roles.find((r) => r.role === role.role));
-
-    filteredData.roles = haveRole
-      ? this.roles.toObject().map((role) => {
-        if (data.roles.find((r) => r.role === role.role)) {
-          return { ...data.roles[0] };
-        }
-        return role;
-      })
-      : [...this.roles, { ...data.roles[0] }];
+    filteredData.roles = {
+      role: data.roles.role,
+      units: data.roles.unit ? [data.roles.unit] : null,
+      campuses: data.roles.campus ? [data.roles.campus] : null,
+    };
   }
 
   this.set(filteredData);

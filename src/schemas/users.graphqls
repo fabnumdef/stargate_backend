@@ -6,7 +6,7 @@ extend type Query {
     # Get logged user
     me: User
     # find user by email
-    findUser(email: EmailAddress!): User!
+    findUser(email: EmailAddress!): User
 }
 
 extend type Mutation {
@@ -61,6 +61,8 @@ input UserInput {
     lastname: String
     # Email of the user
     email: EmailAddress
+    # Roles of the user
+    roles: UserRoleInput
 }
 
 

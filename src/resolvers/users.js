@@ -102,11 +102,7 @@ export const Query = {
     return User.findByIdWithProjection(id, info);
   },
   async findUser(_, { email }) {
-    const userExists = await User.findByEmail(email);
-    if (!userExists) {
-      throw new Error('User not found');
-    }
-    return userExists;
+    return User.findByEmail(email);
   },
 };
 
