@@ -26,10 +26,9 @@ function queryFindUser(email, userRole = null) {
 it('Test User not found with fake email', async () => {
   const fakeEmail = `${nanoid()}@localhost`;
 
-  const { errors } = await queryFindUser(fakeEmail, { roles: [{ role: ROLE_ADMIN }] });
-  // can't find fakeEmail
-  expect(errors).toHaveLength(1);
-  expect(errors[0].message).toContain('User not found');
+  const { data: { findUser } } = await queryFindUser(fakeEmail, { roles: [{ role: ROLE_ADMIN }] });
+  // no result
+  expect(findUser).toBeNull();
 });
 
 it('Test to find a user by email, with no role', async () => {
