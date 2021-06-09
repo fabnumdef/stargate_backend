@@ -6,7 +6,7 @@ extend type Query {
     # Get logged user
     me: User
     # find user by email
-    findUser(email: EmailAddress!): User!
+    findUser(email: EmailAddress!): User
 }
 
 extend type Mutation {
@@ -14,8 +14,10 @@ extend type Mutation {
     createUser(user: UserInput): User!
     # Edit user
     editUser(id: ObjectID!, user: UserInput): User!
+    # Add a role to an user
+    addUserRole(id: ObjectID!, roleData: UserRoleInput): User!
     # Delete a role of a user
-    deleteUserRole(id: ObjectID!, user: UserInput): User!
+    deleteUserRole(id: ObjectID!, roleData: UserRoleInput): User!
     # Edit logged user
     editMe(user: OwnUserInput): User!
     # Delete user
@@ -59,8 +61,8 @@ input UserInput {
     lastname: String
     # Email of the user
     email: EmailAddress
-    # List of roles of the user
-    roles: [UserRoleInput]
+    # Roles of the user
+    roles: UserRoleInput
 }
 
 
@@ -103,9 +105,9 @@ input UserRoleInput {
     # User who is in charge of this one for this role
     userInCharge: ObjectID
     # Campuses where this role take effect
-    campuses: [UserCampusInput]
+    campus: UserCampusInput
     # Units where this role take effect
-    units: [UserUnitInput]
+    unit: UserUnitInput
 }
 
 # Fragment of campus representation

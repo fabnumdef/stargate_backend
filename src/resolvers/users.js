@@ -22,7 +22,15 @@ export const Mutation = {
     await user.setFromGraphQLSchema(data);
     return user.save();
   },
-  async deleteUserRole(_, { user: data, id }) {
+  async addUserRole(_, { roleData: data, id }) {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    await user.addUserRole(data);
+    return user;
+  },
+  async deleteUserRole(_, { roleData: data, id }) {
     const user = await User.findById(id);
     if (!user) {
       throw new Error('User not found');
@@ -94,11 +102,7 @@ export const Query = {
     return User.findByIdWithProjection(id, info);
   },
   async findUser(_, { email }) {
-    const userExists = await User.findByEmail(email);
-    if (!userExists) {
-      throw new Error('User not found');
-    }
-    return userExists;
+    return User.findByEmail(email);
   },
 };
 

@@ -245,28 +245,58 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   }
 
   if (data.roles) {
-    const haveRole = this.roles.find((role) => data.roles.find((r) => r.role === role.role));
-
-    filteredData.roles = haveRole
-      ? this.roles.toObject().map((role) => {
-        if (data.roles.find((r) => r.role === role.role)) {
-          return { ...data.roles[0] };
-        }
-        return role;
-      })
-      : [...this.roles, { ...data.roles[0] }];
+    filteredData.roles = {
+      role: data.roles.role,
+      units: data.roles.unit ? [data.roles.unit] : null,
+      campuses: data.roles.campus ? [data.roles.campus] : null,
+    };
   }
 
   this.set(filteredData);
 };
 
-UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
-  let roles = [];
-  if (data.roles) {
-    roles = this.roles.filter((userRole) => !data.roles.find((r) => r.role === userRole.role));
+UserSchema.methods.addUserRole = async function addUserRole(data) {
+  let roles;
+  const hasRole = this.roles.find((r) => r.role === data.role);
+  if (hasRole) {
+    roles = this.roles.toObject().map((r) => {
+      if (r.role === data.role) {
+        return {
+          ...r,
+          units: [...r.units, data.unit],
+        };
+      }
+      return r;
+    });
+  } else {
+    roles = [
+      ...this.roles,
+      {
+        role: data.role,
+        units: [data.unit],
+        campuses: [data.campus],
+      },
+    ];
   }
-  if (data.unitId) {
-    roles = this.roles.filter((r) => !r.units.find((u) => u._id.equals(data.unitId)));
+  this.set({ roles });
+  return this.save();
+};
+
+UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
+  let roles;
+  const hasManyUnit = data.unit && this.roles.find((r) => r.role === data.role).units.length > 1;
+  if (hasManyUnit) {
+    roles = this.roles.toObject().map((r) => {
+      if (r.role === data.role) {
+        return {
+          ...r,
+          units: r.units.filter((u) => u._id.toString() !== data.unit.id),
+        };
+      }
+      return r;
+    });
+  } else {
+    roles = this.roles.toObject().filter((r) => r.role !== data.role);
   }
   this.set({ roles });
   return this.save();
