@@ -247,8 +247,8 @@ UserSchema.methods.setFromGraphQLSchema = function setFromGraphQLSchema(data) {
   if (data.roles) {
     filteredData.roles = {
       role: data.roles.role,
-      units: data.roles.unit ? [data.roles.unit] : null,
-      campuses: data.roles.campus ? [data.roles.campus] : null,
+      units: data.roles.unit ? [data.roles.unit] : [],
+      campuses: data.roles.campus ? [data.roles.campus] : [],
     };
   }
 
@@ -273,8 +273,8 @@ UserSchema.methods.addUserRole = async function addUserRole(data) {
       ...this.roles,
       {
         role: data.role,
-        units: [data.unit],
-        campuses: [data.campus],
+        units: data.unit ? [data.unit] : [],
+        campuses: data.campus ? [data.campus] : [],
       },
     ];
   }
