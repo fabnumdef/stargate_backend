@@ -77,10 +77,10 @@ router.get('/export/:export_token', async (ctx) => {
     const options = exportToken.options.csv;
     options.fields.splice(options.fields.findIndex((a) => a.value === fieldToBeRemoved.value), 1);
     const dateExport = DateTime.fromJSDate(new Date()).toFormat('yyyyLLddhhmm');
-    fileName = `EXPORT_CSV_STARGATE_${dateExport}.csv`;
+    fileName = `EXPORT_CSV_STARGATE_${dateExport}`;
   } else {
     listFinal = list;
-    fileName = `${exportToken._id}`;
+    fileName = exportToken._id;
   }
   switch (exportToken.format) {
     case EXPORT_FORMAT_CSV:
@@ -97,7 +97,7 @@ router.get('/export/:export_token', async (ctx) => {
           encoding: options.encoding,
         });
         ctx.type = 'text/csv';
-        ctx.set('Content-Disposition', `attachment; filename=${fileName}`);
+        ctx.set('Content-Disposition', `attachment; filename=${fileName}.csv`);
         ctx.body = parser.parse(listFinal);
       }
       break;
