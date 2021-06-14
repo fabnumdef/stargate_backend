@@ -1,6 +1,7 @@
 extend type Mutation {
     # Generate requestable tokens, to use authentication on subsequent requests
     login(email: EmailAddress!, password: String, token: String): RequestableTokens,
+    openIDRequest(redirectURI: String!): OpenIDRequest,
     # Generate a new token
     jwtRefresh: RequestableTokens,
 }
@@ -9,4 +10,13 @@ extend type Mutation {
 type RequestableTokens {
     # JWT with data embedded
     jwt: JWT
+}
+
+type OpenIDRequest {
+    state: String
+    redirectURI: String,
+    clientID: String
+    responseType: String
+    URL: String
+    openIDServer: String
 }

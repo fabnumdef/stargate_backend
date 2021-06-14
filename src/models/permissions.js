@@ -23,6 +23,7 @@ export default shield({
     login: allow,
     resetPassword: allow,
     jwtRefresh: isAuthenticated,
+    openIDRequest: allow,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     addUserRole: or(isAdmin, isSuperAdmin, isUnitCorrespondent),

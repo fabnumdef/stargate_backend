@@ -7,6 +7,11 @@
     "secret": "json web token secret",
     "duration": 3600
   },
+  "openid": {
+    "discovery_url": null,
+    "client_id": null,
+    "client_secret": null
+  },
   "mongodb": "mongodb://localhost/stargate",
   "website_url": "http://localhost:4200",
   "mail": {

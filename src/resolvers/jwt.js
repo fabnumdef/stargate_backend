@@ -1,4 +1,6 @@
 import User from '../models/user';
+import OpenIDRequest from '../models/openid-request';
+import config from '../services/config';
 
 export const Mutation = {
   async login(_, { email, password, token }) {
@@ -35,6 +37,25 @@ export const Mutation = {
     }
 
     return { user };
+  },
+
+  async openIDRequest(_, { redirectURI }) {
+    const request = new OpenIDRequest({ redirectURI });
+    await request.save();
+    const responseType = 'code';
+    const clientID = config.get('openid:client_id');
+    const openIDServer = config.get('openid:discovery_url');
+
+    return {
+      state: request.requestToken,
+      redirectURI,
+      responseType,
+      clientID,
+      openIDServer,
+      URL: `${config.get('openid:discovery_url')}/protocol/openid-connect/auth?`
+      + `client_id=${clientID}&response_type=${responseType}&state=${request.requestToken}`
+      + `&redirect_uri=${encodeURIComponent(redirectURI)}`,
+    };
   },
 };
 
