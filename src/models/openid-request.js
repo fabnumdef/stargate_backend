@@ -23,4 +23,8 @@ OpenIDRequest.index(
   { expireAfterSeconds: 3600 },
 );
 
+OpenIDRequest.statics.findOneByState = async function findOnyByState(requestToken, redirectURI) {
+  return this.findOne({ requestToken, redirectURI });
+};
+
 export default mongoose.model('OpenIDRequest', OpenIDRequest, 'openid-requests');
