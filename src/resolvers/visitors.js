@@ -133,7 +133,7 @@ export const RequestMutation = {
   },
 };
 
-const MAX_REQUESTABLE_VISITS = 30;
+const MAX_REQUESTABLE_VISITS = 50;
 
 export const Campus = {
   async listVisitors(campus, {

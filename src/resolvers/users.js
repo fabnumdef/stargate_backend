@@ -64,7 +64,7 @@ export const Mutation = {
   },
 };
 
-const MAX_REQUESTABLE_USERS = 30;
+const MAX_REQUESTABLE_USERS = 50;
 export const Query = {
   async listUsers(_parent, {
     filters = {}, cursor: { offset = 0, first = MAX_REQUESTABLE_USERS } = {}, hasRole = {}, campus = null, search,
