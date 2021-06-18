@@ -84,7 +84,7 @@ it('Test to list users', async () => {
       expect(listUsers.list).toHaveLength(list.length + 2);
       expect(listUsers.meta).toMatchObject({
         total: list.length + 2,
-        first: 30,
+        first: 50,
         offset: 0,
       });
     }
@@ -97,7 +97,7 @@ it('Test to list users', async () => {
       expect(listUsers.list).toHaveLength(2);
       expect(listUsers.meta).toMatchObject({
         total: 2,
-        first: 30,
+        first: 50,
         offset: 0,
       });
     }
@@ -111,7 +111,7 @@ it('Test to list users', async () => {
       expect(listUsers.list).toHaveLength(1);
       expect(listUsers.meta).toMatchObject({
         total: 1,
-        first: 30,
+        first: 50,
         offset: 0,
       });
     }

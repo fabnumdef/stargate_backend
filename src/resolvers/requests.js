@@ -53,7 +53,7 @@ export const CampusMutation = {
 
 };
 
-const MAX_REQUESTABLE_REQUESTS = 10;
+const MAX_REQUESTABLE_REQUESTS = 50;
 export const Campus = {
   async getRequest(_parent, { id }) {
     const request = await RequestModel.findById(id);
