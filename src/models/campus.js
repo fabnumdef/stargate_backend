@@ -15,7 +15,7 @@ import {
 import { MODEL_NAME as ZONE_MODEL_NAME } from './zone';
 import { MODEL_NAME as PLACE_MODEL_NAME } from './place';
 import { MODEL_NAME as USER_MODEL_NAME } from './user';
-import { EXPORT_CSV_TEMPLATE_VISITORS, EXPORT_CSV_VISITORS, MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
+import { EXPORT_XLSX_TEMPLATE_VISITORS, EXPORT_CSV_VISITORS, MODEL_NAME as VISITOR_MODEL_NAME } from './visitor';
 import ExportToken from './export-token';
 import config from '../services/config';
 
@@ -188,9 +188,9 @@ CampusSchema.methods.createCSVTokenForVisitors = async function createCSVTokenFo
 };
 
 CampusSchema.methods.createVisitorsTemplate = async function createVisitorsTemplate() {
-  return ExportToken.createCSVToken(
+  return ExportToken.createXLSXToken(
     null,
-    EXPORT_CSV_TEMPLATE_VISITORS.map((field) => ({ label: field.label, value: field.value })),
+    EXPORT_XLSX_TEMPLATE_VISITORS,
   );
 };
 

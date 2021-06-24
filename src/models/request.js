@@ -12,15 +12,15 @@ import {
 import {
   GLOBAL_VALIDATION_ROLES,
   MODEL_NAME as VISITOR_MODEL_NAME,
-  EXPORT_CSV_TEMPLATE_VISITORS,
-  CSV_ID_KIND_LABEL,
-  CSV_ID_REFERENCE_LABEL,
-  CSV_BOOLEAN_VALUE,
-  CONVERT_DOCUMENT_IMPORT_CSV,
-  CONVERT_TYPE_IMPORT_CSV,
-  CSV_INTERNAL_LABEL,
-  CSV_VIP_LABEL,
-  CSV_EMPLOYEE_TYPE_LABEL,
+  EXPORT_XLSX_TEMPLATE_VISITORS,
+  XLSX_ID_KIND_LABEL,
+  XLSX_ID_REFERENCE_LABEL,
+  XLSX_BOOLEAN_VALUE,
+  CONVERT_DOCUMENT_IMPORT_XLSX,
+  CONVERT_TYPE_IMPORT_XLSX,
+  XLSX_INTERNAL_LABEL,
+  XLSX_VIP_LABEL,
+  XLSX_EMPLOYEE_TYPE_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -282,27 +282,27 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
 
     const initVisitor = {
       identityDocuments: [{
-        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_CSV, data[CSV_ID_KIND_LABEL]),
-        reference: data[CSV_ID_REFERENCE_LABEL],
+        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_XLSX, data[XLSX_ID_KIND_LABEL]),
+        reference: data[XLSX_ID_REFERENCE_LABEL],
       }],
     };
-    const visitor = EXPORT_CSV_TEMPLATE_VISITORS.reduce((v, field) => {
+    const visitor = EXPORT_XLSX_TEMPLATE_VISITORS.reduce((v, field) => {
       switch (field.label) {
-        case CSV_INTERNAL_LABEL:
-        case CSV_VIP_LABEL:
+        case XLSX_INTERNAL_LABEL:
+        case XLSX_VIP_LABEL:
           if (typeof data[field.label] === 'string'
-            && [CSV_BOOLEAN_VALUE.YES, CSV_BOOLEAN_VALUE.NO].includes(data[field.label].toLowerCase())) {
-            const value = data[field.label].toLowerCase() === CSV_BOOLEAN_VALUE.YES;
+            && [XLSX_BOOLEAN_VALUE[0].split(',')].includes(data[field.label].toLowerCase())) {
+            const value = data[field.label].toLowerCase() === XLSX_BOOLEAN_VALUE.YES;
             return { ...v, [field.value]: value };
           }
           return { ...v, [field.value]: null };
-        case CSV_EMPLOYEE_TYPE_LABEL:
+        case XLSX_EMPLOYEE_TYPE_LABEL:
           return {
             ...v,
-            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_CSV, data[field.label]),
+            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_XLSX, data[field.label]),
           };
-        case CSV_ID_KIND_LABEL:
-        case CSV_ID_REFERENCE_LABEL:
+        case XLSX_ID_KIND_LABEL:
+        case XLSX_ID_REFERENCE_LABEL:
           return v;
         default:
           return { ...v, [field.value]: data[field.label] };

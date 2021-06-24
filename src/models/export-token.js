@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 const { Schema } = mongoose;
 export const EXPORT_TOKEN_TTL = 3600;
 export const EXPORT_FORMAT_CSV = 'CSV';
+export const EXPORT_FORMAT_XLSX = 'XLSX';
 // @todo: export asynchronously
 const ExportTokenSchema = new Schema({
   _id: {
@@ -28,7 +29,7 @@ const ExportTokenSchema = new Schema({
   },
   format: {
     type: String,
-    enum: [EXPORT_FORMAT_CSV],
+    enum: [EXPORT_FORMAT_CSV, EXPORT_FORMAT_XLSX],
   },
   persistDate: {
     type: Boolean,
@@ -45,6 +46,11 @@ const ExportTokenSchema = new Schema({
       quote: {
         type: String,
       },
+      fields: {
+        type: Array,
+      },
+    },
+    xlsx: {
       fields: {
         type: Array,
       },
@@ -90,6 +96,21 @@ ExportTokenSchema.loadClass(class ExportTokenClass {
           encoding,
           separator,
           quote,
+          fields,
+        },
+      },
+    });
+    return token.save({ checkKeys: false });
+  }
+
+  static async createXLSXToken(Model, fields, filters = {}, projection = {}) {
+    const token = new this({
+      modelName: Model ? Model.modelName : null,
+      filters,
+      projection,
+      format: EXPORT_FORMAT_XLSX,
+      options: {
+        xlsx: {
           fields,
         },
       },
