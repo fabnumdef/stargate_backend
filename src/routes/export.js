@@ -111,12 +111,12 @@ router.get('/export/:export_token', async (ctx) => {
         const workbook = new Excel.Workbook();
         const sheet = workbook.addWorksheet('XLSX_EXPORT');
         sheet.columns = exportToken.options.xlsx.fields.map((field, index) => {
-          if (field.type === 'list') {
+          if (field.enum) {
             const columnLetter = XLSX_COLUMN_LETTERS.split('')[index];
-            sheet.dataValidations.add(`${columnLetter}1:${columnLetter}999`, {
+            sheet.dataValidations.add(`${columnLetter}1:${columnLetter}100`, {
               type: 'list',
               allowBlank: false,
-              formulae: field.list,
+              formulae: field.enum,
               showErrorMessage: true,
               errorStyle: 'error',
               error: 'Invalid value',

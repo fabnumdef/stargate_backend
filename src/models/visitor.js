@@ -161,29 +161,29 @@ export const ID_DOCUMENT_XLSX_LIST = [Object.values(CONVERT_DOCUMENT_IMPORT_XLSX
 
 export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   {
-    header: XLSX_INTERNAL_LABEL, key: 'isInternal', type: 'list', list: [XLSX_BOOLEAN_VALUE],
+    header: XLSX_INTERNAL_LABEL, key: 'isInternal', enum: [XLSX_BOOLEAN_VALUE],
   },
-  { header: 'NID*', key: 'nid', type: 'string' },
+  { header: 'NID*', key: 'nid' },
   {
-    header: XLSX_EMPLOYEE_TYPE_LABEL, key: 'employeeType', type: 'list', list: EMPLOYEE_TYPE_XLSX_LIST,
+    header: XLSX_EMPLOYEE_TYPE_LABEL, key: 'employeeType', enum: EMPLOYEE_TYPE_XLSX_LIST,
   },
-  { header: 'Prénom', key: 'firstname', type: 'string' },
-  { header: 'Nom de Naissance', key: 'birthLastname', type: 'string' },
-  { header: "Nom d'usage", key: 'usageLastname', type: 'string' },
-  { header: 'Email', key: 'email', type: 'string' },
-  { header: 'Grade*', key: 'rank', type: 'string' },
-  { header: 'Unité / Entreprise', key: 'company', type: 'string' },
+  { header: 'Prénom', key: 'firstname' },
+  { header: 'Nom de Naissance', key: 'birthLastname' },
+  { header: "Nom d'usage", key: 'usageLastname' },
+  { header: 'Email', key: 'email' },
+  { header: 'Grade*', key: 'rank' },
+  { header: 'Unité / Entreprise', key: 'company' },
   {
-    header: XLSX_VIP_LABEL, key: 'vip', type: 'list', list: [XLSX_BOOLEAN_VALUE],
+    header: XLSX_VIP_LABEL, key: 'vip', enum: [XLSX_BOOLEAN_VALUE],
   },
-  { header: 'Motif VIP', key: 'vipReason', type: 'string' },
-  { header: XLSX_NATIONALITY_LABEL, key: 'nationality', type: 'string' },
-  { header: 'Date de Naissance [jj/mm/aaaa]', key: 'birthday', type: 'string' },
-  { header: 'Lieu de Naissance', key: 'birthplace', type: 'string' },
+  { header: 'Motif VIP', key: 'vipReason' },
+  { header: XLSX_NATIONALITY_LABEL, key: 'nationality' },
+  { header: 'Date de Naissance [jj/mm/aaaa]', key: 'birthday' },
+  { header: 'Lieu de Naissance', key: 'birthplace' },
   {
-    header: XLSX_ID_KIND_LABEL, key: XLSX_IDENTITY_VALUE, type: 'list', list: ID_DOCUMENT_XLSX_LIST,
+    header: XLSX_ID_KIND_LABEL, key: XLSX_IDENTITY_VALUE, enum: ID_DOCUMENT_XLSX_LIST,
   },
-  { header: XLSX_ID_REFERENCE_LABEL, key: XLSX_IDENTITY_VALUE, type: 'string' },
+  { header: XLSX_ID_REFERENCE_LABEL, key: XLSX_IDENTITY_VALUE },
 ];
 
 export const BUCKETNAME_VISITOR_FILE = 'visitorIdFile';
