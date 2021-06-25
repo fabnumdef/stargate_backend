@@ -42,7 +42,7 @@ export const RequestMutation = {
       await workBook.xlsx.read(await file2import.createReadStream()).then((workbook) => {
         const worksheet = workbook.getWorksheet(1);
         const header = [];
-        worksheet.eachRow({ includeEmpty: true }, async (row, rowNumber) => {
+        worksheet.eachRow({ includeEmpty: false }, async (row, rowNumber) => {
           if (rowNumber === 1) {
             row.eachCell(async (cell) => {
               header.push(cell.value.toString());

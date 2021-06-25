@@ -154,13 +154,14 @@ export const XLSX_INTERNAL_LABEL = 'MINARM';
 export const XLSX_EMPLOYEE_TYPE_LABEL = 'Type d\'employé';
 export const XLSX_VIP_LABEL = 'VIP';
 export const XLSX_IDENTITY_VALUE = 'identityDocuments';
-export const XLSX_BOOLEAN_VALUE = ['Oui,Non'];
+export const XLSX_EMAIL_LABEL = 'Email';
+export const XLSX_BOOLEAN_VALUE = 'oui,non';
 export const EMPLOYEE_TYPE_XLSX_LIST = [Object.values(CONVERT_TYPE_IMPORT_XLSX).join()];
 export const ID_DOCUMENT_XLSX_LIST = [Object.values(CONVERT_DOCUMENT_IMPORT_XLSX).join()];
 
 export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   {
-    header: XLSX_INTERNAL_LABEL, key: 'isInternal', type: 'list', list: XLSX_BOOLEAN_VALUE,
+    header: XLSX_INTERNAL_LABEL, key: 'isInternal', type: 'list', list: [XLSX_BOOLEAN_VALUE],
   },
   { header: 'NID*', key: 'nid', type: 'string' },
   {
@@ -168,12 +169,12 @@ export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   },
   { header: 'Prénom', key: 'firstname', type: 'string' },
   { header: 'Nom de Naissance', key: 'birthLastname', type: 'string' },
-  { header: 'Nom d\'usage', key: 'usageLastname', type: 'string' },
+  { header: "Nom d'usage", key: 'usageLastname', type: 'string' },
   { header: 'Email', key: 'email', type: 'string' },
   { header: 'Grade*', key: 'rank', type: 'string' },
   { header: 'Unité / Entreprise', key: 'company', type: 'string' },
   {
-    header: XLSX_VIP_LABEL, key: 'vip', type: 'list', list: XLSX_BOOLEAN_VALUE,
+    header: XLSX_VIP_LABEL, key: 'vip', type: 'list', list: [XLSX_BOOLEAN_VALUE],
   },
   { header: 'Motif VIP', key: 'vipReason', type: 'string' },
   { header: XLSX_NATIONALITY_LABEL, key: 'nationality', type: 'string' },

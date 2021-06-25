@@ -21,6 +21,7 @@ import {
   XLSX_INTERNAL_LABEL,
   XLSX_VIP_LABEL,
   XLSX_EMPLOYEE_TYPE_LABEL,
+  XLSX_EMAIL_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -287,25 +288,30 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
       }],
     };
     const visitor = EXPORT_XLSX_TEMPLATE_VISITORS.reduce((v, field) => {
-      switch (field.label) {
+      switch (field.header) {
         case XLSX_INTERNAL_LABEL:
         case XLSX_VIP_LABEL:
-          if (typeof data[field.label] === 'string'
-            && [XLSX_BOOLEAN_VALUE[0].split(',')].includes(data[field.label].toLowerCase())) {
-            const value = data[field.label].toLowerCase() === XLSX_BOOLEAN_VALUE.YES;
-            return { ...v, [field.value]: value };
+          if (typeof data[field.header] === 'string'
+            && XLSX_BOOLEAN_VALUE.split(',').includes(data[field.header].toLowerCase())) {
+            const value = data[field.header].toLowerCase() === XLSX_BOOLEAN_VALUE.split(',')[0];
+            return { ...v, [field.key]: value };
           }
-          return { ...v, [field.value]: null };
+          return { ...v, [field.key]: null };
         case XLSX_EMPLOYEE_TYPE_LABEL:
           return {
             ...v,
-            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_XLSX, data[field.label]),
+            [field.key]: findConvertData(CONVERT_TYPE_IMPORT_XLSX, data[field.header]),
           };
         case XLSX_ID_KIND_LABEL:
         case XLSX_ID_REFERENCE_LABEL:
           return v;
+        case XLSX_EMAIL_LABEL:
+          return {
+            ...v,
+            [field.key]: data[field.header].text,
+          };
         default:
-          return { ...v, [field.value]: data[field.label] };
+          return { ...v, [field.key]: data[field.header] };
       }
     }, initVisitor);
 
