@@ -308,7 +308,7 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
         case XLSX_EMAIL_LABEL:
           return {
             ...v,
-            [field.key]: data[field.header].text,
+            [field.key]: data[field.header].text ? data[field.header].text : data[field.header],
           };
         default:
           return { ...v, [field.key]: data[field.header] };
