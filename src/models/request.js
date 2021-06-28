@@ -319,7 +319,7 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
     v.request = this;
     const err = v.validateSync();
     if (err) {
-      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
+      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 2, field: e.path, kind: e.kind }));
       return { visitor: null, errors };
     }
     if (role === ROLE_UNIT_CORRESPONDENT) {
