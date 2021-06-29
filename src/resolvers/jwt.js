@@ -1,21 +1,11 @@
 import User from '../models/user';
 
 export const Mutation = {
-  async login(_, { email, password, token }) {
+  async login(_, { email, password }) {
     const user = await User.findByEmail(email);
 
-    if (!password && !token) {
-      throw new Error('To generate a JWT, password or token are required.');
-    }
-
-    if (!user
-            || (password && !(await user.comparePassword(password)))
-    ) {
+    if (!user || !(await user.comparePassword(password))) {
       throw new Error(`Email "${email}" and password do not match.`);
-    }
-
-    if ((token && !(await user.compareResetToken(token, email)))) {
-      throw new Error('Expired link');
     }
 
     if (user.hasPasswordExpired()) {

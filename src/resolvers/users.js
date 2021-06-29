@@ -38,9 +38,12 @@ export const Mutation = {
     await user.deleteUserRole(data);
     return user;
   },
-  async editMe(_, { user: data }, ctx) {
+  async editMe(_, { user: data, currentPassword }, ctx) {
     const { id } = ctx.user;
     const user = await User.findById(id);
+    if (!currentPassword || !(await user.comparePassword(currentPassword))) {
+      throw new Error('Invalid password');
+    }
     user.setFromGraphQLSchema(data);
     return user.save();
   },
@@ -51,7 +54,8 @@ export const Mutation = {
     }
     return removedUser;
   },
-  async resetPassword(_, { email }) {
+
+  async sendResetPassword(_, { email }) {
     const userExists = await User.findByEmail(email);
     if (!userExists) {
       return true;
@@ -60,6 +64,20 @@ export const Mutation = {
     await userExists.save();
 
     await userExists.sendResetPasswordMail(token);
+    return true;
+  },
+
+  async resetPassword(_, { email, token, password }) {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return true;
+    }
+    if (!(await user.compareResetToken(token, email))) {
+      throw new Error('Expired link');
+    }
+    user.password = password;
+    await user.save();
+
     return true;
   },
 };

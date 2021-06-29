@@ -22,6 +22,7 @@ export default shield({
   Mutation: {
     login: allow,
     resetPassword: allow,
+    sendResetPassword: allow,
     jwtRefresh: isAuthenticated,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
