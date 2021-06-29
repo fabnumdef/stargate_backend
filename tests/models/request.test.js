@@ -97,6 +97,7 @@ describe('Ensure that workflow is working', () => {
     const owner = await generateDummyUser({ unit });
     const request = await createDummyRequest({ campus, owner });
     await request.stateMutation(EVENT_REMOVE);
+    await request.save();
     expect(await Request.findById(request._id)).toBeNull();
   });
 

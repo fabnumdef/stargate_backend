@@ -175,14 +175,7 @@ RequestSchema.virtual('workflow').get(function workflowVirtual() {
       },
       [STATE_REMOVED]: {
         invoke: {
-          src: async () => {
-            const Request = mongoose.model(MODEL_NAME);
-            const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-            const removed = await Request.deleteOne({ _id: this._id, __v: this.__v });
-            if (removed.ok === 1 && removed.deletedCount === 1) {
-              await Visitor.deleteMany({ 'request._id': this._id });
-            }
-          },
+          src: () => { this.markedForDeletion = true; },
         },
         type: 'final',
       },
@@ -211,6 +204,14 @@ RequestSchema.post('save', async (request) => {
   }
   if (request.markedForVisitorsCancelation) {
     await request.cancelVisitors();
+  }
+  if (request.markedForDeletion) {
+    const Request = mongoose.model(MODEL_NAME);
+    const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+    const removed = await Request.deleteOne({ _id: request._id, __v: request.__v });
+    if (removed.ok === 1 && removed.deletedCount === 1) {
+      await Visitor.deleteMany({ 'request._id': request._id });
+    }
   }
 });
 

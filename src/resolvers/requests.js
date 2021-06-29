@@ -28,6 +28,7 @@ export const CampusMutation = {
       throw new Error('You cannot shift to this state');
     }
     await r.stateMutation(EVENT_REMOVE);
+    await r.save();
     return r;
   },
 
