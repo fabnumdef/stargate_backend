@@ -156,8 +156,8 @@ export const XLSX_VIP_LABEL = 'VIP';
 export const XLSX_IDENTITY_VALUE = 'identityDocuments';
 export const XLSX_EMAIL_LABEL = 'Email';
 export const XLSX_BOOLEAN_VALUE = 'oui,non';
-export const EMPLOYEE_TYPE_XLSX_LIST = [Object.values(CONVERT_TYPE_IMPORT_XLSX).join()];
-export const ID_DOCUMENT_XLSX_LIST = [Object.values(CONVERT_DOCUMENT_IMPORT_XLSX).join()];
+export const EMPLOYEE_TYPE_XLSX_LIST = Object.values(CONVERT_TYPE_IMPORT_XLSX).join();
+export const ID_DOCUMENT_XLSX_LIST = Object.values(CONVERT_DOCUMENT_IMPORT_XLSX).join();
 
 export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   {
@@ -174,7 +174,7 @@ export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   { header: 'Grade*', key: 'rank' },
   { header: 'Unité / Entreprise', key: 'company' },
   {
-    header: XLSX_VIP_LABEL, key: 'vip', enum: [XLSX_BOOLEAN_VALUE],
+    header: XLSX_VIP_LABEL, key: 'vip', enum: XLSX_BOOLEAN_VALUE,
   },
   { header: 'Motif VIP', key: 'vipReason' },
   { header: XLSX_NATIONALITY_LABEL, key: 'nationality' },

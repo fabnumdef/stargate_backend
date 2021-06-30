@@ -10,6 +10,8 @@ import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from '../models/rules';
 import { APIError } from '../models/helpers/errors';
 
 const XLSX_COLUMN_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MAX_XLSX_LINE = 100;
+
 const { transforms: { flatten } } = Json2csv;
 const router = new Router();
 
@@ -113,13 +115,14 @@ router.get('/export/:export_token', async (ctx) => {
         sheet.columns = exportToken.options.xlsx.fields.map((field, index) => {
           if (field.enum) {
             const columnLetter = XLSX_COLUMN_LETTERS.split('')[index];
-            sheet.dataValidations.add(`${columnLetter}1:${columnLetter}100`, {
+            sheet.dataValidations.add(`${columnLetter}2:${columnLetter}${MAX_XLSX_LINE}`, {
               type: 'list',
-              allowBlank: false,
-              formulae: field.enum,
+              allowBlank: true,
+              formulae: [`"${field.enum}"`],
               showErrorMessage: true,
               errorStyle: 'error',
-              error: 'Invalid value',
+              errorTitle: 'Error',
+              error: 'Value must be in the list',
             });
           }
           return {
