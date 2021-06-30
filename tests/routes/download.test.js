@@ -8,7 +8,7 @@ import app from '../../src/app';
 import DownloadToken from '../../src/models/download-token';
 import { deleteUploadedFile, uploadFile } from '../../src/models/helpers/upload';
 import { BUCKETNAME_VISITOR_FILE } from '../../src/models/visitor';
-import { fileUpload } from '../helpers/file-upload';
+import { imageUpload } from '../helpers/file-upload';
 import Unit, { createDummyUnit } from '../models/unit';
 
 it('Test to export a file', async () => {
@@ -17,8 +17,8 @@ it('Test to export a file', async () => {
   const owner = await generateDummyUser({ unit });
   const dummyRequest = await createDummyRequest({ campus, owner });
   const v = await createDummyVisitor({ request: dummyRequest });
-  const dbFilename = nanoid();
-  const file = await uploadFile(fileUpload[0].files.file, dbFilename, BUCKETNAME_VISITOR_FILE);
+  const dbFilename = `${nanoid()}.jpg`;
+  const file = await uploadFile(imageUpload[0].files.file, dbFilename, BUCKETNAME_VISITOR_FILE);
   const downloadToken = await DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, file);
   try {
     const result = await request(app.callback()).get(`/download/${downloadToken._id}`);

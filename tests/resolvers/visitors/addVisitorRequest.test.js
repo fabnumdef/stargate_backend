@@ -5,7 +5,7 @@ import Request, { createDummyRequest } from '../../models/request';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Visitor, { generateDummyVisitor } from '../../models/visitor';
 import { ID_DOCUMENT_PASSPORT } from '../../../src/models/visitor';
-import { fileUpload, fileUploadError } from '../../helpers/file-upload';
+import { fileUploadError, imageUpload } from '../../helpers/file-upload';
 import { ROLE_SCREENING, ROLE_UNIT_CORRESPONDENT } from '../../../src/models/rules';
 import { createDummyUnit } from '../../models/unit';
 import {
@@ -75,7 +75,7 @@ it('Test to add a visitor to a request', async () => {
       kind: ID_DOCUMENT_PASSPORT,
       reference: nanoid(),
     },
-    file: fileUpload,
+    file: imageUpload,
   });
 
   const visitorError = await generateDummyVisitor({

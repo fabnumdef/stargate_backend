@@ -12,6 +12,15 @@ const file = Promise.resolve({
   encoding: '7bit',
 });
 
+const imageJpg = Promise.resolve({
+  // non-literal to ensure file location
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  createReadStream: () => fs.createReadStream(path.join(__dirname, 'test.jpg')),
+  filename: 'test.jpg',
+  mimetype: 'image/jpeg',
+  encoding: '7bit',
+});
+
 const csvFile = Promise.resolve({
   createReadStream: () => fs.createReadStream(`${__dirname}/csvFile.csv`),
   filename: 'csvFile.csv',
@@ -29,6 +38,11 @@ const fileError = Promise.resolve({
 export const fileUpload = [{
   value: nanoid(),
   files: { file },
+}];
+
+export const imageUpload = [{
+  value: `${nanoid()}.jpg`,
+  files: { file: imageJpg },
 }];
 
 export const fileUploadError = [{

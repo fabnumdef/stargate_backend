@@ -1,10 +1,21 @@
 import mongoose from 'mongoose';
+import imageExtensions from 'image-extensions';
 
 export const uploadFile = async (file, dbFilename, bucketName) => {
   try {
     const {
-      createReadStream, mimetype,
+      filename, createReadStream, mimetype,
     } = await file;
+    if (
+      ![...imageExtensions, 'pdf'].includes(
+        (filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename).toLowerCase(),
+      )
+    ) {
+      throw new Error('Invalid file extension');
+    }
+    if (!(['application/pdf'].includes(mimetype) || /^image\//.test(mimetype))) {
+      throw new Error('Invalid mimetype for this upload');
+    }
     const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName });
     const uploadStream = bucket.openUploadStream(dbFilename, { contentType: mimetype });
     const storedFile = await (new Promise((resolve, reject) => {
