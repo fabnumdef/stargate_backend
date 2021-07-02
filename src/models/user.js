@@ -304,7 +304,7 @@ UserSchema.methods.deleteUserRole = async function deleteUserRole(data) {
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   const email = encodeURIComponent(this.email.canonical);
-  return `${config.get('website_url')}/compte?email=${email}&token=${token}`;
+  return `${config.get('website_url')}/reset-pass?email=${email}&token=${token}`;
 };
 
 UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
