@@ -24,6 +24,8 @@ export default shield({
     resetPassword: allow,
     sendResetPassword: allow,
     jwtRefresh: isAuthenticated,
+    openIDRequest: allow,
+    openIDLogin: allow,
     createUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     editUser: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
     addUserRole: or(isAdmin, isSuperAdmin, isUnitCorrespondent),
