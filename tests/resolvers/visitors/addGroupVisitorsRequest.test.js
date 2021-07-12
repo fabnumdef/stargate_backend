@@ -40,8 +40,6 @@ function mutatecreateGroupVisitorsRequest(campusId, requestId, file, as, user = 
   });
 }
 
-// setTimeout(20000) for very slow PC
-// jest.setTimeout(20000);
 it('Test to add a group of visitors to a request with xlsx file', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();
@@ -123,7 +121,6 @@ it('Test to add a group of visitors to a request with csv file', async () => {
 
       // You're not authorized to create request while without rights
       expect(errors).toHaveLength(1);
-      console.log(errors);
       expect(errors[0].message).toContain('Not Authorised');
     }
 
@@ -158,7 +155,6 @@ it('Test to add a group of visitors to a request with csv file', async () => {
         generateDummyAdmin(),
       );
       expect(createGroupVisitors).toHaveLength(2);
-      console.log(createGroupVisitors);
       expect(createGroupVisitors[0].errors).toBe(null);
       expect(createGroupVisitors[1].errors).toHaveLength(2);
       const dbVersion = await Visitor.findById(createGroupVisitors[0].visitor.id);
