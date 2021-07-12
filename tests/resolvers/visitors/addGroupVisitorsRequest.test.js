@@ -4,7 +4,7 @@ import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { createDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import Visitor from '../../models/visitor';
-import { xlsxFileUpload } from '../../helpers/file-upload';
+import { csvFileUpload, xlsxFileUpload } from '../../helpers/file-upload';
 import { ROLE_HOST } from '../../../src/models/rules';
 import Unit, { createDummyUnit } from '../../models/unit';
 
@@ -93,6 +93,72 @@ it('Test to add a group of visitors to a request with xlsx file', async () => {
         generateDummyAdmin(),
       );
       expect(createGroupVisitors).toHaveLength(2);
+      expect(createGroupVisitors[0].errors).toBe(null);
+      expect(createGroupVisitors[1].errors).toHaveLength(2);
+      const dbVersion = await Visitor.findById(createGroupVisitors[0].visitor.id);
+      expect(dbVersion).toHaveProperty('request._id', dummyRequest._id);
+      expect(dbVersion).toHaveProperty('__v', 0);
+    }
+  } finally {
+    await Visitor.deleteMany();
+    await Request.findOneAndDelete({ _id: dummyRequest._id });
+    await campus.deleteOne();
+    await Unit.findOneAndDelete({ _id: unit._id });
+  }
+});
+it('Test to add a group of visitors to a request with csv file', async () => {
+  const campus = await createDummyCampus();
+  const unit = await createDummyUnit();
+  const owner = await generateDummyUser({ unit });
+  const dummyRequest = await createDummyRequest({ campus, owner });
+  const file = csvFileUpload;
+  try {
+    {
+      const { errors } = await mutatecreateGroupVisitorsRequest(
+        campus._id,
+        dummyRequest._id,
+        file,
+        { role: ROLE_HOST },
+      );
+
+      // You're not authorized to create request while without rights
+      expect(errors).toHaveLength(1);
+      console.log(errors);
+      expect(errors[0].message).toContain('Not Authorised');
+    }
+
+    {
+      const { errors } = await mutatecreateGroupVisitorsRequest(
+        campus._id,
+        nanoid(),
+        file,
+        { role: ROLE_HOST },
+        generateDummyAdmin(),
+      );
+
+      // You're not authorized to create request while without rights
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Request not found');
+    }
+
+    {
+      const {
+        data:
+        {
+          mutateCampus:
+          {
+            mutateRequest: { createGroupVisitors },
+          },
+        },
+      } = await mutatecreateGroupVisitorsRequest(
+        campus._id,
+        dummyRequest._id,
+        file,
+        { role: ROLE_HOST },
+        generateDummyAdmin(),
+      );
+      expect(createGroupVisitors).toHaveLength(2);
+      console.log(createGroupVisitors);
       expect(createGroupVisitors[0].errors).toBe(null);
       expect(createGroupVisitors[1].errors).toHaveLength(2);
       const dbVersion = await Visitor.findById(createGroupVisitors[0].visitor.id);

@@ -1,3 +1,3 @@
-MINARM [oui/non];NID*;Type d'employé;Prénom;Nom de Naissance;Nom d'usage;Email;Grade*;Unité / Entreprise;VIP [oui/non];Motif VIP;Nationalité;Date de Naissance [jj/mm/aaaa];Lieu de Naissance;Type document identité [carte cims, carte identité, passeport];Numéro document identité
-oui;Nid;Visiteur;Firstname;Name;;email@localhost;;Unity;non;;Française;09/02/1956;birthPlace;Passeport;4567
+MINARM;NID*;Type d'employé;Prénom;Nom de Naissance;Nom d'usage;Email;Grade*;Unité / Entreprise;VIP;Motif VIP;Nationalité;Date de Naissance [jj/mm/aaaa];Lieu de Naissance;Type document identité;Numéro document identité
+oui;Nid;Visiteur;Firstname;Name;;email@localhost;;Unity;non;;Française;09/02/1956;birthPlace;passeport;4567
 non;Nid;Sous-traitant;Firstname;Name;;email@localhost;;Unity;non;;Française;09/02/1956;birthPlace;FakeKind;123456789
