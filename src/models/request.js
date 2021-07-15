@@ -344,8 +344,7 @@ RequestSchema.methods.countVisitors = async function countVisitors(filters) {
 
 RequestSchema.methods.uploadVisitorIdFile = async function uploadVisitorIdFile(visitor, bucketName) {
   const dbFilename = `scan${visitor.identityDocuments[0].kind}_${visitor.birthLastname}_${visitor.firstname}`;
-  const file = await uploadFile(visitor.file[0].files.file, dbFilename, bucketName);
-  return file;
+  return uploadFile(visitor.file[0].files.file, dbFilename, bucketName);
 };
 
 RequestSchema.methods.computeStateComputation = async function computeStateComputation() {

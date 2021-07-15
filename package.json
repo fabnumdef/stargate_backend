@@ -36,6 +36,7 @@
     "graphql-shield": "^7.3.3",
     "graphql-upload": "^11.0.0",
     "handlebars": "^4.7.6",
+    "image-extensions": "^1.1.0",
     "json2csv": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.11.0",

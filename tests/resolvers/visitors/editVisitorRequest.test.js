@@ -6,7 +6,7 @@ import Request, { createDummyRequest } from '../../models/request';
 import Campus, { createDummyCampus } from '../../models/campus';
 import Visitor, { createDummyVisitor, generateDummyVisitor } from '../../models/visitor';
 import { ID_DOCUMENT_PASSPORT, ID_DOCUMENT_IDCARD } from '../../../src/models/visitor';
-import { fileUpload, fileUploadError } from '../../helpers/file-upload';
+import { imageUpload, fileUploadError, fileUpload } from '../../helpers/file-upload';
 import Unit, { createDummyUnit } from '../../models/unit';
 
 function mutateEditVisitorRequest(campusId, requestId, visitorData, visitorId, user = null) {
@@ -63,8 +63,17 @@ it('Test to edit a visitor with new uploaded file', async () => {
       kind: ID_DOCUMENT_PASSPORT,
       reference: nanoid(),
     },
+    file: imageUpload,
+  });
+
+  const visitorBadFile = generateDummyVisitor({
+    identityDocuments: {
+      kind: ID_DOCUMENT_PASSPORT,
+      reference: nanoid(),
+    },
     file: fileUpload,
   });
+
   const visitorData2 = generateDummyVisitor({
     identityDocuments: [{
       kind: ID_DOCUMENT_PASSPORT,
@@ -76,7 +85,7 @@ it('Test to edit a visitor with new uploaded file', async () => {
       kind: ID_DOCUMENT_IDCARD,
       reference: nanoid(),
     }],
-    file: fileUpload,
+    file: imageUpload,
   });
   const visitorError = await generateDummyVisitor();
   visitorError.identityDocuments = [{
@@ -100,6 +109,19 @@ it('Test to edit a visitor with new uploaded file', async () => {
         campus._id,
         dummyRequest._id,
         visitorError,
+        visitor.id,
+        generateDummyAdmin(),
+      );
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('File upload error');
+    }
+
+    {
+      const { errors } = await mutateEditVisitorRequest(
+        campus._id,
+        dummyRequest._id,
+        visitorBadFile,
         visitor.id,
         generateDummyAdmin(),
       );
