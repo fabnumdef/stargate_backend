@@ -2,28 +2,29 @@ import { nanoid } from 'nanoid';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import User, { createDummyUser } from '../../models/user';
 
-function mutateEditMe(user, me) {
+function mutateEditMe(user, password, me) {
   const { mutate } = queryFactory(me);
   return mutate({
     mutation: gql`
-        mutation EditMeMutation($user: OwnUserInput!) {
-            editMe(user: $user) {
+        mutation EditMeMutation($user: OwnUserInput!, $password: String!) {
+            editMe(user: $user, currentPassword: $password) {
                 id
                 firstname
                 lastname
             }
         }
     `,
-    variables: { user },
+    variables: { user, password },
   });
 }
 
 it('Test to user edit himself', async () => {
-  const dummyUser = await createDummyUser();
+  const password = nanoid();
+  const dummyUser = await createDummyUser({ password });
   const newFirstname = nanoid();
   try {
     {
-      const { errors } = await mutateEditMe({ firstname: newFirstname });
+      const { errors } = await mutateEditMe({ firstname: newFirstname }, dummyUser.password);
 
       // You're not authorized to edit user while without rights
       expect(errors).toHaveLength(1);
@@ -31,8 +32,20 @@ it('Test to user edit himself', async () => {
     }
 
     {
+      const { errors } = await mutateEditMe(
+        { firstname: newFirstname },
+        'bad password',
+        { id: dummyUser._id },
+      );
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('Invalid password');
+    }
+
+    {
       const { data: { editMe } } = await mutateEditMe(
         { firstname: newFirstname },
+        password,
         { id: dummyUser._id },
       );
 

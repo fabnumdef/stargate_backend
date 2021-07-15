@@ -19,11 +19,13 @@ extend type Mutation {
     # Delete a role of a user
     deleteUserRole(id: ObjectID!, roleData: UserRoleInput): User!
     # Edit logged user
-    editMe(user: OwnUserInput): User!
+    editMe(user: OwnUserInput, currentPassword: String!): User!
     # Delete user
     deleteUser(id: ObjectID!): User!
     # reset user password
-    resetPassword(email: EmailAddress!): Boolean!
+    sendResetPassword(email: EmailAddress!): Boolean!
+    # change password
+    resetPassword(email: EmailAddress!, token: String!, password: String!): Boolean!
 }
 
 type UsersList implements OffsetPaginator {

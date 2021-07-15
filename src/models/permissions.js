@@ -22,6 +22,7 @@ export default shield({
   Mutation: {
     login: allow,
     resetPassword: allow,
+    sendResetPassword: allow,
     jwtRefresh: isAuthenticated,
     openIDRequest: allow,
     openIDLogin: allow,
