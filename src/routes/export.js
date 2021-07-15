@@ -68,6 +68,9 @@ router.get('/export/:export_token', async (ctx) => {
       newItem.status = typeof (CONVERT_STATE_VISITOR_CSV[item.status]) !== 'undefined'
         ? CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase()
         : 'INDEFINI';
+      newItem.request.from = DateTime.fromJSDate(item.request.from).toFormat('dd/LL/yyyy');
+      newItem.request.to = DateTime.fromJSDate(item.request.to).toFormat('dd/LL/yyyy');
+      newItem.birthday = DateTime.fromJSDate(item.birthday).toFormat('dd/LL/yyyy');
 
       listFinal.push(newItem);
       return newItem;

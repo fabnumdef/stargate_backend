@@ -85,7 +85,7 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'STATUT', value: 'status' },
   { label: 'NOM ET EXTENSION PHOTO', value: 'null' },
   {
-    label: 'Adresse mail du responsable "Accès" unité/entreprise OBLIGATOIRE',
+    label: 'ADRESSE MAIL DU RESPONSABLE "ACCES" UNITE/ENTREPRISE OBLIGATOIRE',
     value: 'null',
   },
   { label: 'CIVILITE', value: 'null' },
@@ -141,7 +141,7 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'TYPE DE BADGE', value: 'typeBadge' },
   { label: 'NOM PERSONNE VISITEE', value: 'null' },
   { label: 'PRENOM PERSONNE VISITEE', value: 'null' },
-  { label: 'N° DEMANDE', value: 'request._id' },
+  { label: 'No DEMANDE', value: 'request._id' },
   { label: 'CODE ACTION', value: 'null' },
   // need this field to build other fields in CSV export file
   { label: 'UNITES', value: 'request.units' },
