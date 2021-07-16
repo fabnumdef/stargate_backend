@@ -21,8 +21,16 @@ it('Test to export a file', async () => {
   const file = await uploadFile(imageUpload[0].files.file, dbFilename, BUCKETNAME_VISITOR_FILE);
   const downloadToken = await DownloadToken.createIdentityFileToken(BUCKETNAME_VISITOR_FILE, file);
   try {
-    const result = await request(app.callback()).get(`/download/${downloadToken._id}`);
-    expect(result.statusCode).toEqual(200);
+    {
+      const result = await request(app.callback())
+        .get(`/download/${downloadToken._id}`);
+      expect(result.statusCode)
+        .toEqual(200);
+    }
+    {
+      const result = await request(app.callback()).get(`/download/${nanoid()}`);
+      expect(result.body.message).toBe('Token not found');
+    }
   } finally {
     await deleteUploadedFile(file._id, BUCKETNAME_VISITOR_FILE);
     await Campus.findOneAndDelete({ _id: campus._id });
