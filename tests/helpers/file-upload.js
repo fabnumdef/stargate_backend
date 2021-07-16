@@ -28,6 +28,13 @@ const csvFile = Promise.resolve({
   encoding: '7bit',
 });
 
+const xlsxFile = Promise.resolve({
+  createReadStream: () => fs.createReadStream(`${__dirname}/xlsxFile.xlsx`),
+  filename: 'xlsxFile.xlsx',
+  mimetype: 'text/xlsx',
+  encoding: '7bit',
+});
+
 const fileError = Promise.resolve({
   createReadStream: () => stream.PassThrough,
   filename: 'fileError',
@@ -52,4 +59,8 @@ export const fileUploadError = [{
 
 export const csvFileUpload = {
   file: csvFile,
+};
+
+export const xlsxFileUpload = {
+  file: xlsxFile,
 };

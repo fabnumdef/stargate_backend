@@ -1,4 +1,5 @@
 import csv from 'csv-parser';
+import Excel from 'exceljs';
 import mongoose from 'mongoose';
 import { deleteUploadedFile } from '../models/helpers/upload';
 import Visitor, { GLOBAL_VALIDATION_ROLES, FIELDS_TO_SEARCH, BUCKETNAME_VISITOR_FILE } from '../models/visitor';
@@ -28,20 +29,53 @@ export const RequestMutation = {
     return request.createVisitor(datas, as.role);
   },
   async createGroupVisitors(request, { file, as }) {
+    // using const file2import to be able to get and test filename
+    const file2import = await file.file;
+    const isCSV = file2import.filename.includes('.csv');
+    const isXLSX = file2import.filename.includes('.xlsx');
+
+    let visitors = [];
     await Visitor.deleteMany({ 'request._id': request.id });
-    const { createReadStream } = await file.file;
-    const visitors = await new Promise((resolve) => {
+    if (isXLSX) {
+      const workBook = new Excel.Workbook();
       const result = [];
-      createReadStream()
-        .pipe(csv({
-          separator: ';',
-          quote: '"',
-        }))
-        .on('data', (row) => {
-          result.push(row);
-        })
-        .on('end', async () => resolve(await request.createGroupVisitors(result, as.role)));
-    });
+      await workBook.xlsx.read(await file2import.createReadStream()).then((workbook) => {
+        const worksheet = workbook.getWorksheet(1);
+        const header = [];
+        worksheet.eachRow({ includeEmpty: false }, async (row, rowNumber) => {
+          if (rowNumber === 1) {
+            row.eachCell(async (cell) => {
+              header.push(cell.value.toString());
+            });
+          } else {
+            let i = 0;
+            const json = {};
+            row.eachCell({ includeEmpty: true }, async (cell) => {
+              // eslint-disable-next-line security/detect-object-injection
+              json[header[i]] = cell.value;
+              i += 1;
+            });
+            result.push(json);
+          }
+        });
+      });
+      visitors = await request.createGroupVisitors(result, as.role);
+    }
+    if (isCSV) {
+      const { createReadStream } = file2import;
+      visitors = await new Promise((resolve) => {
+        const result = [];
+        createReadStream()
+          .pipe(csv({
+            separator: ';',
+            quote: '"',
+          }))
+          .on('data', (row) => {
+            result.push(row);
+          })
+          .on('end', async () => resolve(await request.createGroupVisitors(result, as.role)));
+      });
+    }
     return visitors;
   },
   async editVisitor(request, { visitor, id }) {

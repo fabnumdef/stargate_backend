@@ -5,6 +5,7 @@ import Campus, { createDummyCampus } from '../../models/campus';
 import Request, { createDummyRequest } from '../../models/request';
 import Visitor, { createDummyVisitor } from '../../models/visitor';
 import Unit, { createDummyUnit } from '../../models/unit';
+import { STATE_ACCEPTED } from '../../../src/models/request';
 
 function mutateDeleteRequest(campusId, requestId, user = null) {
   const { mutate } = queryFactory(user);
@@ -27,6 +28,7 @@ it('Test to delete a request', async () => {
   const unit = await createDummyUnit();
   const owner = await generateDummyUser({ unit: unit.toObject() });
   const dummyRequest = await createDummyRequest({ campus: dummyCampus, owner });
+  const acceptedRequest = await createDummyRequest({ campus: dummyCampus, owner, status: STATE_ACCEPTED });
   const fakeId = new mongoose.Types.ObjectId();
   await createDummyVisitor({
     request: dummyRequest,
@@ -55,6 +57,15 @@ it('Test to delete a request', async () => {
       // Found no campus with this id
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Request not found');
+    }
+    {
+      const { errors } = await mutateDeleteRequest(
+        dummyCampus._id,
+        acceptedRequest._id,
+        generateDummyAdmin(),
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toBe('You cannot shift to this state');
     }
     {
       const { data } = await mutateDeleteRequest(

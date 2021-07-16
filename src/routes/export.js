@@ -2,11 +2,15 @@ import Router from '@koa/router';
 import mongoose from 'mongoose';
 import Json2csv from 'json2csv';
 import { DateTime } from 'luxon';
-import ExportToken, { EXPORT_FORMAT_CSV } from '../models/export-token';
-import { CONVERT_TYPE_IMPORT_CSV, CONVERT_STATE_VISITOR_CSV } from '../models/visitor';
+import Excel from 'exceljs';
+import ExportToken, { EXPORT_FORMAT_CSV, EXPORT_FORMAT_XLSX } from '../models/export-token';
+import { CONVERT_TYPE_IMPORT_XLSX, CONVERT_STATE_VISITOR_CSV } from '../models/visitor';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from '../models/rules';
 
 import { APIError } from '../models/helpers/errors';
+
+const XLSX_COLUMN_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MAX_XLSX_LINE = 100;
 
 const { transforms: { flatten } } = Json2csv;
 const router = new Router();
@@ -62,8 +66,8 @@ router.get('/export/:export_token', async (ctx) => {
 
       newItem.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
       newItem.nationality = item.nationality.toUpperCase();
-      newItem.employeeType = typeof (CONVERT_TYPE_IMPORT_CSV[item.employeeType]) !== 'undefined'
-        ? CONVERT_TYPE_IMPORT_CSV[item.employeeType].toUpperCase()
+      newItem.employeeType = typeof (CONVERT_TYPE_IMPORT_XLSX[item.employeeType]) !== 'undefined'
+        ? CONVERT_TYPE_IMPORT_XLSX[item.employeeType].toUpperCase()
         : 'INDEFINI';
       newItem.status = typeof (CONVERT_STATE_VISITOR_CSV[item.status]) !== 'undefined'
         ? CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase()
@@ -102,6 +106,35 @@ router.get('/export/:export_token', async (ctx) => {
         ctx.type = 'text/csv';
         ctx.set('Content-Disposition', `attachment; filename=${fileName}.csv`);
         ctx.body = parser.parse(listFinal);
+      }
+      break;
+    case EXPORT_FORMAT_XLSX:
+      {
+        const workbook = new Excel.Workbook();
+        const sheet = workbook.addWorksheet('XLSX_EXPORT');
+        sheet.columns = exportToken.options.xlsx.fields.map((field, index) => {
+          if (field.enum) {
+            const columnLetter = XLSX_COLUMN_LETTERS.split('')[index];
+            sheet.dataValidations.add(`${columnLetter}2:${columnLetter}${MAX_XLSX_LINE}`, {
+              type: 'list',
+              allowBlank: true,
+              formulae: [`"${field.enum}"`],
+              showErrorMessage: true,
+              errorStyle: 'error',
+              errorTitle: 'Error',
+              error: 'Value must be in the list',
+            });
+          }
+          return {
+            ...field,
+            width: field.header.length < 15 ? 15 : field.header.length + 5,
+          };
+        });
+
+        ctx.response.attachment(`${exportToken._id}.xlsx`);
+        ctx.status = 200;
+        await workbook.xlsx.write(ctx.res);
+        ctx.res.end();
       }
       break;
     default:

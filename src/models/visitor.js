@@ -31,9 +31,9 @@ export const MODEL_NAME = 'Visitor';
 export const ID_DOCUMENT_IDCARD = 'IDCard';
 export const ID_DOCUMENT_PASSPORT = 'Passport';
 export const ID_DOCUMENT_CIMSCARD = 'CIMSCard';
-export const CONVERT_DOCUMENT_IMPORT_CSV = {
-  [ID_DOCUMENT_CIMSCARD]: 'carte cims',
-  [ID_DOCUMENT_IDCARD]: 'carte identité',
+export const CONVERT_DOCUMENT_IMPORT_XLSX = {
+  [ID_DOCUMENT_CIMSCARD]: 'carte_cims',
+  [ID_DOCUMENT_IDCARD]: 'carte_identité',
   [ID_DOCUMENT_PASSPORT]: 'passeport',
 };
 
@@ -47,15 +47,15 @@ export const TYPE_RESERVIST = 'TYPE_RESERVIST';
 export const TYPE_CIVILIAN_DEFENSE = 'TYPE_CIVILIAN_DEFENSE';
 export const TYPE_FAMILY = 'TYPE_FAMILY';
 export const TYPE_AUTHORITY = 'TYPE_AUTHORITY';
-export const CONVERT_TYPE_IMPORT_CSV = {
+export const CONVERT_TYPE_IMPORT_XLSX = {
   [TYPE_VISITOR]: 'visiteur',
-  [TYPE_SUBCONTRACTOR]: 'sous-traitant',
-  [TYPE_INTERIM]: 'intérimaire',
+  [TYPE_SUBCONTRACTOR]: 'sous_traitant',
+  [TYPE_INTERIM]: 'interimaire',
   [TYPE_TRAINEE]: 'stagiaire',
   [TYPE_DELIVERER]: 'livreur',
-  [TYPE_ACTIVE_MILITARY]: 'militaire d\'active',
+  [TYPE_ACTIVE_MILITARY]: 'militaire_d_active',
   [TYPE_RESERVIST]: 'réserviste',
-  [TYPE_CIVILIAN_DEFENSE]: 'civil de la défense',
+  [TYPE_CIVILIAN_DEFENSE]: 'civil_de_la_défense',
   [TYPE_FAMILY]: 'famille',
   [TYPE_AUTHORITY]: 'autorité',
 };
@@ -147,32 +147,43 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'UNITES', value: 'request.units' },
 ];
 
-export const CSV_ID_KIND_LABEL = `Type document identité [${Object.values(CONVERT_DOCUMENT_IMPORT_CSV).join(', ')}]`;
-export const CSV_ID_REFERENCE_LABEL = 'Numéro document identité';
-export const CSV_NATIONALITY_LABEL = 'Nationalité';
-export const CSV_INTERNAL_LABEL = 'MINARM [oui/non]';
-export const CSV_EMPLOYEE_TYPE_LABEL = 'Type d\'employé';
-export const CSV_VIP_LABEL = 'VIP [oui/non]';
-export const CSV_IDENTITY_VALUE = 'identityDocuments';
-export const CSV_BOOLEAN_VALUE = { YES: 'oui', NO: 'non' };
+export const XLSX_ID_KIND_LABEL = 'Type document identité';
+export const XLSX_ID_REFERENCE_LABEL = 'Numéro document identité';
+export const XLSX_NATIONALITY_LABEL = 'Nationalité';
+export const XLSX_INTERNAL_LABEL = 'MINARM';
+export const XLSX_EMPLOYEE_TYPE_LABEL = 'Type d\'employé';
+export const XLSX_VIP_LABEL = 'VIP';
+export const XLSX_IDENTITY_VALUE = 'identityDocuments';
+export const XLSX_EMAIL_LABEL = 'Email';
+export const XLSX_BOOLEAN_VALUE = 'oui,non';
+export const EMPLOYEE_TYPE_XLSX_LIST = Object.values(CONVERT_TYPE_IMPORT_XLSX).join();
+export const ID_DOCUMENT_XLSX_LIST = Object.values(CONVERT_DOCUMENT_IMPORT_XLSX).join();
 
-export const EXPORT_CSV_TEMPLATE_VISITORS = [
-  { label: CSV_INTERNAL_LABEL, value: 'isInternal' },
-  { label: 'NID*', value: 'nid' },
-  { label: CSV_EMPLOYEE_TYPE_LABEL, value: 'employeeType' },
-  { label: 'Prénom', value: 'firstname' },
-  { label: 'Nom de Naissance', value: 'birthLastname' },
-  { label: 'Nom d\'usage', value: 'usageLastname' },
-  { label: 'Email', value: 'email' },
-  { label: 'Grade*', value: 'rank' },
-  { label: 'Unité / Entreprise', value: 'company' },
-  { label: CSV_VIP_LABEL, value: 'vip' },
-  { label: 'Motif VIP', value: 'vipReason' },
-  { label: CSV_NATIONALITY_LABEL, value: 'nationality' },
-  { label: 'Date de Naissance [jj/mm/aaaa]', value: 'birthday' },
-  { label: 'Lieu de Naissance', value: 'birthplace' },
-  { label: CSV_ID_KIND_LABEL, value: CSV_IDENTITY_VALUE },
-  { label: CSV_ID_REFERENCE_LABEL, value: CSV_IDENTITY_VALUE },
+export const EXPORT_XLSX_TEMPLATE_VISITORS = [
+  {
+    header: XLSX_INTERNAL_LABEL, key: 'isInternal', enum: [XLSX_BOOLEAN_VALUE],
+  },
+  { header: 'NID*', key: 'nid' },
+  {
+    header: XLSX_EMPLOYEE_TYPE_LABEL, key: 'employeeType', enum: EMPLOYEE_TYPE_XLSX_LIST,
+  },
+  { header: 'Prénom', key: 'firstname' },
+  { header: 'Nom de Naissance', key: 'birthLastname' },
+  { header: "Nom d'usage", key: 'usageLastname' },
+  { header: 'Email', key: 'email' },
+  { header: 'Grade*', key: 'rank' },
+  { header: 'Unité / Entreprise', key: 'company' },
+  {
+    header: XLSX_VIP_LABEL, key: 'vip', enum: XLSX_BOOLEAN_VALUE,
+  },
+  { header: 'Motif VIP', key: 'vipReason' },
+  { header: XLSX_NATIONALITY_LABEL, key: 'nationality' },
+  { header: 'Date de Naissance [jj/mm/aaaa]', key: 'birthday' },
+  { header: 'Lieu de Naissance', key: 'birthplace' },
+  {
+    header: XLSX_ID_KIND_LABEL, key: XLSX_IDENTITY_VALUE, enum: ID_DOCUMENT_XLSX_LIST,
+  },
+  { header: XLSX_ID_REFERENCE_LABEL, key: XLSX_IDENTITY_VALUE },
 ];
 
 export const BUCKETNAME_VISITOR_FILE = 'visitorIdFile';

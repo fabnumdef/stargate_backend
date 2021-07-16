@@ -12,15 +12,16 @@ import {
 import {
   GLOBAL_VALIDATION_ROLES,
   MODEL_NAME as VISITOR_MODEL_NAME,
-  EXPORT_CSV_TEMPLATE_VISITORS,
-  CSV_ID_KIND_LABEL,
-  CSV_ID_REFERENCE_LABEL,
-  CSV_BOOLEAN_VALUE,
-  CONVERT_DOCUMENT_IMPORT_CSV,
-  CONVERT_TYPE_IMPORT_CSV,
-  CSV_INTERNAL_LABEL,
-  CSV_VIP_LABEL,
-  CSV_EMPLOYEE_TYPE_LABEL,
+  EXPORT_XLSX_TEMPLATE_VISITORS,
+  XLSX_ID_KIND_LABEL,
+  XLSX_ID_REFERENCE_LABEL,
+  XLSX_BOOLEAN_VALUE,
+  CONVERT_DOCUMENT_IMPORT_XLSX,
+  CONVERT_TYPE_IMPORT_XLSX,
+  XLSX_INTERNAL_LABEL,
+  XLSX_VIP_LABEL,
+  XLSX_EMPLOYEE_TYPE_LABEL,
+  XLSX_EMAIL_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -282,30 +283,35 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
 
     const initVisitor = {
       identityDocuments: [{
-        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_CSV, data[CSV_ID_KIND_LABEL]),
-        reference: data[CSV_ID_REFERENCE_LABEL],
+        kind: findConvertData(CONVERT_DOCUMENT_IMPORT_XLSX, data[XLSX_ID_KIND_LABEL]),
+        reference: data[XLSX_ID_REFERENCE_LABEL],
       }],
     };
-    const visitor = EXPORT_CSV_TEMPLATE_VISITORS.reduce((v, field) => {
-      switch (field.label) {
-        case CSV_INTERNAL_LABEL:
-        case CSV_VIP_LABEL:
-          if (typeof data[field.label] === 'string'
-            && [CSV_BOOLEAN_VALUE.YES, CSV_BOOLEAN_VALUE.NO].includes(data[field.label].toLowerCase())) {
-            const value = data[field.label].toLowerCase() === CSV_BOOLEAN_VALUE.YES;
-            return { ...v, [field.value]: value };
+    const visitor = EXPORT_XLSX_TEMPLATE_VISITORS.reduce((v, field) => {
+      switch (field.header) {
+        case XLSX_INTERNAL_LABEL:
+        case XLSX_VIP_LABEL:
+          if (typeof data[field.header] === 'string'
+            && XLSX_BOOLEAN_VALUE.split(',').includes(data[field.header].toLowerCase())) {
+            const value = data[field.header].toLowerCase() === XLSX_BOOLEAN_VALUE.split(',')[0];
+            return { ...v, [field.key]: value };
           }
-          return { ...v, [field.value]: null };
-        case CSV_EMPLOYEE_TYPE_LABEL:
+          return { ...v, [field.key]: null };
+        case XLSX_EMPLOYEE_TYPE_LABEL:
           return {
             ...v,
-            [field.value]: findConvertData(CONVERT_TYPE_IMPORT_CSV, data[field.label]),
+            [field.key]: findConvertData(CONVERT_TYPE_IMPORT_XLSX, data[field.header]),
           };
-        case CSV_ID_KIND_LABEL:
-        case CSV_ID_REFERENCE_LABEL:
+        case XLSX_ID_KIND_LABEL:
+        case XLSX_ID_REFERENCE_LABEL:
           return v;
+        case XLSX_EMAIL_LABEL:
+          return {
+            ...v,
+            [field.key]: data[field.header].text ? data[field.header].text : data[field.header],
+          };
         default:
-          return { ...v, [field.value]: data[field.label] };
+          return { ...v, [field.key]: data[field.header] };
       }
     }, initVisitor);
 
@@ -313,7 +319,7 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
     v.request = this;
     const err = v.validateSync();
     if (err) {
-      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 1, field: e.path, kind: e.kind }));
+      const errors = Object.values(err.errors).map((e) => ({ lineNumber: index + 2, field: e.path, kind: e.kind }));
       return { visitor: null, errors };
     }
     if (role === ROLE_UNIT_CORRESPONDENT) {
