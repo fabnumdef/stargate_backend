@@ -2,6 +2,7 @@ stages:
   - build
   - test
   - deploy
+  - release
 
 include:
   - project: fabnum-minarm/igloo/gitlab-templates
@@ -21,9 +22,9 @@ include:
 variables:
   HELM_CHART: igloo-stable/nodejs
   HELM_ENV_VAR_VERSION: Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})
+  GENERIC_PACKAGE_NAME: stargate_backend
 
 npm:test:
-  image: node:lts-alpine
   services:
     - mongo:latest
   variables:
