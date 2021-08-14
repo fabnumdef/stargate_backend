@@ -147,14 +147,13 @@ export const EXPORT_CSV_VISITORS = [
   { label: 'UNITES', value: 'request.units' },
 ];
 
-export const XLSX_ID_KIND_LABEL = 'Type document identité';
-export const XLSX_ID_REFERENCE_LABEL = 'Numéro document identité';
-export const XLSX_NATIONALITY_LABEL = 'Nationalité';
-export const XLSX_INTERNAL_LABEL = 'MINARM';
-export const XLSX_EMPLOYEE_TYPE_LABEL = 'Type d\'employé';
-export const XLSX_VIP_LABEL = 'VIP';
+export const XLSX_ID_KIND_LABEL = 'Type document identité*';
+export const XLSX_ID_REFERENCE_LABEL = 'Numéro document identité*';
+export const XLSX_NATIONALITY_LABEL = 'Nationalité*';
+export const XLSX_INTERNAL_LABEL = 'MINARM*';
+export const XLSX_EMPLOYEE_TYPE_LABEL = 'Type d\'employé*';
+export const XLSX_VIP_LABEL = 'VIP*';
 export const XLSX_IDENTITY_VALUE = 'identityDocuments';
-export const XLSX_EMAIL_LABEL = 'Email';
 export const XLSX_BOOLEAN_VALUE = 'oui,non';
 export const EMPLOYEE_TYPE_XLSX_LIST = Object.values(CONVERT_TYPE_IMPORT_XLSX).join();
 export const ID_DOCUMENT_XLSX_LIST = Object.values(CONVERT_DOCUMENT_IMPORT_XLSX).join();
@@ -163,23 +162,22 @@ export const EXPORT_XLSX_TEMPLATE_VISITORS = [
   {
     header: XLSX_INTERNAL_LABEL, key: 'isInternal', enum: [XLSX_BOOLEAN_VALUE],
   },
-  { header: 'NID*', key: 'nid' },
+  { header: 'NID', key: 'nid' },
   {
     header: XLSX_EMPLOYEE_TYPE_LABEL, key: 'employeeType', enum: EMPLOYEE_TYPE_XLSX_LIST,
   },
-  { header: 'Prénom', key: 'firstname' },
-  { header: 'Nom de Naissance', key: 'birthLastname' },
+  { header: 'Prénom*', key: 'firstname' },
+  { header: 'Nom de Naissance*', key: 'birthLastname' },
   { header: "Nom d'usage", key: 'usageLastname' },
-  { header: 'Email', key: 'email' },
-  { header: 'Grade*', key: 'rank' },
-  { header: 'Unité / Entreprise', key: 'company' },
+  { header: 'Grade', key: 'rank' },
+  { header: 'Unité / Entreprise*', key: 'company' },
   {
     header: XLSX_VIP_LABEL, key: 'vip', enum: XLSX_BOOLEAN_VALUE,
   },
   { header: 'Motif VIP', key: 'vipReason' },
   { header: XLSX_NATIONALITY_LABEL, key: 'nationality' },
-  { header: 'Date de Naissance [jj/mm/aaaa]', key: 'birthday' },
-  { header: 'Lieu de Naissance', key: 'birthplace' },
+  { header: 'Date de Naissance [jj/mm/aaaa]*', key: 'birthday' },
+  { header: 'Lieu de Naissance*', key: 'birthplace' },
   {
     header: XLSX_ID_KIND_LABEL, key: XLSX_IDENTITY_VALUE, enum: ID_DOCUMENT_XLSX_LIST,
   },
@@ -229,7 +227,9 @@ const VisitorSchema = new Schema({
       '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}'
       + '[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
     ),
-    required: true,
+    required() {
+      return !this.request.referent.email;
+    },
     maxlength: 256,
   },
   vip: {
@@ -305,6 +305,12 @@ const VisitorSchema = new Schema({
         original: String,
         canonical: String,
       },
+    },
+    referent: {
+      email: String,
+      firstname: String,
+      lastname: String,
+      phone: String,
     },
     places: [
       {
@@ -473,6 +479,7 @@ VisitorSchema.methods.sendNextStepMail = async function sendNextStepMail(unit) {
 
 VisitorSchema.methods.sendVisitorResultMail = async function sendVisitorResultMail() {
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
+  const targetMail = this.request.referent.email || this.email;
   const mailDatas = {
     base: this.request.campus.label,
     from: date(this.request.from),
@@ -481,7 +488,7 @@ VisitorSchema.methods.sendVisitorResultMail = async function sendVisitorResultMa
   const sendMail = this.status === STATE_REJECTED
     ? sendRequestRefusedVisitorMail(mailDatas.base, mailDatas.from)
     : sendRequestAcceptedVisitorMail(mailDatas.base, mailDatas.from);
-  sendMail(this.email, { data: mailDatas });
+  return sendMail(targetMail, { data: mailDatas });
 };
 
 export default mongoose.model(MODEL_NAME, VisitorSchema, 'visitors');

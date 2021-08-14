@@ -44,7 +44,7 @@ it('Test to add a group of visitors to a request with xlsx file', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();
   const owner = await generateDummyUser({ unit });
-  const dummyRequest = await createDummyRequest({ campus, owner });
+  const dummyRequest = await createDummyRequest({ campus, owner, referent: { email: nanoid() } });
   const file = xlsxFileUpload;
   try {
     {
@@ -108,7 +108,7 @@ it('Test to add a group of visitors to a request with csv file', async () => {
   const campus = await createDummyCampus();
   const unit = await createDummyUnit();
   const owner = await generateDummyUser({ unit });
-  const dummyRequest = await createDummyRequest({ campus, owner });
+  const dummyRequest = await createDummyRequest({ campus, owner, referent: { email: nanoid() } });
   const file = csvFileUpload;
   try {
     {
