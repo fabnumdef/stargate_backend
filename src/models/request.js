@@ -21,7 +21,6 @@ import {
   XLSX_INTERNAL_LABEL,
   XLSX_VIP_LABEL,
   XLSX_EMPLOYEE_TYPE_LABEL,
-  XLSX_EMAIL_LABEL,
 } from './visitor';
 import RequestCounter from './request-counters';
 import config from '../services/config';
@@ -305,11 +304,6 @@ RequestSchema.methods.createGroupVisitors = async function createGroupVisitor(vi
         case XLSX_ID_KIND_LABEL:
         case XLSX_ID_REFERENCE_LABEL:
           return v;
-        case XLSX_EMAIL_LABEL:
-          return {
-            ...v,
-            [field.key]: data[field.header].text ? data[field.header].text : data[field.header],
-          };
         default:
           return { ...v, [field.key]: data[field.header] };
       }
@@ -391,8 +385,6 @@ RequestSchema.methods.cancelVisitors = async function cancelVisitors() {
 };
 
 RequestSchema.methods.requestCreationMail = async function requestCreationMail() {
-  const Visitor = mongoose.model(VISITOR_MODEL_NAME);
-  const visitors = await Visitor.find({ 'request._id': this._id });
   const date = (value) => DateTime.fromJSDate(value).toFormat('dd/LL/yyyy');
   const mailDatas = {
     base: this.campus.label,
@@ -402,10 +394,16 @@ RequestSchema.methods.requestCreationMail = async function requestCreationMail()
     reason: this.reason,
     places: `${this.places.map((p) => p.label).join(' / ')}`,
   };
-  await Promise.all(visitors.map(async (v) => {
-    const sendMail = sendRequestCreationMail(mailDatas.base, mailDatas.from);
-    sendMail(v.email, { data: mailDatas });
-  }));
+  const sendMail = sendRequestCreationMail(mailDatas.base, mailDatas.from);
+  if (this.referent.email) {
+    sendMail(this.referent.email, { data: mailDatas });
+  } else {
+    const Visitor = mongoose.model(VISITOR_MODEL_NAME);
+    const visitors = await Visitor.find({ 'request._id': this._id });
+    await Promise.all(visitors.map(async (v) => {
+      sendMail(v.email, { data: mailDatas });
+    }));
+  }
 };
 
 RequestSchema.methods.findNextStepsUsersToNotify = async function findNextStepsUsers(unit) {

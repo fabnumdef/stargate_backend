@@ -215,7 +215,7 @@ type RequestVisitor {
     employeeType: VisitorEmployeeType
     rank: String
     company: String
-    email: String!
+    email: String
     vip: Boolean
     vipReason: String
     nationality: String!
