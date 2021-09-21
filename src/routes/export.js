@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Json2csv from 'json2csv';
 import { DateTime } from 'luxon';
 import Excel from 'exceljs';
+import { isUndefined } from 'lodash';
 import ExportToken, { EXPORT_FORMAT_CSV, EXPORT_FORMAT_XLSX } from '../models/export-token';
 import { CONVERT_TYPE_IMPORT_XLSX, CONVERT_STATE_VISITOR_CSV } from '../models/visitor';
 import { ROLE_ACCESS_OFFICE, ROLE_SCREENING } from '../models/rules';
@@ -17,6 +18,12 @@ const router = new Router();
 
 router.get('/export/:export_token', async (ctx) => {
   const exportToken = await ExportToken.findById(ctx.params.export_token);
+  function noAccentedChar(str) {
+    if (str !== null && str !== isUndefined) {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    return '';
+  }
   if (!exportToken) {
     throw new APIError(404, 'Token not found');
   }
@@ -65,16 +72,24 @@ router.get('/export/:export_token', async (ctx) => {
       });
 
       newItem.isInternal = item.isInternal ? 'MINARM' : 'EXTERIEUR';
-      newItem.nationality = item.nationality.toUpperCase();
+      newItem.nationality = noAccentedChar(item.nationality).toUpperCase();
       newItem.employeeType = typeof (CONVERT_TYPE_IMPORT_XLSX[item.employeeType]) !== 'undefined'
-        ? CONVERT_TYPE_IMPORT_XLSX[item.employeeType].toUpperCase()
+        ? noAccentedChar(CONVERT_TYPE_IMPORT_XLSX[item.employeeType]).toUpperCase()
         : 'INDEFINI';
       newItem.status = typeof (CONVERT_STATE_VISITOR_CSV[item.status]) !== 'undefined'
-        ? CONVERT_STATE_VISITOR_CSV[item.status].toUpperCase()
+        ? noAccentedChar(CONVERT_STATE_VISITOR_CSV[item.status]).toUpperCase()
         : 'INDEFINI';
       newItem.request.from = DateTime.fromJSDate(item.request.from).toFormat('dd/LL/yyyy');
       newItem.request.to = DateTime.fromJSDate(item.request.to).toFormat('dd/LL/yyyy');
       newItem.birthday = DateTime.fromJSDate(item.birthday).toFormat('dd/LL/yyyy');
+
+      newItem.birthLastname = noAccentedChar(item.birthLastname).toUpperCase();
+      newItem.usageLastname = noAccentedChar(item.usageLastname).toUpperCase();
+      newItem.firstname = noAccentedChar(item.firstname).toUpperCase();
+      newItem.birthplace = noAccentedChar(item.birthplace).toUpperCase();
+      newItem.company = noAccentedChar(item.company).toUpperCase();
+      newItem.employeeType = noAccentedChar(item.employeeType).toUpperCase();
+      newItem.typeBadge = noAccentedChar(newItem.typeBadge).toUpperCase();
 
       listFinal.push(newItem);
       return newItem;
