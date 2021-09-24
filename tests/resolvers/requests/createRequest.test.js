@@ -26,6 +26,8 @@ it('Test to create a request', async () => {
   const unit = await createDummyUnit();
 
   const dummyRequest = generateDummyRequest();
+  dummyRequest.from.setHours(7, 0, 0, 0);
+  dummyRequest.to.setHours(19, 0, 0, 0);
 
   try {
     {
