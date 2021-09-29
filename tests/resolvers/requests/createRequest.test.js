@@ -1,9 +1,9 @@
+import { DateTime } from 'luxon';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { generateDummyRequest } from '../../models/request';
 import { createDummyCampus } from '../../models/campus';
 import { createDummyUnit } from '../../models/unit';
-import { DateTime } from 'luxon';
 
 function mutateCreateRequest(campusId, request, unit, user = null) {
   const { mutate } = queryFactory(user);
