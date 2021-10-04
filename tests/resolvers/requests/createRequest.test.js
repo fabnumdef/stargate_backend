@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import queryFactory, { gql } from '../../helpers/apollo-query';
 import { generateDummyAdmin, generateDummyUser } from '../../models/user';
 import Request, { generateDummyRequest } from '../../models/request';
@@ -20,6 +21,7 @@ function mutateCreateRequest(campusId, request, unit, user = null) {
   });
 }
 
+jest.setTimeout(30000);
 it('Test to create a request', async () => {
   const campus = await createDummyCampus();
   const owner = await generateDummyUser();
@@ -53,10 +55,10 @@ it('Test to create a request', async () => {
       );
       expect(createdRequest).toHaveProperty('id');
       const dbVersion = await Request.findById(createdRequest.id);
-      expect(dbVersion).toMatchObject({
-        from: dummyRequest.from,
-        to: dummyRequest.to,
-      });
+
+      expect(DateTime.fromJSDate(dbVersion.from).toFormat('HH:mm')).toEqual('07:00');
+      expect(DateTime.fromJSDate(dbVersion.to).toFormat('HH:mm')).toEqual('19:00');
+
       expect(dbVersion).toHaveProperty('campus._id', campus._id);
       expect(dbVersion).toHaveProperty('__v', 0);
     }

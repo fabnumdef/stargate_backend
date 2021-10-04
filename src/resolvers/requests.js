@@ -4,6 +4,8 @@ import { ROLE_SECURITY_OFFICER, ROLE_UNIT_CORRESPONDENT } from '../models/rules'
 
 export const CampusMutation = {
   async createRequest(campus, { request, unit }, { user }) {
+    request.from.setHours(7, 0, 0, 0);
+    request.to.setHours(19, 0, 0, 0);
     return campus.createRequest(Object.assign(
       request,
       { owner: { ...user, unit: { _id: unit.id, label: unit.label } } },
