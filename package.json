@@ -89,5 +89,5 @@
   "peerDependencies": {
     "graphql-tools": "4.x.x"
   },
-  "version": "0.0.1"
+  "version": "0.0.3"
 }
