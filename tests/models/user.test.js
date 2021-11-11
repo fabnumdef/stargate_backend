@@ -13,7 +13,7 @@ describe('Ensure that original email is valid', () => {
       },
     });
     await expect(user.validate()).rejects.toThrow(
-      'queryMx ENOTFOUND',
+      'queryMx ESERVFAIL',
     );
   });
 
