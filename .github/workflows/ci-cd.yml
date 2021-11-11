@@ -60,18 +60,18 @@ jobs:
           timeout: 15m
           helm: helm3
           values: |
-            replicaCount: 1
+            replicaCount: 3
             image:
               tag: ${{ steps.meta.outputs.version }}
               repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
               pullPolicy: Always
             resources:
               limits:
-                cpu: 500m
-                memory: 1024Mi
-              requests:
-                cpu: 200m
+                cpu: 300m
                 memory: 512Mi
+              requests:
+                cpu: 150m
+                memory: 256Mi
             ingress:
               enabled: true
               annotations:
