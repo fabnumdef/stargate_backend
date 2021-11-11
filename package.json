@@ -64,7 +64,7 @@
     "readdir": "^1.0.1",
     "timezone-validator": "^1.0.3",
     "uuid": "^8.3.2",
-    "validator": "^13.6.0",
+    "validator": "^13.7.0",
     "xstate": "^4.25.0"
   },
   "devDependencies": {
