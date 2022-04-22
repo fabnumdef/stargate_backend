@@ -56,7 +56,7 @@
     "mongoose": "^5.13.13",
     "mongoose-update-if-current": "^1.4.0",
     "nanoid": "^3.1.30",
-    "nconf": "^0.10.0",
+    "nconf": "^0.11.4",
     "nodemailer": "^6.7.0",
     "openid-client": "^4.9.1",
     "pino": "^6.13.3",
