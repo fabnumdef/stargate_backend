@@ -42,7 +42,7 @@
     "handlebars": "^4.7.7",
     "image-extensions": "^1.1.0",
     "json2csv": "^5.0.6",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "koa": "^2.13.4",
     "koa-body": "^4.1.1",
     "koa-compress": "^5.1.0",
