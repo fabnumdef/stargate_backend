@@ -52,7 +52,7 @@
     "lodash": "^4.17.21",
     "lodash.chunk": "^4.2.0",
     "lodash.orderby": "^4.6.0",
-    "luxon": "^1.28.0",
+    "luxon": "^1.28.1",
     "mongoose": "^5.13.13",
     "mongoose-update-if-current": "^1.4.0",
     "nanoid": "^3.1.30",
